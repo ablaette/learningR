@@ -1,0 +1,146 @@
+---
+title: "Kontrollstrukturen"
+author: "Andreas Blaette"
+date: "11 Mai 2017"
+output: html_document
+---
+
+
+Kontrollstrukturen
+==================
+
+if-else 
+-------
+
+```{r eval=TRUE}
+schokolade <- c("milka", "lindt", "ritter-sport", "alpia", "schogetten")
+schokolade == "alpia"
+if (schokolade[5] != "alpia"){
+  print("her mit dem zeug")
+} else {
+  print("bleib mir weg damit")
+}
+
+```
+
+for-Schleifen
+-------------
+```{r eval=FALSE}
+# einfaches Iterieren durch einen numerischen Vektor
+for (i in c(1,2,3,4,5)){
+  print(i)
+}
+
+# sehr oft macht man das so: Iteration durch eine Zahlenreihe
+for (i in c(1:5)){
+  print(i)
+}
+
+# man kann auch durch einen character vector iterieren
+for (i in c("a", "b", "c")){
+  print(i)
+}
+
+# ... und dabei kann natürlich der Vektor schon früher definiert worden sein
+for (i in schokolade){
+  print(i)
+}
+
+```
+
+Verknüpfung von Kontrollstrukturen 
+----------------------------------
+
+Hier ein ganz einfaches Szenario, das man aber in der Praxis oft
+nutzen kann: Iteration durch einen Vektor und Durchführung einer
+Anweisung, wenn eine bestimmte Bedingung erfüllt ist.
+
+```{r}
+for (schoki in schokolade){
+  if (schoki == "alpia"){
+    print("großer jubel")
+    } else {
+      print("weg damit!!!!")
+      }  
+  }
+
+```
+
+
+Anwendungsszenario I: Vergleich der Wahlkreisergebnisse der Parteien
+====================================================================
+
+Die Alternative zum R-Gefummel: Ich nutze Excel
+-----------------------------------------------
+
+... aber dafür muss ich den data.frame speichern ...
+
+```{r}
+write.table(bt13, file="/Users/blaette/Lab/tmp/bt13.csv")
+# write.table(bt13, file=choose.files())
+```
+
+Nun aber: Das R-Gefummel
+------------------------
+
+In einem ersten Schritt muss ich die Spalten identifizieren, in denen die absolute
+Stimmenanzahl der Parteien zu finden ist. Dazu muss ich noch einmal den data.frame
+bt13raw ansehen, in dem die Spaltenbeschriftungen noch enthalten waren. Das macht 
+man am besten mit View(bt13raw). 
+
+
+```{r eval=FALSE}
+# Anlegen eines neuen data.frame, in dem nur die Parteiergebnisse sind
+partyResults <- bt13[, c("X.10", "X.13", "X.28", "X.16", "X.19", "X.22", "X.25")] 
+
+# Was habe ich überhaupt? Schauen wir kurz die Dimensionen der Tabelle an
+dim(partyResults)
+
+# das Ergebnis kann ich auch schnell begutachten, indem ich die ersten Spalten ansehe
+
+head(partyResults)
+
+# Die Spaltennnamen versteht kein Mensch! Also legen wir korrekte Spaltennamen an
+# Vorsicht! Die Reihenfolge muss hier korrekt sein!
+colnames(partyResults) <- c("abgZweitstimmen", "cdu", "csu", "spd", "fdp", "linke", "gruene")
+
+# Hier gibt es nun verschiedene Möglichkeiten ..
+# Erste Möglichkeit: Ich setze direkt einen data.frame zusammen.
+# Aber hier ist viel unnötige Tiparbeit erforderlich!
+anteilZweitstimmen <- data.frame(
+  cdu=partyResults$cdu/partyResults$abgZweitstimmen,
+  csu=partyResults$csu/partyResults$abgZweitstimmen,
+  spd=partyResults$spd/partyResults$abgZweitstimmen
+  )
+
+# Ein eleganterer Lösungsweg: Man füllt Schritt um Schritt eine Liste.
+# Aus einer Liste kann dann ohne Probleme ein data.frame gemacht werden.
+
+anteilZweitstimmen <- list()
+# ich brauche die Gesamtzahl der abgegebenen Stimmen immer wieder,
+# also mache ich das nicht in der Schleife
+rawVotesTotal <- partyResults[,"abgZweitstimmen"]
+# das ist vielleicht am schwersten zu verstehen: Im data.frame bt13 
+# sind Faktoren - das muss ich in numerische Vektoren überführen
+votesTotal <- as.numeric(as.character(rawVotesTotal))
+
+for (party in c("cdu", "csu", "spd", "fdp", "linke", "gruene")){
+  raw <- partyResults[, party]
+  # wieder das: Aus dem Faktor muss ein numerischer Vektor werden
+  votes <- as.numeric(as.character(raw))
+  shareParty <- votes / votesTotal
+  anteilZweitstimmen[[party]] <- round(shareParty * 100, 2)
+}
+# jetzt habe ich eine Liste, aus der ich leicht einen data.frame machen kann
+partyShare <- data.frame(anteilZweitstimmen)
+# Die Wahlkreisnamen fehlen noch - das füge ich aus der Tabelle hinzu
+rownames(partyShare) <- bt13[,"Gebiet"]
+```
+
+
+
+
+
+
+
+

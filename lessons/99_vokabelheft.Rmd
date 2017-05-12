@@ -1,0 +1,35 @@
+---
+title: "Unser R-Vokabelheft"
+author: "Andreas Blaette"
+date: "18. Juni 2015"
+output: html_document
+---
+
+Graphik (Base Graphics)
+=======
+
+```{r}
+par()
+plot()
+parplot()
+piechart()
+```
+
+
+Datenstrukturen
+===============
+
+```{r}
+```
+
+Kontrollstrukturen
+==================
+
+```{r}
+```
+
+lapply und Freunde
+==================
+
+```{r}
+```

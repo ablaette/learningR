@@ -1,0 +1,182 @@
+---
+title: "Datenstrukturen in R"
+author: "Andreas Blaette"
+date: "16. April 2015"
+output: html_document
+---
+
+
+Vektoren als grundlegende Datenstruktur
+=======================================
+
+Vektoren sind die grundlegende Datenstruktur in R. Sie bestehen immer aus einer Datenart:
+
+* logischen Werten (TRUE, FALSE)
+* numerischen Werten ("numeric")
+* Textzeichen ("character")
+
+Vektoren können in Variablen gespeichert werden. Man sollte sich von Anfang an eine aussagekräftige Benennung von Variablen gewöhnen!
+
+
+numerische Vektoren
+-------------------
+
+
+__Definition von Vektoren__
+
+```{r}
+foo <- 1
+value <- 1
+values <- c(10,15,30,4,5,6)
+withMissing <- c(4,5,10, NA, 15, 20, NA)
+logo <- c(TRUE, FALSE, FALSE, TRUE)
+terms <- c("Wir", "wollen", "mehr", "Worte")
+```
+
+__Einfache Operationen mit Vektoren__
+
+```{r}
+x <- 1:20 # eine Reihe
+counting <- 1:6 
+foo <- c(someValues, counting) # c für combine / concatenate
+rep(3, times = 4) # einfache Wiederholung
+rep(c(1,2,3), times = 2) # Wiederholung einer Reihe
+```
+
+
+__Indizierung__
+
+```{r}
+someValues[3]
+someValues[2:4]
+someValues[c(2:4)]
+```
+
+
+__Funktionen für (numerische) Vektoren__
+
+```{r}
+length(values) # wichtig, um durch Werte zu iterieren
+rev(counting) # Umkehrung der Reihenfolge
+order(values) # Reihenfolge
+order(values, decreasing = TRUE) # wie könnte das noch gemacht werden?
+
+
+# einfache statistische Maße
+sum(values) # Aufaddierung der Werte
+mean(values) # Mittelwert
+sd(values) # Standardabweichung
+sd(withMissing) # wie kommt man zu einem Ergebnis?
+
+# Test auf fehlende Werte
+is.na(withMissing) # Identifikation fehlender Werte 
+is.null(withMissing)
+
+# Lokalisierung bestimmter Werte
+which(someValues == 15)
+which(someValues > 10)
+which(someValues >= 10)
+```
+
+
+__Benennung von Vektoren__
+
+```{r}
+names(values)
+names(values) <- c("a", "b", "c", "d", "e", "f")
+values[c("a", "b")]
+```
+
+
+__Indizierung für Fortgeschrittene__
+
+```{r}
+values[order(values)]
+values[order(values, decreasing = TRUE)]
+values[which(values > 10)]
+```
+
+
+
+__ein bisschen Mathe__
+
+```{r}
+a <- c(10, 20, 30)
+b <- c(5, 10, 2)
+a / b
+a * b
+a + b
+a <- c(1,2,3,4,5)
+a / 5
+a + 1
+a * 2
+b <- c(5,4,3,2,1)
+a / b
+a * b
+a + b
+
+sum(a) 
+length(a)
+m <- mean(a)
+m <- sum(a) / length(a)
+```
+
+__einfache Visualisierung__
+
+```{r}
+barplot(values)
+barplot(values, names.arg = names(values))
+barplot(values, names.arg = names(values), las = 2)
+```
+
+character-Vektoren
+------------------
+
+```{r}
+charVector <- c("Persil", "Rei", "Ariel") 
+charVectorPlus <- c(charVector, "Perwoll")
+
+length(charVector) # Länge des Vektors
+rev(charVector) # umkehrung der Reihenfolge
+"Persil" %in% charVector
+which(charVector == "Persil") # Position von Persil
+
+foo <- c("1", "2", "3")
+as.numeric(foo) # Umwandlung in numerischen Vektor
+```
+
+
+logische Vektoren
+-----------------
+
+Logische Vektoren können die Werte TRUE oder FALSE annahmen ...
+
+```{r}
+foo <- TRUE
+manOrWomen <- c(TRUE, FALSE, FALSE) # was ist hier verwirrend?
+women <- c(TRUE, TRUE, TRUE, TRUE, FALSE, FALSE)
+which(women == FALSE)
+names(women) <- c("karin", "laura", "jaenette", "ceylan",  "detlev", "xaver")
+names(which(women == FALSE))
+```
+
+
+
+Quiz
+----
+* in Arbeitsgruppen: durchschnittliche Körpergrösse ...
+* was ist der Mittelwert (Summe, Standardabweichung) der Körpergrösse im Seminar?
+* Veranschaulichen Sie die Körpergrößen mit einem Balkendiagramm!
+* Ordnen Sie die Balken im Diagramm in absteigender Reihenfolge (-;)
+
+
+
+
+Und noch eine Aufgabe!
+----------------------
+
+* Vergleichen Sie den Mittelwert der Körpergröße der Männer und Frauen im Seminar!
+
+
+
+

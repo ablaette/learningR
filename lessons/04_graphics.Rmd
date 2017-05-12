@@ -1,0 +1,293 @@
+---
+title: "Einfache "
+author: "Andreas Blaette"
+date: "07. Mai 2015"
+output: html_document
+---
+
+
+Daten: Die Wahlkreisergebnisse
+==============================
+
+Speicher putzen!
+----------------
+```{r}
+ls()
+rm(list=ls(all=TRUE))
+```
+
+Wir rekonstruieren die Tabelle mit den Wahlkreisergebnissen der Parteien
+------------------------------------------------------------------------
+
+```{r eval=FALSE}
+bt13raw <- read.table(
+  "http://www.bundeswahlleiter.de/de/bundestagswahlen/BTW_BUND_13/veroeffentlichungen/ergebnisse/kerg.csv",
+  header=T, skip=2, fileEncoding="ISO-8859-1", sep=";"
+)
+# Für die weitere Analyse müssen wir die Zeilen 1 und 2 loswerden - dies sind nur Spalenbeschriftungen.
+wantedRows <- c(3:318)
+bt13 <- bt13raw[wantedRows,]
+partyResults <- bt13[, c("X.10", "X.13", "X.28", "X.16", "X.19", "X.22", "X.25")] 
+colnames(partyResults) <- c("abgZweitstimmen", "cdu", "csu", "spd", "fdp", "linke", "gruene")
+anteilZweitstimmen <- list()
+rawVotesTotal <- partyResults[,"abgZweitstimmen"]
+votesTotal <- as.numeric(as.character(rawVotesTotal))
+for (party in c("cdu", "csu", "spd", "fdp", "linke", "gruene")){
+  raw <- partyResults[, party]
+  # wieder das: Aus dem Faktor muss ein numerischer Vektor werden
+  votes <- as.numeric(as.character(raw))
+  shareParty <- votes / votesTotal
+  anteilZweitstimmen[[party]] <- round(shareParty * 100, 2)
+}
+partyShare <- data.frame(anteilZweitstimmen)
+rownames(partyShare) <- bt13[,"Gebiet"]
+```
+
+Das Vokabular der Visualisierung
+================================
+
+Grundlegende Visualisierungen
+-----------------------------
+
+```{r}
+barplot() # Balkendiagramme
+pie() # Kuchendiagramme
+hist() # Histogramme 
+boxplot() # Boxplots
+```
+
+Ausgaben auf 'graphical devices'
+--------------------------------
+
+```{r}
+pdf()
+bmp()
+png()
+tiff()
+```
+
+Veränderung von Graphikparametern
+---------------------------------
+
+```{r}
+par()
+```
+
+
+Erstes Szenario: Ich will ein Kuchendiagramm!
+=============================================
+
+mit den Ergebnissen in einem Wahlkreis
+--------------------------------------
+
+```{r}
+duPos <- grep("Duisburg", rownames(partyShare), value=T)
+duI <- partyShare[duPos[1],]
+duIvector <- as.numeric(duI)
+duIvector <- duIvector[-2]
+
+
+partyNames <- c("CDU", "SPD", "FDP", "LINKE", "Grüne")
+duIvector 
+newLabel <- c()
+for (i in c(1:5)){
+  newLabel[i] <- paste(partyNames[i], " (", duIvector[i], "%)", sep="")
+}
+par(mar=c(3,3,3,3))
+pie(
+  duIvector,
+  labels=newLabel,
+  col=c("black", "red", "yellow", "pink", "green"),
+  main=c("Duisburg I"),
+  cex=0.6
+  )
+```
+
+
+mehrere Wahlkreise in einem Diagramm
+-------------------------------------
+
+Hier fehlt noch ein Titel!
+
+```{r}
+posAll <- c()
+constOfInterest <- c(
+  "Duisburg", "Hochsauerland", "Olpe", "Münster", "Euskirchen"
+  )
+for (const in constOfInterest ){
+  rowNumbers <- grep(const, rownames(partyShare))
+  posAll <- c(posAll, rowNumbers)
+}
+
+par(mfrow=c(2,3))
+par(mar=c(1,1,1,1))
+for (pos in posAll){
+  oneDistrict <- partyShare[pos,]
+  oneDistrict <- as.numeric(oneDistrict)
+  oneDistrict <- oneDistrict[-2]
+  partyNames <- c("CDU", "SPD", "FDP", "LINKE", "Grüne")
+  newLabel <- c()
+  for (i in c(1:5)){
+    newLabel[i] <- paste(partyNames[i], " (", oneDistrict[i], "%)", sep="")
+  }
+  pie(
+    oneDistrict,
+    labels=newLabel,
+    col=c("black", "red", "yellow", "pink", "green"),
+    cex=0.6,
+    main=rownames(partyShare)[pos]
+  )
+  
+}
+```
+
+
+```{r}
+toKeep <- which(is.na(partyShare$cdu) == FALSE)
+partyShare2 <- partyShare[toKeep,]
+
+par(mfrow=c(1,1))
+par(mar=c(1,1,1,1))
+setwd("/Users/blaette/Lab/tmp/wahlkreise")
+pdf(file="Wahlkreisergebnisse.pdf", onefile=TRUE)
+for (pos in c(1:nrow(partyShare2))){
+    oneDistrict <- partyShare2[pos,]
+    oneDistrict <- as.numeric(oneDistrict)
+    oneDistrict <- oneDistrict[-2]
+    partyNames <- c("CDU", "SPD", "FDP", "LINKE", "Grüne")
+    newLabel <- c()
+    for (i in c(1:5)){
+      newLabel[i] <- paste(partyNames[i], " (", oneDistrict[i], "%)", sep="")
+    }
+    pie(
+      oneDistrict,
+      labels=newLabel,
+      col=c("black", "red", "yellow", "pink", "green"),
+      cex=1,
+      main=rownames(partyShare2)[pos]
+    ) 
+}
+dev.off()
+
+```
+
+
+Zweites Szenario: Ich will ein Balkendiagramm!
+==============================================
+
+... zunächts wiederum mit den Ergebnissen in einem Wahlkreis
+
+```{r}
+```
+
+
+Drittes Szenario: Ich will ein gruppiertes Balkendiagramm!
+==========================================================
+
+... mit den Ergebnissen der Parteien in den Duisburger Wahlkreisen
+
+```{r}
+
+```
+
+
+
+Viertes Szenario: Ich will ein pdf!
+===================================
+```{r}
+```
+
+
+Daten: Die Wahlkreisergebnisse
+==============================
+
+Hygiene muss sein - Speicher putzen!
+------------------------------------
+
+```{r}
+ls()
+rm(list=ls(all=TRUE))
+```
+
+
+Rekonstruktion der Tabelle mit den Wahlkreisergebnissen der Parteien 'from scratch'
+-----------------------------------------------------------------------------------
+
+```{r eval=FALSE}
+bt13raw <- read.table(
+  "http://www.bundeswahlleiter.de/de/bundestagswahlen/BTW_BUND_13/veroeffentlichungen/ergebnisse/kerg.csv",
+  header=T, skip=2, fileEncoding="ISO-8859-1", sep=";"
+)
+# Für die weitere Analyse müssen wir die Zeilen 1 und 2 loswerden - dies sind nur Spalenbeschriftungen.
+wantedRows <- c(3:318)
+bt13 <- bt13raw[wantedRows,]
+partyResults <- bt13[, c("X.10", "X.13", "X.28", "X.16", "X.19", "X.22", "X.25")] 
+colnames(partyResults) <- c("abgZweitstimmen", "cdu", "csu", "spd", "fdp", "linke", "gruene")
+anteilZweitstimmen <- list()
+rawVotesTotal <- partyResults[,"abgZweitstimmen"]
+votesTotal <- as.numeric(as.character(rawVotesTotal))
+for (party in c("cdu", "csu", "spd", "fdp", "linke", "gruene")){
+  raw <- partyResults[, party]
+  # wieder das: Aus dem Faktor muss ein numerischer Vektor werden
+  votes <- as.numeric(as.character(raw))
+  shareParty <- votes / votesTotal
+  anteilZweitstimmen[[party]] <- round(shareParty * 100, 2)
+}
+partyShare <- data.frame(anteilZweitstimmen)
+rownames(partyShare) <- bt13[,"Gebiet"]
+```
+
+Ein pdf, in dem alles drin ist
+==============================
+
+Zugegeben: Wir haben es uns etwas einfach gemacht und zunächst nur die Wahlkreise analysiert,
+in denen die CDU angetreten ist...
+
+
+```{r}
+# in welchen Wahlkreisen ist die CDU nicht angetreten? Die wollen wir ausschließen
+toKeep <- which(is.na(partyShare$cdu) == FALSE)
+partyShare2 <- partyShare[toKeep,]
+
+par(mfrow=c(1,1)) # das bedeutet: nur ein Diagramm, keine Anordnung nach Zahlen/Reihen
+
+par(mar=c(1,1,1,1)) # kleine Ränder, damit kein Platz verschwendet wird!
+
+# so setzt man das Arbeitsverzeichnis, in dem das Ergebnisdokument gespeichert werden soll
+
+setwd("/Users/blaette/Lab/tmp/wahlkreise") 
+# jetzt wird eine Verbindung zu einem Dokument geöffnet, in das dan sukzessive neue
+# Seiten mit neuen Törtchengrafiken geschrieben werden
+pdf(file="Wahlkreisergebnisse.pdf", onefile=TRUE)
+
+for (pos in c(1:nrow(partyShare2))){
+    oneDistrict <- partyShare2[pos,]
+    oneDistrict <- as.numeric(oneDistrict)
+    # raus mit der CDU!
+    oneDistrict <- oneDistrict[-2]
+    partyNames <- c("CDU", "SPD", "FDP", "LINKE", "Grüne")
+    newLabel <- c()
+    for (i in c(1:5)){
+      newLabel[i] <- paste(partyNames[i], " (", oneDistrict[i], "%)", sep="")
+    }
+    pie(
+      oneDistrict,
+      labels=newLabel,
+      col=c("black", "red", "yellow", "pink", "green"),
+      cex=1,
+      main=rownames(partyShare2)[pos]
+    ) 
+}
+dev.off()
+
+```
+
+
+Was noch zu tun ist
+===================
+
+- Wäre es nicht angemessen, die CSU in der Analyse zu behalten?
+- Erst während der Arbeit mit den Daten ist uns aufgefallen, dass die Bundesländer und das Bundesgebiet in der Tabelle enthalten sind. Solle man das nicht gesondert ausgeben bzw. aus dem Dossier entfernen?
+
+
+

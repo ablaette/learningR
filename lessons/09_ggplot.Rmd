@@ -1,0 +1,123 @@
+---
+title: "Einführung in ggplot2"
+author: "Andreas Blaette"
+date: "02. Juli 2015"
+output: html_document
+---
+
+Initialisierung
+===============
+
+
+```{r}
+rm(list=ls(all=TRUE))
+library(gles)
+library(ggplot2)
+library(reshape2)
+```
+
+```{r}
+data(bt2009) # Datensatz für 2009
+data(bt2013)
+```
+
+
+
+Aufrufen der Dokumentation der Fragebögen
+=========================================
+
+```{r}
+questionnaire("bt2009")
+questionnaire("bt2013")
+questionnaire("nrw2010")
+questionnaire("nrw2012")
+```
+
+Vorbereiten der Daten 
+=====================
+
+```{r}
+glesSubsets <- list(
+  "2009"=data.frame(
+    gewicht=bt2009[,"wei_trow"],
+    geschlecht=bt2009[,"vn1"],
+    wahlabsicht=bt2009[,"v254_1a"]
+  ),
+  "2013"=data.frame(
+    gewicht=bt2013[,"w_trow"],
+    geschlecht=bt2013[,"vn1"],
+    wahlabsicht=bt2013[,"v11aa"]
+  )
+)
+
+
+wahlabsGeschlechtList <- lapply(
+  names(glesSubsets),
+  function(year){
+    glesSubset <- glesSubsets[[year]]
+    wahlabsGeschlecht <- xtabs(gewicht~wahlabsicht+geschlecht, data=glesSubset)
+    wahlabsGewichtet <- apply(wahlabsGeschlecht, 2, function(x) x / sum(x))
+    rowsToDrop <- c(which(rownames(wahlabsGewichtet) %in% c("CDU", "CSU")))
+    if (length(rowsToDrop > 0)){
+      wahlabsGewichtet <- wahlabsGewichtet[-rowsToDrop,]
+    }
+    wahlabsichtProzent <- round(wahlabsGewichtet * 100, 2)
+    wahlabsicht <- data.frame(
+      partei=rownames(wahlabsichtProzent),
+      jahr=rep(year, times=nrow(wahlabsichtProzent)),
+      wahlabsichtProzent
+    )
+    wahlabsicht
+  }
+)
+
+wahlabsGeschlecht <- do.call(rbind, wahlabsGeschlechtList)
+```
+
+Let's go with ggplot
+====================
+
+Die Wahlabsicht eines Geschlechts
+---------------------------------
+
+```{r}
+d <- ggplot(data=wahlabsGeschlecht, aes(x=jahr, y=weiblich))
+d <- d + geom_bar(aes(fill=partei), stat="identity", position="dodge")
+d <- d + xlab("Jahr") + ylab("Wahlwahrscheinlichkeit in Prozent")
+d
+```
+
+Stimmgewinne und -verluste
+-------------------------
+
+```{r}
+wahlabs2 <- melt(wahlabsGeschlecht) # Umwandlung in extensive Form
+colnames(wahlabs2)[3] <- "geschlecht"
+d <- ggplot(data=wahlabs2, aes(x=partei, y=value, fill=jahr))
+d <- d + geom_bar(stat="identity", position="dodge")
+d <- d + xlab("Partei") + ylab("Wahlwahrscheinlichkeit in Prozent")
+d
+```
+
+Analyse für einzelne Parteien
+-----------------------------
+
+```{r}
+partyToSelect <- "CDU/CSU"
+partySubset <- subset(wahlabs2, partei==partyToSelect)
+d <- ggplot(data=partySubset, aes(x=jahr, y=value, fill=geschlecht))
+d <- d + geom_bar(stat="identity", position="dodge")
+d <- d + xlab("Jahr")
+d <- d + ylab("Wahlwahrscheinlichkeit in Prozent")
+d
+```
+
+Liniendiagramm
+--------------
+
+```{r}
+d <- ggplot(data=wahlabsGeschlecht, aes(x=jahr, y=weiblich, group=partei))
+d <- d + geom_line(aes(colour=partei), stat="identity")
+d <- d + xlab("Jahr") + ylab("Wahlwahrscheinlichkeit in Prozent")
+d
+```

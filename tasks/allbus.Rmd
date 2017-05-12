@@ -1,0 +1,264 @@
+---
+title: "Exploratory Data Analysis"
+author: "Andreas Blaette"
+date: "11. Juni 2015"
+output: html_document
+---
+
+Initialisierung
+===============
+
+Zunächst wird der Arbeitsspeicher geputzt, dann wird der ALLBUS-Datensatz für 2010
+geladen.
+
+```{r}
+rm(list=ls(all=TRUE))
+library(allbus)
+data(allbus2010) # Datensatz für 2010 verfügbar machen, auch für frühere Datensätze mgl.
+```
+
+
+Blick in die Daten
+==================
+
+```{r}
+dim(allbus2010)
+head(allbus2010)
+View(allbus2010)
+str(allbus2010)
+colnames(allbus2010)
+variables("allbus2010")
+```
+
+Eine Variable im Blick
+======================
+
+```{r}
+knappeArbeit <- allbus2010[,"V319"]
+is(knappeArbeit)
+knappeArbeit
+werteKnappeArbeit <- as.numeric(knappeArbeit)
+werteKnappeArbeitTable <- table(werteKnappeArbeit)
+werteKnappeArbeitTable
+
+forPlotting <- werteKnappeArbeitTable / sum(werteKnappeArbeitTable) * 100
+forPlotting <- round(forPlotting, 2)
+barplot(
+  forPlotting,
+  ylab = "Prozent",
+  xlab="Stimme gar nicht zu (1) bis JA (7)",
+  col="blue",
+  main="Sollen Ausländer das Land verlassen,\nwenn die Arbeit knapp wird?"
+  )
+
+# man kann sich auch eine Funktion basterln, um Prozentwerte zu ermitteln
+as.percentage <- function(input){
+  output <- input / sum(input)
+  output <- round(output * 100, 2)
+  output
+}
+forPlotting2 <- as.percentage(werteKnappeArbeitTable)
+
+```
+
+
+
+Szenario: Ausländerablehnung im Bundesländervergleich
+=====================================================
+
+Wie verteilt sich Ausländerablehnung, politisches Interesse über die Bundesländer?
+Im ALLBUS sind vier Items enthalten, über welche die sogenannte Ausländerablehnungsskala gebildet 
+wird.
+
+```{r}
+# in welchen Variablen tritt "AUSLAENDER" auf? So finden 
+grep("AUSLAENDER", variables("allbus2010"), value=T)
+# V319 -> Ausl. heim bei knapper Arbeit
+# V320 -> pol. Betätigung untersagen
+# V321 -> unter sich heiraten
+# V318 -> Lebensstilanpassung
+
+# Ausschnitt aus dem Datensatz mit den relevanten Items
+qAusl <- allbus2010[,c("V319", "V320", "V321", "V318")]
+# etwas aussagekräftigere Spaltenbenennungen
+colnames(qAusl) <- c("Arbeit", "Politik", "Heiraten", "Lebensstil")
+# es sind Faktoren - Umwandlung in numerische Werte für die Bildung des Index
+for (what in colnames(qAusl)){
+  qAusl[,what] <- as.numeric(qAusl[, what])  
+}
+# Prüfung - was haben wir jetzt?
+head(qAusl)
+
+```
+
+In den folgenden Schritten wird für jede Reihe aus dem qAusl-data.frame
+der Indexwert gebildet. Eine kleine Hürde sind dabei NA-Werte. Eine erste 
+Lösung arbeitet mit einer for-Schleife.
+
+
+Option 1: For-Schleife
+----------------------
+
+```{r}
+aa <- c()
+for (i in c(1:nrow(qAusl))){
+  naLogical <- is.na(qAusl[i,])
+  naLogicalTabled <- table(naLogical)
+  if (is.na(naLogicalTabled["TRUE"])){
+    aaSum <- sum(qAusl[i,], na.rm=TRUE)
+    aa[i] <- aaSum / 4
+  } else {
+    aa[i] <- NA
+  }
+}
+hist(aa)
+```
+
+
+Option 2: Lösung mit apply
+--------------------------
+
+Eine zweite Lösung, die programmiertechnisch etwas anspruchsvoller,
+aber schneller und eleganter ist.
+
+```{r}
+aa <- apply(qAusl, 1, function(row){
+  naLogical <- is.na(row)
+  naLogicalTabled <- table(naLogical)
+  if (is.na(naLogicalTabled["TRUE"])){
+    aaSum <- sum(row, na.rm=TRUE)
+    aa[i] <- aaSum/4
+  } else {
+    aa[i] <- NA
+  }
+})
+hist(aa)
+```
+
+
+Variablen finden: Land und Interesse
+------------------------------------
+
+Womit kann die Ausländerablehnungsskala sinnvoll in Verbindung 
+gebracht werden? Wir suchen nach Variablen...
+
+```{r}
+grep("BUNDESLAND", variables("allbus2010"), value=T)
+# hier: V975 -> Bundesland
+land <- allbus2010[,"V975"]
+grep("INTERESSE", variables("allbus2010"), value=T)
+# V72 pol.Interesse
+```
+
+
+Frage 1: Welche Unterschiede zwischen den Ländern gibt es?
+----------------------------------------------------------
+
+```{r}
+library(lattice)
+histogram(~aa|land, data=data.frame(aa, land))
+```
+
+
+Szenario: Macht das Einkommen einen Unterschied?
+------------------------------------------------
+
+```{r}
+einkommen <- allbus2010[,"V614"]
+plot(x=jitter(aa, factor=1), y=einkommen)
+boxplot(einkommen~aa, splomData)
+```
+
+
+Szenario: Macht Kontakt einen Unterschied?
+------------------------------------------
+
+```{r}
+grep("KONTAKT", variables("allbus2010"), value=T)
+# V322 Kontakt in der Familie
+# V323 Kontakt bei der Arbeit
+# V324 Kontakt Nachbarschaft
+# V325 Kontakt Freundeskreis
+kontakt <- allbus2010[,c("V322", "V323", "V324", "V325")]
+colnames(kontakt) <- c("Fa", "Ar", "Na", "Fr")
+for (x in colnames(kontakt)){
+  kontakt[,x] <- as.numeric(kontakt[,x])
+}
+# hier zu beachten: Die Reihung entspricht hier nicht der Intution,
+# dass der niedrigste Wert wenig Kontakt bedeutet, der höchste Wert 
+# viel Kontakt. Das wird umgedreht ...
+kontaktIndex <- apply(kontakt, 1, function(row) {
+  indexRaw <- sum(row - 1, na.rm=T)
+  4 - indexRaw
+  })
+```
+
+Jetzt kann es an die Exploration gehen...
+
+```{r}
+boxplot(aa~kontaktIndex) #  Mehr Kontakt, weniger Ausländerablehnung?
+boxplot(aa~land, las=2) # Unterschiede der Ausländerablehnung zwischen den Ländern
+
+meanKontakt <- tapply(kontaktIndex, land, mean)
+meanKontaktVector <- as.vector(meanKontakt)
+names(meanKontaktVector) <- names(meanKontakt)
+meanKontaktVector <- meanKontaktVector[order(meanKontaktVector, decreasing = T)]
+dotchart(meanKontaktVector, las=2)
+
+meanAaLaender <- tapply(aa, land, function(x) mean(x, na.rm=T))  
+meanAaLaender <- meanAaLaender[order(meanAaLaender, decreasing=T)]
+dotchart(meanAaLaender, las=2)
+```
+
+
+Welche Kontaktart macht den Unterschied?
+----------------------------------------
+
+```{r}
+kontakt <- allbus2010[,c("V322", "V323", "V324", "V325")]
+colnames(kontakt) <- c("Fa", "Ar", "Na", "Fr")
+for (x in colnames(kontakt)){ kontakt[,x] <- as.numeric(kontakt[,x]) }
+kontaktStr <- kontakt
+for (x in colnames(kontaktStr)){
+  rawCol <- as.character(kontaktStr[,x])
+  for (i in c(1:length(rawCol))){
+    if (is.na(rawCol[i])){
+      rawCol[i] <- NA
+    } else if (rawCol[i] == "2"){
+      rawCol[i] <- "_"
+    } else if (rawCol[i] == "1"){
+      rawCol[i] <- x
+    }
+  }
+  kontaktStr[,x] <- rawCol
+}
+kontaktPattern <- apply(
+  kontaktStr, 1,
+  function(row) {
+    if (any(is.na(row))){
+      row <- NA
+    } else {
+      row <- paste(row, collapse="")  
+    }
+    row
+    })
+histogram(~aa|kontaktPattern, data.frame(aa, kontaktPattern))
+```
+
+Kontaktarten in den Ländern
+---------------------------
+
+```{r}
+kontaktByLand <- xtabs(~land+kontaktPattern, data=data.frame(land, kontaktPattern))
+kontaktByLand <- as.matrix(ftable(kontaktByLand))
+View(kontaktByLand)
+```
+
+Ausblick
+========
+
+Was wir hier nicht beachtet haben: Ein Problem bei Befragungen ist, dass bestimmte
+Personengruppen nicht gut erreicht werden können, oder dass eine Teilpopulation 
+klein ist, man aber in der Lage sein möchte, statistische Schlüsse zu ziehen. Letzteres
+wird durch Gewichtungsfaktoren gelöst. Diese haben wir hier nicht berücksichtigt! Um zu einem 
+belastbaren Ergebnis zu kommen, wäre das erforderlich.

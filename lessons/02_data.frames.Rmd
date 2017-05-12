@@ -1,0 +1,189 @@
+---
+title: "Datenstrukturen in R"
+author: "Andreas Blaette"
+date: "23. April 2015"
+output: html_document
+---
+
+
+
+Matrizen
+========
+  
+Matrizen sind zwei- oder mehrdimensional. Matrizen umfassen immer eine Datenart (Zahlen, logische Werte, Strings)!
+  
+** Anlegen von Matrizen **
+  
+```{r}
+mData <- rep(c(1,2,3), times = 3)
+mData <- c(1,2,3,4,5,6,7,8,9)
+
+foo <- matrix(data = rep(c(1,2,3), times=3), ncol = 3, nrow = 3)
+foo <- matrix(data = c(1:9), ncol = 3)
+
+rownames(foo) <- c("a", "b", "c") # Hinzufügen einer Beschriftung der Reihen
+colnames(foo) <- c("one", "two", "three") # Beschriftung der Spalten
+```
+
+
+** Indizierung **
+  
+Indizierung wie bei Vektoren über eckige Klammern, allerdings unter Angabe von zwei Werten (kommagetrennt).
+
+```{r}
+anyVector <- c(5,6,23,4)
+anyVector[3]
+foo[1,1] # Wert der ersten Reihe, erste Spalte
+foo[1,2]
+foo[3,3]
+foo[,2] # die zweite Spalte
+foo[,3] # die dritte Spalte
+foo[,"one"] # Indizierung über Spaltenbeschriftung
+is(foo[,"one"]) # man sollte immer wissen was man bekommt!
+foo[,c("one", "two")]
+is(foo[,c("one", "two")])
+foo["a", c("one", "two")]
+```
+
+
+** Rechnen mit Matrizen **
+  
+```{r}
+rowSums(foo) # Reihensummen
+colSums(foo) # Spaltensummen
+apply(foo, 1, mean) # Mittelwert zeilenweise
+apply(foo, 2, mean) # Mittelwert reihenweise
+```
+
+
+Listen
+======
+  
+Listen sind komplexe Datenstrukturen, in die beliebige andere Formate eingespeist werden. Sehr praktisch! Prinzip Apothekerschrank.
+
+```{r}
+newList <- list()
+newList[["men"]] <- c("Hans", "Rauf", "Antonio")
+newList[["women"]] <- c("Gudrun", "Henriette")
+newList[["men"]]
+newList$men
+newList$women
+newList[[1]]
+newList[["gaga"]] <- c(TRUE, FALSE, FALSE, TRUE)
+newList[["size"]] <- c(160, 180, 170)
+is(newList$gaga)
+is(newList$size)
+names(newList)
+length(newList)
+```
+
+
+data.frames
+===========
+  
+Merke: data.frames sind eigentlich nur Listen (von Vektoren identischer Länge).
+
+```{r}
+foo <- list(
+  name = c("ansgar", "jose", "rüdiger", "hildegard"),
+  male = c(TRUE, TRUE, TRUE, FALSE),
+  height = c(210, 160, 180, 180)
+)
+persons <- data.frame(foo)
+is(persons)
+persons <- data.frame(
+  name = c("ansgar", "jose", "rüdiger", "hildegard"),
+  male = c(TRUE, TRUE, TRUE, FALSE),
+  height = c(210, 160, 163, 180)
+)
+persons
+persons <- persons[,colnames(persons)[which(colnames(persons)!="height")]]
+persons <- persons[, order(names(persons))]
+```
+
+
+** Methoden für data.frames **
+  
+```{r}
+colnames(persons) # Spaltenbeschriftung
+rownames(persons) # Fallname
+rownames(persons) <- c("a", "b", "c", "d")
+persons$height
+persons[["height"]]
+persons[1,]
+is(persons[1,])
+nrow(persons) # Zahl der Reihen
+ncol(persons) # Zahl der Spalten
+
+highestDegree <- c("ba", "dr", "ma", "habil")
+persons <- cbind(persons, highestDegree) # neue Spalte anfügen
+# persons <- rbind(persons, c("henriette", FALSE, 220, NA))
+```
+
+
+** Bildung von Subsets **
+  
+```{r}
+persons <- data.frame(
+  name = c("ansgar", "jose", "rüdiger", "hildegard"),
+  male = c(TRUE, TRUE, TRUE, FALSE),
+  height = c(210, 160, 163, 180)
+)
+smallPersons <- subset(persons, height < 165)
+femalePersons <- subset(persons, male == FALSE)
+bigFemalePersons <- subset(persons, male == FALSE & height > 165)
+```
+
+
+Hinweis:
+--------
+Bei der Generierung von data.frames werden Vektoren standardmäßig in Faktoren umgewandelt. Achtung: Das ergibt schnell unerwünschte Effekte!
+  
+  
+Ein Anwendungsszenario!
+=======================
+  
+** Wahlkreisergebnisse des Bundeswahlleiters ** 
+  
+
+Die Tabelle kann, jedenfalls in einem Rohformat, direkt von der Internet-Seite des Bundeswahlleiters geholt werden.
+
+```{r eval=TRUE}
+btw2013url <- "https://www.bundeswahlleiter.de/dam/jcr/2ace94c3-15cb-476b-aa98-806b97209353/btw13_kerg.csv"
+bt13raw <- read.table(btw2013url, header = T, skip = 2, fileEncoding = "ISO-8859-1", sep = ";")
+# Für die weitere Analyse müssen wir die Zeilen 1 und 2 loswerden - dies sind nur Spalenbeschriftungen.
+bt13 <- bt13raw[3:318,]
+```
+
+
+
+```{r}
+nrow(foo)
+wantedRows <- c(3:318)
+bt13 <- foo[wantedRows,]
+wberechtigt <- bt13$Wahlberechtigte
+is(bt13$Wahlberechtigte)
+wberechtigt <- as.numeric(as.vector(wberechtigt))
+is(wberechtigt)
+waehler <- bt13[,"Wähler"]
+waehler <- as.numeric(as.vector(waehler))
+length(waehler)
+length(wberechtigt)
+wahlbet <- waehler / wberechtigt
+wahlbetProzent <- wahlbet * 100
+wahlbetProzent <- round(wahlbetProzent, 1)
+mean(wahlbetProzent)
+wahlkreisname <- as.character(as.vector(bt13$Gebiet))
+names(wahlbetProzent) <- wahlkreisname
+final <- wahlbetProzent[order(wahlbetProzent, decreasing=T)]
+barplot(final[300:316],las=2)
+length(final)
+```
+
+
+** Aufgabenstellung **
+  
+Stellen Sie die Wahlbeteiligung in den Wahlkreisen in einem Balkendiagramm dar (in absteigender Reihenfolge).
+
+Hinweis: Man muss bei der Auswahl der relevanten Spalten aufpassen, die ersten beiden Zeilen müssen aus der Analyse ausgeschlossen werden.
+

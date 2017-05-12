@@ -1,0 +1,107 @@
+---
+title: "Grundlagen des Webscraping"
+author: "Andreas Blaette"
+date: "09. Juli 2015"
+output: html_document
+---
+
+
+Einfacher Download von Dateien aus dem Internet
+===============================================
+
+direktes Einlesen von Tabellen (csv-Format)
+-------------------------------------------
+
+** Unser altes Beispiel: Wahlkreisergebnisse **
+
+```{r}
+urlWahlkreisergebnisse <- "http://www.bundeswahlleiter.de/de/bundestagswahlen/BTW_BUND_13/veroeffentlichungen/ergebnisse/kerg.csv"
+wkTab <- read.table(
+  urlWahlkreisergebnisse, header=T, skip=2, fileEncoding="ISO-8859-1", sep=";"
+)
+wkTab <- wkTab[c(3:nrow(wkTab)),]
+```
+
+** Daten von www.govdata.de **
+
+... wenn man nach NRW sucht, findet man ...
+
+```{r}
+wahlenKoelnUrl <- "http://offenedaten-koeln.de/sites/default/files/ergebnisse_der_kommunalwahlen_in_koeln_seit_1946_prozent.csv"
+koelnTab <- read.table(wahlenKoelnUrl, header=T, sep=",")
+```
+
+** Daten von Eurostat **
+
+```{r}
+library("eurostat")
+eurostatId <- "tps00189" # asylum and new asylum applicants
+asylum <- get_eurostat(eurostatId)
+is(asylum)
+dim(asylum)
+View(asylum)
+```
+
+Aha! Wir bekommen die Daten in extensiver Form. Kennen wir von ggplot ...
+
+
+Download und Speichern von Dateien
+==================================
+
+```{r}
+btArchive <- "http://dipbt.bundestag.de/doc/btp/"
+lp <- 18
+lpArchive <- paste(btArchive, as.character(lp), sep="")
+maxDoc <- 116
+downloadDir <- "/Users/blaette/Lab/tmp/btDownload"
+for (docNo in c(1:maxDoc)){
+  docNoFormatted <- sprintf("%03d", docNo)
+  print(docNoFormatted)
+  pdfFilename <- paste(lp, docNoFormatted, ".pdf", sep="")
+  download.file(
+    url=paste(lpArchive, "/", lp, docNoFormatted, ".pdf", sep=""),
+    destfile=file.path(downloadDir, pdfFilename)
+  )
+}
+```
+
+
+Einlesen von html-Tabellen
+==========================
+
+```{r}
+library(RCurl)
+library(XML)
+wikipediaUrl <- "https://de.wikipedia.org/wiki/Liste_der_Mitglieder_des_Deutschen_Bundestages_%2818._Wahlperiode%29"
+wikipediaHtml <-  RCurl::getURL(wikipediaUrl)
+wikipediaXml <- htmlTreeParse(wikipediaHtml, useInternalNodes=TRUE)
+tableXml <- getNodeSet(wikipediaXml, '//table[@class="wikitable"]')[[1]]
+tableXml <- getNodeSet(wikipediaXml, '//table')[[2]]
+table <- readHTMLTable(tableXml)
+
+```
+
+```{r}
+library(rvest)
+wikipediaUrl <- "https://de.wikipedia.org/wiki/Liste_der_Mitglieder_des_Deutschen_Bundestages_%2816._Wahlperiode%29"
+page <- html(wikipediaUrl)
+tables <- html_nodes(page, "table")
+tab <- html_table(tables[[1]])
+```
+
+Webscraping 2 
+==============
+```{r}
+pm <- "http://www.bundesregierung.de/Content/DE/Pressemitteilungen/BPA/2015/07/2015-07-09-bkm-kulturelle-bildung.html"
+page <- html(pm)
+dateNode <- html_nodes(page, xpath='//div[@class="abstract"]')
+pClass <- dateNode <- html_nodes(page, css="LMFuss")
+html_text(pClass)
+abstractText <- html_text(dateNode[[1]])
+```
+
+```{r}
+faz <- "http://www.faz.net/aktuell/politik/inland/die-steuer-die-spaltet-13692526.html"
+fazPage <- html(faz)
+linkedComments <- html_nodes(fazPage, "LMFuss")
+```

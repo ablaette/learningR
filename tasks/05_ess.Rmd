@@ -1,0 +1,77 @@
+***Datensatz vom Server runterladen
+
+# install.packages("car")
+library(car)
+library(ess)
+
+data(ess6)
+names(ess6)
+View(ess6)
+
+***Datensatz erstellen***
+  
+stf <- ess6 [, c("idno", "cntry", "stfgov", "stfdem")]
+stf2 <- na.omit(stf) # Listenweise Fallausschluss
+countries <- levels(stf$cntry)
+
+
+stfgov2 <- recode(stf2$stfgov, "'Extremely dissatisfied'='0'; '1'='1'; '2'='2'; 
+                  '3'='3'; '4'='4'; '5'='5'; '6'='6'; '7'='7'; '8'='8'; '9'='9';
+                  'Extremely satisfied'='10'; else=NA", as.factor.result=TRUE)
+stfdem2 <- recode(stf2$stfdem, "'Extremely dissatisfied'='0'; '1'='1'; '2'='2';
+                  '3'='3'; '4'='4'; '5'='5'; '6'='6'; '7'='7'; '8'='8'; '9'='9';
+                  'Extremely satisfied'='10'; else=NA", as.factor.result=TRUE)
+
+View(stf2)
+View(stfgov2)
+View(stfdem2)
+
+stfgov2 <- as.numeric(as.factor(stfgov2))
+stfdem2 <- as.numeric(as.factor(stfdem2))
+
+tapply(stfdem2, stf2$cntry, mean)
+
+meanDem <- tapply(stfdem2, stf2$cntry, mean)
+meanGov <- tapply(stfgov2, stf2$cntry, mean)
+
+View(meanDem)
+View(meanGov)
+
+plot(meanDem, meanGov, 
+     main= "Scatterplott: Mean Satisfaction with Democracy vs. Mean Satisfaction 
+     with Government (0-10)",
+     xlab= "Mean Satisfaction with Democracy",
+     ylab= "Mean Satisfaction with Government",
+     col= "red", pch = 19, cex = 1, lty = "solid", lwd = 1, xlim=c(0,10), 
+     ylim=c(0,10), cex.axis="0.7",
+     text(meanDem, meanGov, labels=countries, cex= 0.7, pos=1)
+     )
+
+barplot(meanDem,
+        main= "MW Satisfaction with Democracy (0-10)",
+        xlab= "Countries",
+        ylab= "Satisfaction with Democracy (0-10)",
+        ylim=c(0,10), border="purple", col="darkblue", , cex.axis="0.7", space=0.5,
+        las=2
+        )
+
+barplot(meanGov,
+        main= "MW Satisfaction with Government (0-10)",
+        xlab= "Countries",
+        ylab= "Satisfaction with Government (0-10)",
+        ylim=c(0,10), border="purple", col="red", , cex.axis="0.7", space=0.5)
+
+mergeDemGov <- data.frame(meanGov, meanDem)   
+
+par(mar=c(2,2,1,1,))
+barplot(height=t(as.matrix(mergeDemGov)), beside=T, las=2)
+
+install.packages("ggplot2")
+library(ggplot2)
+
+ggplot(mergeDemGov, aes(meanGov,), meanDem, fill = countries)) + 
+  geom_bar(stat="identity", position = "dodge") + 
+  scale_fill_brewer(palette = "Set1")
+
+regression <- lm(yMean~xMean, data=as.data.frame(plotTab1))
+abline(regression)
