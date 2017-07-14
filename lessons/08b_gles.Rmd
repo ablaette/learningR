@@ -28,6 +28,11 @@ colnames(bt2013sub) <- names(cols_to_get)
 
 bt2013sub[,"geburtsjahr"]
 bt2013sub[,"alter"] <- 2013 - bt2013sub[,"geburtsjahr"]
-barplot()
+age <- table(bt2013sub[,"alter"])
+barplot(height = age, las = 2)
 
+bt2013sub[,"nettoeinkommen"]
+netto <- bt2013sub[,"nettoeinkommen"]
+netto_char <- as.character(netto)
+netto_lower <- as.numeric(gsub("^(\\d+).*$", "\\1", netto_char))
 ```
