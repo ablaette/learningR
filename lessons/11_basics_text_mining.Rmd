@@ -1,0 +1,38 @@
+---
+title: "Untitled"
+author: "Andreas Blaette"
+date: "14 Juli 2017"
+output: html_document
+---
+  
+```{r}
+install.packages("tm")
+```
+
+```{r}
+library(tm)
+stopwords("german")
+```
+
+```{r}
+sentence <- c("Das", "ist", "ein", "Satz", "mit", "vielen", "Füllwörtern", ".")
+interpunctation <- c(".", ",", "?", "!", ":", ";")
+to_remove <- c(interpunctation, stopwords("german"))
+
+sentence_lowered <- tolower(sentence)
+sentence_filtered <- sentence[!sentence_lowered %in% to_remove]
+```
+
+
+```{r}
+sentence_filtered <- character()
+for (word in sentence_lowered){
+  if (word %in% to_remove){
+    print("word")
+    print("Das ist ein Stopword! Weg damit!")
+  } else {
+    print("Das behalte ich!")
+    sentence_filtered <- c(sentence_filtered, word)
+  }
+}
+```

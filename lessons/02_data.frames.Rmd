@@ -17,6 +17,7 @@ Matrizen sind zwei- oder mehrdimensional. Matrizen umfassen immer eine Datenart 
 ```{r}
 mData <- rep(c(1,2,3), times = 3)
 mData <- c(1,2,3,4,5,6,7,8,9)
+mData <- 1:9
 
 foo <- matrix(data = rep(c(1,2,3), times=3), ncol = 3, nrow = 3)
 foo <- matrix(data = c(1:9), ncol = 3)
@@ -97,6 +98,11 @@ persons <- data.frame(
   height = c(210, 160, 163, 180)
 )
 persons
+persons[1,]
+persons[, "male"]
+persons[, c("male", "height")]
+subset(persons, height >= 180)
+subset(persons, name == "ansgar")
 persons <- persons[,colnames(persons)[which(colnames(persons)!="height")]]
 persons <- persons[, order(names(persons))]
 ```
@@ -152,9 +158,28 @@ Die Tabelle kann, jedenfalls in einem Rohformat, direkt von der Internet-Seite d
 btw2013url <- "https://www.bundeswahlleiter.de/dam/jcr/2ace94c3-15cb-476b-aa98-806b97209353/btw13_kerg.csv"
 bt13raw <- read.table(btw2013url, header = T, skip = 2, fileEncoding = "ISO-8859-1", sep = ";")
 # Für die weitere Analyse müssen wir die Zeilen 1 und 2 loswerden - dies sind nur Spalenbeschriftungen.
-bt13 <- bt13raw[3:318,]
-```
+bt13 <- bt13raw[3:nrow(bt13raw),]
 
+bt13min <- bt13[, c("Gebiet", "gehört", "Wahlberechtigte", "Wähler")]
+
+is(bt13min[,"Wahlberechtigte"])
+bt13min[, "Wahlberechtigte"] <- as.numeric(as.vector(bt13min[,"Wahlberechtigte"]))
+is(bt13min[,"Wahlberechtigte"])
+
+is(bt13min[,"Wähler"])
+bt13min[, "Wähler"] <- as.numeric(as.vector(bt13min[,"Wähler"]))
+is(bt13min[,"Wähler"])
+
+bt13min[["Wahlbeteiligung"]] <- bt13min[["Wähler"]] / bt13min[["Wahlberechtigte"]]
+
+View(bt13min)
+
+is(bt13min[,"Wähler"])
+
+View(subset(bt13min, gehört == 99))
+sh <- subset(bt13min, gehört == 1)
+sum(sh[,"Wahlberechtigte"])
+```
 
 
 ```{r}
@@ -187,3 +212,19 @@ Stellen Sie die Wahlbeteiligung in den Wahlkreisen in einem Balkendiagramm dar (
 
 Hinweis: Man muss bei der Auswahl der relevanten Spalten aufpassen, die ersten beiden Zeilen müssen aus der Analyse ausgeschlossen werden.
 
+
+
+
+```{r}
+colnames(bt13min)[2] <- "Region"
+
+pdf(file = "~/Lab/tmp/Wahlkreise.pdf")
+par(mar = c(20, 5,4,3))
+
+for (i in 1:16){
+  oneState <- subset(bt13min, Region == i)
+  oneState <- oneState[order(oneState$Wahlbeteiligung, decreasing = FALSE),]
+  barplot(oneState$Wahlbeteiligung, names.arg = oneState$Gebiet, las = 2)
+}
+dev.off()
+```

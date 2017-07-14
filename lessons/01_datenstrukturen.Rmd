@@ -29,8 +29,11 @@ foo <- 1
 value <- 1
 values <- c(10,15,30,4,5,6)
 withMissing <- c(4,5,10, NA, 15, 20, NA)
+is(withMissing)
 logo <- c(TRUE, FALSE, FALSE, TRUE)
+is(logo)
 terms <- c("Wir", "wollen", "mehr", "Worte")
+is(terms) # Klasse des Objekts terms erkunden
 ```
 
 __Einfache Operationen mit Vektoren__
@@ -38,7 +41,13 @@ __Einfache Operationen mit Vektoren__
 ```{r}
 x <- 1:20 # eine Reihe
 counting <- 1:6 
-foo <- c(someValues, counting) # c für combine / concatenate
+foo <- c(values, counting, x) # c für combine / concatenate
+c(logo, values)
+c(terms, values)
+as.numeric(logo)
+valuesChar <- as.character(values)
+is.numeric(valuesChar)
+is.character(valuesChar)
 rep(3, times = 4) # einfache Wiederholung
 rep(c(1,2,3), times = 2) # Wiederholung einer Reihe
 ```
@@ -47,9 +56,9 @@ rep(c(1,2,3), times = 2) # Wiederholung einer Reihe
 __Indizierung__
 
 ```{r}
-someValues[3]
-someValues[2:4]
-someValues[c(2:4)]
+values[3]
+values[2:4]
+values[c(2:4)]
 ```
 
 
@@ -60,9 +69,59 @@ length(values) # wichtig, um durch Werte zu iterieren
 rev(counting) # Umkehrung der Reihenfolge
 order(values) # Reihenfolge
 order(values, decreasing = TRUE) # wie könnte das noch gemacht werden?
+values[order(values)]
+```
+
+Benennung von Variablen und Indizierung über Namen
+
+```{r}
+values
+names(values) <- c("a", "b", "c", "d", "e", "f")
+values 
+values["a"]
+values["c"]
+values[c("a", "b")]
+
+values = c(a = 10, b = 15, c = 30, d = 4, e = 5, f = 6)
+
+fgw <- c(
+  CDU = 32, SPD = 31, GRU = 6.5, FDP = 13.5,
+  LINKE = 6, PIRATEN = NA, AfD = 6.5
+  )
+fgw["Sonstige"] <- 100 - sum(fgw, na.rm = TRUE)
+
+yougov <- c(
+  CDU = 31, SPD = 30, GRU = 7, FDP = 13,
+  LINKE = 5, PIRATEN = NA, AfD = 7
+  )
+yougov["Sonstige"] <- 100 - sum(yougov, na.rm = TRUE)
+
+what <- "SPD"
+comparison <- c(
+  fgw = unname(fgw[what]),
+  yougov = unname(yougov[what])
+  )
+comparison
+
+barplot(comparison)
+
+barplot(fgw)
+barplot(
+  fgw, cex.names = 3, cex.axis = 3, space = 0,
+  col = c("black", "red", "green", "yellow", 451, "orange", "blue", "grey"),
+  xlab = "Partei", ylab = "Prozentpunkte",
+  main = "Forschungsgruppe Wahlen (Umfrage vom 08.05.2017)",
+  cex.main = 5,
+  cex.sub = 3,
+  cex.lab = 3,
+  ylim = c(0,35)
+  )
+text(x = 1:8 - 0.5, y = fgw + 0.5, labels = round(fgw, 1), cex = 2)
+```
 
 
 # einfache statistische Maße
+```{r}
 sum(values) # Aufaddierung der Werte
 mean(values) # Mittelwert
 sd(values) # Standardabweichung
@@ -73,9 +132,9 @@ is.na(withMissing) # Identifikation fehlender Werte
 is.null(withMissing)
 
 # Lokalisierung bestimmter Werte
-which(someValues == 15)
-which(someValues > 10)
-which(someValues >= 10)
+which(values == 15)
+which(values > 10)
+which(values >= 10)
 ```
 
 
