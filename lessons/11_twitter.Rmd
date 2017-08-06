@@ -1,0 +1,85 @@
+---
+title: "Untitled"
+author: "Andreas Blaette"
+date: "14 Juli 2017"
+output: html_document
+---
+
+```{r}
+if (!"twitteR" %in% rownames(installed.packages())){
+  install.packages("twitteR")
+}
+library(twitteR)
+```
+
+
+```{r setup, include=FALSE}
+setwd("~/Lab/analysen/twitter")
+api_key <- scan(file = "api_key.txt", what = character())
+api_secret <- scan(file = "api_secret.txt", what = character())
+access_token <- scan(file = "access_token.txt", what = character())
+access_token_secret <- scan(file = "access_token_secret.txt", what = character())
+```
+
+```{r}
+setup_twitter_oauth(
+  consumer_key = api_key,
+  consumer_secret = api_secret,
+  access_token = access_token,
+  access_secret = access_token_secret
+  )
+```
+
+```{r}
+tweet_list <- list()
+dates <- seq(from = as.Date("2017-06-01"), to = as.Date("2017-07-14"), by = "day")
+
+for (i in 2:length(dates)){
+  print(dates[i])
+  twitter_raw <- searchTwitter(
+    searchString = "#pulseofeurope+#PulseOfEurope", # n = 1000,
+    since = as.character(dates[i-1]),
+    until = as.character(dates[i])
+  )
+  tweet_list[[as.character(dates[i])]] <- data.frame(
+    text = sapply(twitter_raw, function(x) x$getText()),
+    created = sapply(twitter_raw, function(x) as.character(as.Date(x$getCreated()))),
+    screen_name = sapply(twitter_raw, function(x) x$getScreenName()),
+    retweet = sapply(twitter_raw, function(x) x$getRetweeted()),
+    date = rep(as.character(dates[i]), times = length(twitter_raw))
+  )
+}
+tweets_df <- do.call(rbind, tweet_list)
+# tweets_df[["date"]] <- gsub("^(\\d{4}-\\d{2}-\\d{2}).*$", "\\1", # rownames(tweets_df))
+```
+
+```{r}
+unique(tweets_df[, "created"])
+unique(tweets_df[, "date"])
+```
+
+
+```{r}
+dt <- as.data.table(tweets_df)
+dt_n <- dt[, .N, by = c("screen_name", "date")]
+
+for_gg <- as.data.frame(dt_n[1:10])
+
+d <- ggplot(data = for_gg, aes(x = screen_name, y = N))
+d <- d + geom_bar(stat = "identity", position = "dodge")
+d <- d + xlab("Urheber")
+d <- d + ylab("Zahl der tweets")
+d
+
+
+dt_cross <- dcast(
+  data = dt_n,
+  formula = date ~ screen_name,
+  value.var = "N"
+  )
+colSums(dt_cross[,2:ncol(dt_cross)])
+
+Z <- zoo(dt_cross[,2:ncol(dt_cross)], order.by = as.Date(dt_n[["date"]]))
+
+plot(as.xts(Z[, "schwar_ron"]))
+```

@@ -2,16 +2,32 @@
 title: "Untitled"
 author: "Andreas Blaette"
 date: "14 Juli 2017"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
+
+```{r installation}
+if (!"car" %in% rownames(installed.packages())){
+  install.packages("car")
+}
+
+if (!"gles" %in% rownames(installed.packages())){
+  install.packages("gles", repos = "http://polmine.sowi.uni-due.de/packages")
+}
+
+```
 
 ```{r}
 library(gles)
 data(bt2013)
 dim(bt2013)
-colnames(bt2013)
-View(bt2013)
-questionnaire("bt2013")
+```
+
+```{r}
+# colnames(bt2013)
+# View(bt2013)
+# questionnaire("bt2013")
 ```
 
 Anlegen einer Untertabelle
@@ -33,16 +49,71 @@ bt2013sub <- bt2013[, cols_to_get]
 colnames(bt2013sub) <- names(cols_to_get)
 ```
 
-Jetzt können wir zur eigentlichen Analyse kommen.
+Eine Information wollen wir noch zusätzlich: Das Jahr des Befragten, nicht bloss
+das Geburtsjahr.
 
 ```{r}
-bt2013sub[,"geburtsjahr"]
 bt2013sub[,"alter"] <- 2013 - bt2013sub[,"geburtsjahr"]
 age <- table(bt2013sub[,"alter"])
-barplot(height = age, las = 2)
+```
 
-bt2013sub[,"nettoeinkommen"]
+Das schauen wir uns jetzt in einem Balkendiagramm an.
+
+```{r}
+barplot(height = age, las = 2)
+```
+
+Mit der Magie der regulären Ausdrücke generieren wir das Nettoeinkommen.
+
+```{r}
 netto <- bt2013sub[,"nettoeinkommen"]
 netto_char <- as.character(netto)
 netto_lower <- as.numeric(gsub("^(\\d+).*$", "\\1", netto_char))
+netto_upper <- as.numeric(gsub("^.+\\s(\\d+).*$", "\\1", netto_char))
+netto_mean <- (netto_upper + netto_lower) / 2
+```
+
+```{r}
+mean(netto_mean, na.rm = TRUE)
+sd(netto_mean, na.rm = TRUE)
+barplot(table(netto_mean), las = 2)
+```
+
+```{r}
+bt2013sub$nettoeinkommen2 <- netto_mean
+```
+
+Bevor wir uns an das Boxplot machen, noch eine kleine Recodierung:
+CDU und CSU wollen wir zur Kategorie CDU/CSU hinzufügen.
+
+```{r}
+library(car)
+bt2013sub$parteiwahl <- recode(
+  bt2013sub$parteiwahl,
+  recodes = '"CDU"="CDU/CSU"; "CSU"="CDU/CSU";'
+  )
+levels(bt2013sub$parteiwahl)
+```
+
+```{r}
+par(mar = c(7,5,4,2))
+
+party_colors <- c(
+  "CDU/CSU" = "black",
+  "SPD" = "red",
+  "FDP" = "yellow",
+  "GRUENE" = "green",
+  "DIE LINKE" = "pink",
+  "NPD" = "brown",
+  "PIRATEN" = "orange",
+  "AfD" = "blue",
+  "andere Partei" = "grey"
+  )
+
+boxplot(
+  nettoeinkommen2 ~ parteiwahl, data = bt2013sub, las = 2,
+  col = party_colors[levels(bt2013sub$parteiwahl)],
+  main = "Boxplot: Einkommen und Parteiwahl",
+  ylab = "Einkommen"
+  )
 ```
