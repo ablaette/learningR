@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Wissenschaftliches Programmieren mit R</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Andreas Blaette" />
+    <link href="00_getting_started_files/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="00_getting_started_files/remark-css-0.0.1/metropolis.css" rel="stylesheet" />
+    <link href="00_getting_started_files/remark-css-0.0.1/robot-fonts.css" rel="stylesheet" />
+    <link rel="stylesheet" href="css/polminify.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Wissenschaftliches Programmieren mit R
+## Der Anfang ist noch nicht so schwer
+### Andreas Blaette
+### 22. April 2020
+
+---
+
+
+# Was im LSF steht
+
+"Digitalisierung bedeutet: Wir leben in einer datenreichen Zeit. Gerade auch die Dimensionen digitaler Textdaten sind im Sinne von „Big Data“ überwältigend geworden. Um aber die Materialflut bewältigen und ordnen zu können, sind neue digitale Wege zu gehen. In dieser Veranstaltung werden wir daher Verfahren des „Text Mining“ nutzen, um große Textdaten-Sammlungen (d.h. Korpora) effizient mit Algorithmen zu analysieren. Die Tore in die Welt der maschinellen Textverarbeitung öffnen sich allerdings erst, wenn man in der Lage ist, analytische Ideen in Programm-Code zu gießen. Daher verbindet dieser Kurs eine Einführung in das wissenschaftliche Programmieren - konkret in die Statistiksprache „R“ - mit einer anwendungsorientierten Einführung in Verfahren des Text Mining. Dabei können wir auf die Daten und Analyse-Tools des PolMine-Projekts (polmine.de) zurückgreifen. Mit dem Korpus aller Debatten im Deutschen Bundestag („GermaParl“) und den UCSSR-Online-Foliensätze (für „Using Corpora in Social Science Research“) stehen Ihnen Ressourcen zur Verfügung, mit denen Sie schnell relevante politikwissenschaftliche Erkenntnisse erzielen können. Als Voraussetzung müssen Sie keinerlei Programmierkenntnisse mitbringen - nur Offenheit und etwas Ausdauer, Code mit jenen anfangs ungewohnten geschweiften und eckigen Klammern zu schreiben. Indem Sie am Ende des Kurses über Grundlagen des Programmierens verfügen, werden Sie die Welt der Digitalisierung anders und kompetenter sehen. Die Abgeschiedenheit, welche die Corona-Krise erzwingt, können Sie als beste Gelegenheit nutzen, dieses Wagnis einzugehen!"
+
+---
+
+# Warum programmieren?
+
+**Warum es generell keine schlechte Idee ist**
+
+- Code is everywhere / Macht der Algorithmen / "code is law" 
+
+- Coden ist nicht teuer, sondern günstig(er)
+
+- Coden als Kulturtechnik
+
+
+--
+
+**Warum wissenschaftlich programmieren?**
+
+- Begrenzte Flexibilität von GUI-zentrierten Statistikumgebungen
+
+- Reproduzierbarkeit der Forschuung
+
+- Gerade bei Analyse großer Textdaten: Code schreiben unumgänglich
+
+- Coden als Befreiungserlebnis
+
+--
+
+** Warum man das lieber lassen sollte? Es kann ein fürchterlicher Zeitfresser sein!**
+
+
+---
+
+# Warum R und RStudio
+
+**Eine sehr kurze Geschichte von R**
+
+- "S" als Mutter von R (John Chambers et al., Bell Laboratories)
+- "R" als Neuimplementierung (ab 1992): Ross Ihaka und Robert Gentleman (Universität Auckland)
+- Implementierung: C, FORTRAN, R
+- Aufwuchs des R-Ökosystems, Popularität von R -&gt; [TIOBE-Index](https://www.tiobe.com/tiobe-index/)
+
+--
+
+**R hat Vorteile!**
+
+- nicht-kommerzielles open source-Produkt
+- interpretierte, interaktive Programmierung
+- es gibt für (fast) alles ein Paket
+- kooperativer Stil der R-community
+- Portabilität
+- hohe Standards der Dokumentation
+
+
+**R hat Nachteile ..**
+
+- R gilt als langsam
+- Inkonsistenzen der Implementierung (Rückgabewerte, Namenskonventionen)
+
+---
+
+# Installationen
+
+## Installationen von R / RStudio / RTools
+
+- Installation von R, verfügbar über [CRAN](http://cran.r-project.org)
+
+- Installation von [RStudio](https://rstudio.com/products/rstudio/download/)
+
+- Windows: Installation von [Rtools](http://cran.r-project.org/bin/windows/Rtools/index.html)
+
+
+## Installation von Paketen
+
+###  z.B. GLES
+
+
+```r
+install.packages("drat") 
+drat::addRepo("polmine")
+install.packages("gles")
+```
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

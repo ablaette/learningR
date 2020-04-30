@@ -1,0 +1,98 @@
+---
+title: "Wissenschaftliches Programmieren mit R"
+subtitle: "Der Anfang ist noch nicht so schwer"
+author: "Andreas Blaette"
+date: "22. April 2020"
+output: 
+  xaringan::moon_reader:
+    css: [default, metropolis, robot-fonts, './css/polminify.css']
+    nature:
+      countIncrementalSlides: false
+editor_options:
+  chunk_output_type: console
+---
+
+# Was im LSF steht
+
+"Digitalisierung bedeutet: Wir leben in einer datenreichen Zeit. Gerade auch die Dimensionen digitaler Textdaten sind im Sinne von „Big Data“ überwältigend geworden. Um aber die Materialflut bewältigen und ordnen zu können, sind neue digitale Wege zu gehen. In dieser Veranstaltung werden wir daher Verfahren des „Text Mining“ nutzen, um große Textdaten-Sammlungen (d.h. Korpora) effizient mit Algorithmen zu analysieren. Die Tore in die Welt der maschinellen Textverarbeitung öffnen sich allerdings erst, wenn man in der Lage ist, analytische Ideen in Programm-Code zu gießen. Daher verbindet dieser Kurs eine Einführung in das wissenschaftliche Programmieren - konkret in die Statistiksprache „R“ - mit einer anwendungsorientierten Einführung in Verfahren des Text Mining. Dabei können wir auf die Daten und Analyse-Tools des PolMine-Projekts (polmine.de) zurückgreifen. Mit dem Korpus aller Debatten im Deutschen Bundestag („GermaParl“) und den UCSSR-Online-Foliensätze (für „Using Corpora in Social Science Research“) stehen Ihnen Ressourcen zur Verfügung, mit denen Sie schnell relevante politikwissenschaftliche Erkenntnisse erzielen können. Als Voraussetzung müssen Sie keinerlei Programmierkenntnisse mitbringen - nur Offenheit und etwas Ausdauer, Code mit jenen anfangs ungewohnten geschweiften und eckigen Klammern zu schreiben. Indem Sie am Ende des Kurses über Grundlagen des Programmierens verfügen, werden Sie die Welt der Digitalisierung anders und kompetenter sehen. Die Abgeschiedenheit, welche die Corona-Krise erzwingt, können Sie als beste Gelegenheit nutzen, dieses Wagnis einzugehen!"
+
+---
+
+# Warum programmieren?
+
+**Warum es generell keine schlechte Idee ist**
+
+- Code is everywhere / Macht der Algorithmen / "code is law" 
+
+- Coden ist nicht teuer, sondern günstig(er)
+
+- Coden als Kulturtechnik
+
+
+--
+
+**Warum wissenschaftlich programmieren?**
+
+- Begrenzte Flexibilität von GUI-zentrierten Statistikumgebungen
+
+- Reproduzierbarkeit der Forschuung
+
+- Gerade bei Analyse großer Textdaten: Code schreiben unumgänglich
+
+- Coden als Befreiungserlebnis
+
+--
+
+** Warum man das lieber lassen sollte? Es kann ein fürchterlicher Zeitfresser sein!**
+
+
+---
+
+# Warum R und RStudio
+
+**Eine sehr kurze Geschichte von R**
+
+- "S" als Mutter von R (John Chambers et al., Bell Laboratories)
+- "R" als Neuimplementierung (ab 1992): Ross Ihaka und Robert Gentleman (Universität Auckland)
+- Implementierung: C, FORTRAN, R
+- Aufwuchs des R-Ökosystems, Popularität von R -> [TIOBE-Index](https://www.tiobe.com/tiobe-index/)
+
+--
+
+**R hat Vorteile!**
+
+- nicht-kommerzielles open source-Produkt
+- interpretierte, interaktive Programmierung
+- es gibt für (fast) alles ein Paket
+- kooperativer Stil der R-community
+- Portabilität
+- hohe Standards der Dokumentation
+
+
+**R hat Nachteile ..**
+
+- R gilt als langsam
+- Inkonsistenzen der Implementierung (Rückgabewerte, Namenskonventionen)
+
+---
+
+# Installationen
+
+## Installationen von R / RStudio / RTools
+
+- Installation von R, verfügbar über [CRAN](http://cran.r-project.org)
+
+- Installation von [RStudio](https://rstudio.com/products/rstudio/download/)
+
+- Windows: Installation von [Rtools](http://cran.r-project.org/bin/windows/Rtools/index.html)
+
+
+## Installation von Paketen
+
+###  z.B. GLES
+
+```{r eval = FALSE}
+install.packages("drat") 
+drat::addRepo("polmine")
+install.packages("gles")
+```

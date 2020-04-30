@@ -1,241 +1,427 @@
 ---
-title: "Datenstrukturen in R"
+title: "Wissenschaftliches Programmieren mit R"
+subtitle: "Datenstrukturen: Vektoren - Listen - Tabellen"
 author: "Andreas Blaette"
-date: "16. April 2015"
-output: html_document
+date: "29. April 2020"
+output: 
+  xaringan::moon_reader:
+    css: [default, metropolis, robot-fonts, './css/polminify.css']
+    nature:
+      countIncrementalSlides: false
+editor_options:
+  chunk_output_type: console
+---
+
+# Installationen
+
+- Für die ersten Schritte beim Programmieren mit R beschäftigen wir uns mit Vektoren als grundlegender Datenstruktur 
+
+--
+
+- Dafür wir brauchen wir später Stoff zum Ausprobieren - wir nutzen Testdaten, die in den Paketen `tm` und `polmineR` enthalten sind.
+
+```{r, eval = FALSE}
+install.packages("tm")
+install.packages("polmineR")
+```
+
+- Außerdem installieren wir ein Datenpaket mit Daten der *German Longitudinal Election Study (GLES)*
+
+```{r, eval = FALSE}
+install.packages("drat") # creation and use of CRAN-like repos
+drat::addRepo("polmine")
+getOption("repos")
+install.packages("gles")
+```
+
+- Was in diesen Paketen verborgen ist ... erfahren Sie noch früh genug!
+
 ---
 
 
-Vektoren als grundlegende Datenstruktur
-=======================================
+# Vektoren
 
 Vektoren sind die grundlegende Datenstruktur in R. Sie bestehen immer aus einer Datenart:
 
-* logischen Werten (TRUE, FALSE)
-* numerischen Werten ("numeric")
-* Textzeichen ("character")
+--
 
-Vektoren können in Variablen gespeichert werden. Man sollte sich von Anfang an eine aussagekräftige Benennung von Variablen gewöhnen!
-
-
-numerische Vektoren
-===================
-
-
-__Definition von Vektoren__
+... logischen Werten (`logical`)
 
 ```{r}
-foo <- 1
-value <- 1
-values <- c(10,15,30,4,5,6)
-withMissing <- c(4,5,10, NA, 15, 20, NA)
-is(withMissing)
-logo <- c(TRUE, FALSE, FALSE, TRUE)
-is(logo)
-terms <- c("Wir", "wollen", "mehr", "Worte")
-is(terms) # Klasse des Objekts terms erkunden
+logo <- c(T, F, F, T)
+logo <- c(TRUE, FALSE, FALSE, TRUE) # mehr Tipparbeit, aber expressiver
 ```
 
-__Einfache Operationen mit Vektoren__
+--
+
+... numerischen Werten (`numeric`)
 
 ```{r}
-x <- 1:20 # eine Reihe
-counting <- 1:6 
-foo <- c(values, counting, x) # c für combine / concatenate
-c(logo, values)
-c(terms, values)
-as.numeric(logo)
-valuesChar <- as.character(values)
-is.numeric(valuesChar)
-is.character(valuesChar)
+fgw_exp <- c(39, 16, 9, 5, 7, 18, 6)
+```
+
+--
+
+... Textzeichen (`character`)
+
+```{r}
+parties <- c("CDU/CSU", "SPD", "AfD", "FDP", "LINKE", "GRÜNE", "Sonstige")
+party_colors <- c("black", "red", "blue", "yellow", "pink", "green", "grey")
+```
+
+--
+
+Vektoren können in Variablen gespeichert werden (Zuweisung mit dem Pfeil `<-`). Man sollte sich von Anfang an eine aussagekräftige Benennung von Variablen angewöhnen!
+
+---
+
+# Numerische Vektoren
+
+## Einfache Operationen mit Vektoren
+
+```{r}
+a <- 1:5 # eine Zahlenreihe
+b <- 6:10 # eine zweite Zahlenreihe
+x <- c(a, b) # numerische Vektoren verknüpfen ("c"für combine)
+```
+
+```{r}
+head(x) # Anfang eines Vektors ansehen
+tail(x) # Ende eines Vektors ansehen
+```
+
+```{r}
+is.numeric(x) # Auf Klasse 'numeric' prüfen - vgl. is.character() etc.
+```
+
+---
+
+# Einfache Operationen mit Vektoren
+
+### Typumwandlungen
+
+```{r}
+as.numeric(logo) # Typ-Umwandlung von logisch nach numerisch
+as.character(fgw_exp)
+```
+
+### Wiederholungen
+
+```{r}
 rep(3, times = 4) # einfache Wiederholung
 rep(c(1,2,3), times = 2) # Wiederholung einer Reihe
 ```
 
+---
 
-__Indizierung__
+# Mit Vektoren rechnen 
 
 ```{r}
-values[3]
-values[2:4]
-values[c(2:4)]
+a <- c(1,2,3)
+b <- c(4,5,6)
+a + b
+a * b
+a / b
+```
+
+```{r}
+sum(fgw_exp) # auch: mean(fgw_exp), sd(fgw_exp)
+```
+
+*Merke: In R ist die Vektorisierung von Operationen schnell und effizient! Vectorize whenever you can!*
+
+---
+
+# Benannte Vektoren (named vectors)
+
+```{r}
+names(fgw_exp) <- parties # Zuweisung von Namen
+fgw_exp
 ```
 
 
-__Funktionen für (numerische) Vektoren__
-
 ```{r}
-length(values) # wichtig, um durch Werte zu iterieren
-rev(counting) # Umkehrung der Reihenfolge
-order(values) # Reihenfolge
-order(values, decreasing = TRUE) # wie könnte das noch gemacht werden?
-values[order(values)]
-```
-
-Benennung von Variablen und Indizierung über Namen
-
-```{r}
-values
-names(values) <- c("a", "b", "c", "d", "e", "f")
-values 
-values["a"]
-values["c"]
-values[c("a", "b")]
-
-values = c(a = 10, b = 15, c = 30, d = 4, e = 5, f = 6)
-
-fgw <- c(
-  CDU = 32, SPD = 31, GRU = 6.5, FDP = 13.5,
-  LINKE = 6, PIRATEN = NA, AfD = 6.5
-  )
-fgw["Sonstige"] <- 100 - sum(fgw, na.rm = TRUE)
-
-yougov <- c(
-  CDU = 31, SPD = 30, GRU = 7, FDP = 13,
-  LINKE = 5, PIRATEN = NA, AfD = 7
-  )
-yougov["Sonstige"] <- 100 - sum(yougov, na.rm = TRUE)
-
-what <- "SPD"
-comparison <- c(
-  fgw = unname(fgw[what]),
-  yougov = unname(yougov[what])
-  )
-comparison
-
-barplot(comparison)
-
-barplot(fgw)
-barplot(
-  fgw, cex.names = 3, cex.axis = 3, space = 0,
-  col = c("black", "red", "green", "yellow", 451, "orange", "blue", "grey"),
-  xlab = "Partei", ylab = "Prozentpunkte",
-  main = "Forschungsgruppe Wahlen (Umfrage vom 08.05.2017)",
-  cex.main = 5,
-  cex.sub = 3,
-  cex.lab = 3,
-  ylim = c(0,35)
-  )
-text(x = 1:8 - 0.5, y = fgw + 0.5, labels = round(fgw, 1), cex = 2)
+fgw_exp <- c(
+  "CDU/CSU" = 39, # Anführungszeichen, wenn Zeichen wie ()[]! etc. enthalten
+  SPD = 16,
+  AfD = 9,
+  FDP = 5,
+  LINKE = 7,
+  GRÜNE = 18, # Umlaute (und Sonderzeichen) können unendlich tückisch sein ...
+  Sonstige = 6
+)
+fgw_exp
 ```
 
 
-# einfache statistische Maße
-```{r}
-sum(values) # Aufaddierung der Werte
-mean(values) # Mittelwert
-sd(values) # Standardabweichung
-sd(withMissing) # wie kommt man zu einem Ergebnis?
+---
 
-# Test auf fehlende Werte
-is.na(withMissing) # Identifikation fehlender Werte 
-is.null(withMissing)
+# Unsere erste Visualisierung!
+
+```{r}
+barplot(height = fgw_exp)
+```
+
+
+---
+
+# Unsere zweite Visualisierung!
+
+```{r}
+barplot(height = fgw_exp, names.arg = names(fgw_exp), col = party_colors)
+```
+
+
+---
+
+# Indizierung
+
+```{r}
+spd <- fgw_exp[2] # nur SPD
+fgw_exp[1:6] # ohne "Sonstige"
+centre_left <- fgw_exp[c("SPD", "LINKE", "GRÜNE")] # 
+```
+
+Erste Erkenntnissee über Koalitionen ...
+
+```{r}
+sum(centre_left)
+sum(fgw_exp[c("CDU/CSU", "FDP")])
+```
+
+---
+
+# Logische Operatoren
+
+```{r}
+fgw_exp["CDU/CSU"] >= 30
+fgw_exp["FDP"] < 5
+```
+
+```{r}
+fgw_exp > 10
+fgw_exp[fgw_exp > 10]
+```
+
+---
+
+# Funktionen für (numerische) Vektoren
+
+```{r}
+length(fgw_exp) # wichtig, um durch Werte zu iterieren - 1:length(fgw_exp)
+order(fgw_exp) # Reihenfolge
+order(fgw_exp, decreasing = TRUE) # wie könnte das noch gemacht werden?
+fgw_exp[order(fgw_exp, decreasing = TRUE)]
+```
+
+---
+
+# Einfache statistische Maße
+
+```{r}
+max(fgw_exp) # Maximalwert
+min(fgw_exp) # minimaler Wert
+mean(fgw_exp) # Mittelwert
+sd(fgw_exp) # Standardabweichung
+```
+
+---
 
 # Lokalisierung bestimmter Werte
-which(values == 15)
-which(values > 10)
-which(values >= 10)
-```
-
-
-__Benennung von Vektoren__
 
 ```{r}
-names(values)
-names(values) <- c("a", "b", "c", "d", "e", "f")
-values[c("a", "b")]
+which(fgw_exp == max(fgw_exp))
+fgw_exp[which(fgw_exp == max(fgw_exp))]
+fgw_exp[which(fgw_exp > 10)]
 ```
 
+---
 
-__Indizierung für Fortgeschrittene__
+# Funktionen für character-Vektoren
 
 ```{r}
-values[order(values)]
-values[order(values, decreasing = TRUE)]
-values[which(values > 10)]
+library(polmineR)
+words <- get_token_stream("GERMAPARLMINI", p_attribute = "word")
+length(words)
+head(words)
+head(toupper(words))
+tolower(words) %>% head()
 ```
 
+---
 
-
-__ein bisschen Mathe__
+# Funktionen für character-Vektoren (II)
 
 ```{r}
-a <- c(10, 20, 30)
-b <- c(5, 10, 2)
-a / b
-a * b
-a + b
-a <- c(1,2,3,4,5)
-a / 5
-a + 1
-a * 2
-b <- c(5,4,3,2,1)
-a / b
-a * b
-a + b
-
-sum(a) 
-length(a)
-m <- mean(a)
-m <- sum(a) / length(a)
+wordcount <- table(words)
+head(wordcount)
 ```
-
-__einfache Visualisierung__
 
 ```{r}
-barplot(values)
-barplot(values, names.arg = names(values))
-barplot(values, names.arg = names(values), las = 2)
+stopwords <- tm::stopwords("de")
+detect_stopwords <- words %in% stopwords
+word_count <- table(words[!words %in% stopwords]) # Negation durch !
+tail(word_count)
 ```
 
-character-Vektoren
-------------------
+
+---
+
+# Polierarbeit
 
 ```{r}
-charVector <- c("Persil", "Rei", "Ariel") 
-charVectorPlus <- c(charVector, "Perwoll")
-
-length(charVector) # Länge des Vektors
-rev(charVector) # umkehrung der Reihenfolge
-"Persil" %in% charVector
-which(charVector == "Persil") # Position von Persil
-
-foo <- c("1", "2", "3")
-as.numeric(foo) # Umwandlung in numerischen Vektor
+noise <- c(",", ".", ":", ")", "(", "/", "-", "!", "[", "]", "?", ";", '"')
+word_count_denoised <- word_count[!names(word_count) %in% noise]
+head(word_count_denoised)
+word_count_sorted <- word_count_denoised[order(word_count_denoised, decreasing = TRUE)]
+head(word_count_sorted, 10)
 ```
 
+---
 
-logische Vektoren
------------------
-
-Logische Vektoren können die Werte TRUE oder FALSE annahmen ...
+# Meine erste Wortwolke
 
 ```{r}
-foo <- TRUE
-manOrWomen <- c(TRUE, FALSE, FALSE) # was ist hier verwirrend?
-women <- c(TRUE, TRUE, TRUE, TRUE, FALSE, FALSE)
-which(women == FALSE)
-names(women) <- c("karin", "laura", "jaenette", "ceylan",  "detlev", "xaver")
-names(which(women == FALSE))
+wordcloud::wordcloud(
+  words = names(word_count_sorted)[1:50], freq = unname(word_count_sorted)[1:50],
+  colors = rep(palette(), 10)[1:50]
+)
+```
+
+---
+
+# Wenn Sie mehr wissen wollen ...
+
+- Faktoren als vierter Vektor-Typ
+
+```{r}
+as.factor(parties)
+```
+
+- Matrizen als besondere Vektoren
+
+```{r}
+combn(parties, 2)[,1:5] # (hypothetische) Zweier-Koalitionen
+```
+
+- `integer`-Vektoren als Spezialfall numerischer Vektoren
+
+```{r}
+constituencies <- c(202L, 304L, 20L)
+```
+
+---
+
+# NA-Werte (not available)
+
+```{r}
+foo <- c(NA, 3, 7, NA, 4)
+foo
+is.na(foo) # auf NA testen
+sum(foo)
+sum(foo, na.rm = TRUE) # NA-Werte aus Summenbildung ausschließen
+```
+
+---
+
+# Der data.frame: iris und mtcars
+
+```{r}
+head(iris)
 ```
 
 
+```{r}
+head(mtcars)
+```
 
-Quiz
-----
-* in Arbeitsgruppen: durchschnittliche Körpergrösse ...
-* was ist der Mittelwert (Summe, Standardabweichung) der Körpergrösse im Seminar?
-* Veranschaulichen Sie die Körpergrößen mit einem Balkendiagramm!
-* Ordnen Sie die Balken im Diagramm in absteigender Reihenfolge (-;)
+---
 
+# Listen
 
+```{r}
+fgw <- list(
+  party = names(fgw_exp),
+  share = unname(fgw_exp),
+  color = party_colors
+)
+fgw
+fgw[["share"]] # Zugriff auf ein Element der Liste
+fgw$share 
+```
 
+---
 
-Und noch eine Aufgabe!
-----------------------
+# Ein data.frame ist nur eine  Liste!
 
-* Vergleichen Sie den Mittelwert der Körpergröße der Männer und Frauen im Seminar!
+```{r}
+df <- data.frame(fgw)
+is(df)
+df[["share"]]
+df$share
+```
 
+---
 
+# data.frame: Basics
 
+.pull-left[
+```{r, eval = TRUE}
+nrow(df)
+ncol(df)
+dim(df)
+colnames(df)
+rownames(df)
+```
+]
 
+.pull-right[
+```{r}
+df[, c("party", "share")]
+df[1:3,]
+```
+]
+---
+
+# data.frame: Basics (continued)
+
+```{r}
+df[df$share > 10,]
+subset(df, share > 10)
+```
+
+---
+
+# Mein erster "echter" data.frame
+
+```{r}
+library(gles)
+data(bt2013) # see questionnaire("bt2013")
+dim(bt2013)
+```
+
+```{r}
+party_vote <- bt2013[["v11aa"]]
+party_vote_min <- party_vote[!is.na(party_vote)]
+round(table(party_vote_min) / length(party_vote_min) * 100, 2)
+```
+---
+
+# Ausblick: Webscraping ist einfach
+
+- Im Netz gibt es reichlich Informationen - Tabellen und Daten "wie Sand am Meer".
+
+- Wie extrahiert man Tabellen aus html-Dokumenten? Ein Mini-Szenario:
+
+```{r}
+fgw_url <- "https://www.wahlrecht.de/umfragen/politbarometer.htm"
+xml <- xml2::read_html(fgw_url)
+tab <- rvest::html_table(xml, fill = TRUE)[[2]]
+```
+
+- Man muss nur ein wenig Nacharbeit leisten:
+  - Spalten anpassen
+  - Prozentangaben entfernen (Tip: `gsub()`)
+  - Datumsangaben standardisieren
+  
+- Viel Spass beim Datensammeln!
