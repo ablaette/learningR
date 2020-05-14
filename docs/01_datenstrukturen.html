@@ -21,6 +21,18 @@ class: center, middle, inverse, title-slide
 ---
 
 
+background-image: url(img/Le_28_juillet.jpg)
+background-size: cover
+class: nobackground, inverse
+
+
+.attribution[[E. Delacroix / Wikimedia](https://commons.wikimedia.org/wiki/File:Eug%C3%A8ne_Delacroix_-_Le_28_Juillet._La_Libert%C3%A9_guidant_le_peuple.jpg)]
+
+.pull-center[# Warum R?&lt;br/&gt;Freiheit -Gleichheit - Brüderlichkeit!]
+
+
+---
+
 # Installationen
 
 - Für die ersten Schritte beim Programmieren mit R beschäftigen wir uns mit Vektoren als grundlegender Datenstruktur 
@@ -66,7 +78,7 @@ logo &lt;- c(TRUE, FALSE, FALSE, TRUE) # mehr Tipparbeit, aber expressiver
 
 --
 
-... numerischen Werten (`numeric`)
+... numerischen Werten (`numeric`) -&gt; Quelle: [Projektion FGW](https://www.forschungsgruppe.de/Startseite/)
 
 
 ```r
@@ -91,7 +103,9 @@ Vektoren können in Variablen gespeichert werden (Zuweisung mit dem Pfeil `&lt;-
 
 # Numerische Vektoren
 
-## Einfache Operationen mit Vektoren
+## Einfache Operationen und generische Funktionen
+
+--
 
 
 ```r
@@ -551,10 +565,8 @@ head(word_count_sorted, 10)
 
 ```
 ## 
-##     Sie    dass Beifall     Das     Wir     FDP     CDU     CSU     Ich 
-##    2280    1678    1594    1341    1100     999     952     943     896 
-##     SPD 
-##     861
+##     Sie    dass Beifall     Das     Wir     FDP     CDU     CSU     Ich     SPD 
+##    2280    1678    1594    1341    1100     999     952     943     896     861
 ```
 
 ---
@@ -572,6 +584,23 @@ wordcloud::wordcloud(
 ![](01_datenstrukturen_files/figure-html/unnamed-chunk-28-1.png)&lt;!-- --&gt;
 
 ---
+
+# Übungsaufgaben
+
+&lt;br/&gt;&lt;br/&gt;
+
+1. Wie viele Wortformen treten im Beispiel-Korpus auf?
+
+2. Was ist der Anteil der *stopwords* am Korpus?
+
+3. Wie oft tritt die Anrede 'Sie' im Korpus auf?
+
+4. Was sind die häufigsten/seltensten Buchstaben?
+
+
+
+---
+
 
 # Wenn Sie mehr wissen wollen ...
 
@@ -647,6 +676,16 @@ sum(foo, na.rm = TRUE) # NA-Werte aus Summenbildung ausschließen
 
 ---
 
+background-image: url(img/17_chapter07_fig_01.png)
+background-size: cover
+class: nobackground, inverse
+
+
+.attribution[[Stiefl, Wirtschaftsstatistik](https://www.oreilly.com/library/view/wirtschaftsstatistik-3rd-edition/9783110565287/content/17_chapter07.xhtml)]
+
+
+---
+
 # Der data.frame: iris und mtcars
 
 
@@ -696,8 +735,7 @@ fgw
 
 ```
 ## $party
-## [1] "CDU/CSU"  "SPD"      "AfD"      "FDP"      "LINKE"    "GRÜNE"   
-## [7] "Sonstige"
+## [1] "CDU/CSU"  "SPD"      "AfD"      "FDP"      "LINKE"    "GRÜNE"    "Sonstige"
 ## 
 ## $share
 ## [1] 39 16  9  5  7 18  6
@@ -885,6 +923,18 @@ round(table(party_vote_min) / length(party_vote_min) * 100, 2)
 ## andere Partei 
 ##          0.58
 ```
+---
+
+# Übungsaufgaben
+
+&lt;br/&gt;
+
+1. Welcher Anteil der Befragten ist über 20/30/40/50/60/70?
+2. Wie unterscheiden sich Antworten zur "Sonntagsfrage" zwischen Vor- und Nachwahlbefragung?
+3. Wie gestaltet sich die Alterstruktur der AfD-Wähler?
+
+Wenn Sie möchten ... gerne Antwort mit Balkendiagramm!
+
 ---
 
 # Ausblick: Webscraping ist einfach
