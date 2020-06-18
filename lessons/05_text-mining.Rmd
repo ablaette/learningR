@@ -1,0 +1,232 @@
+---
+title: "Text Mining - erste Schritte"
+author: "Andreas Blaette"
+date: "4. Juni 2020"
+output: 
+  xaringan::moon_reader:
+    css: [default, metropolis, robot-fonts, './css/polminify.css']
+    nature:
+      countIncrementalSlides: false
+editor_options:
+  chunk_output_type: console
+---
+  
+# Webscraping-Szenarien
+
+Dieser Foliensatz vermittelt elementare Grundlagen zu folgenden Szenarien:
+
+- direktes Laden von Daten von Online-Speicherorten
+- Extraktion von Daten (Tabellen, Text) aus html-Dokumenten
+- Download und Verarbeitung von pdf-Dokumenten
+
+Schwieriger wird es, wenn Web-Seiten dynamisch aus Datenbanken generiert werden. Dann ist meist eine Fernsteuerung eines Browsers erforderlich, z.B. mit dem [Selenium WebDriver](https://www.selenium.dev/documentation/en/webdriver/) (vgl. R-Paket [RSelenium](https://cran.r-project.org/package=RSelenium)). Diese fortgeschrittene Technik wird in diesem Foliensatz nicht behandelt.
+
+---
+
+# Datenimport von Online-Speicherorten I
+
+- Durch die Entwicklung hin zu Open Governmemt bzw. Open Data werden immer mehr Datensätze online zur Verfügung gestellt. Zum Teil sind dies Datenformate, die an eine bestimmte Software gebunden sind (z.B. Excel). Die Regel sind jedoch Datenaustauschformate wie [csv](https://de.wikipedia.org/wiki/CSV_%28Dateiformat%29) und [json](https://de.wikipedia.org/wiki/JavaScript_Object_Notation).
+
+- *Beispiel 1*: Die Stadt Duisburg stellt über ein **Open Data**-Portal etliche interessante Datensätze zur Verfügung. Wir interessieren uns für eine Tabelle zu "Menschen mit Migrationshintergrund", welche die entsprechende Anteile nach Ortsteilen aufschlüsselt.
+
+- Etliche R-Funktionen erkennen, wenn bei einem Dateinamen eine URL angegeben wird und laden die Datei direkt "aus dem Netz". Mit `read.csv()` kann man die Datei direkt laden. 
+
+```{r, eval = TRUE}
+df <- read.csv(
+  file = "https://opendata-duisburg.de/sites/default/files/MHGo2018_2.csv",
+  sep = ";"
+)
+```
+
+- 
+---
+
+--- 
+
+# Datenimport von Online-Speicherorten II
+
+- Beispiel 2: Bundestagswahlergebnisse 2017
+
+```{r, eval = FALSE}
+btw17_url <- "https://www.bundeswahlleiter.de/dam/jcr/72f186bb-aa56-47d3-b24c-6a46f5de22d0/btw17_kerg.csv"
+btw17_local <- tempfile()
+download.file(url = btw17_url, destfile = btw17_local)
+btw17_aux <- scan(file = btw17_local, what = character(), sep = "\n")
+df <- read.csv(file = btw17_local, sep = ";", skip = 5)
+```
+
+
+---
+
+# Verarbeitung von html-Dokumenten
+
+- Grundsätzlich werden html-Dokumente wie xml-Dokumente verarbeitet. State-of-the-Art ist
+  - die Repräsentation dre Datenstrukturen eines html-Dokuments mit dem xml2-Pakt; 
+  - für die html-spezifische Datenextraktion wird das rvest-Paket verwendet.
+
+- direktes Einlesen von Tabellen
+
+- Beispiel: Extraktion einer Tabelle zu MdBs aus Wikipedia-Seite
+
+```{r, eval = TRUE}
+library(rvest)
+library(xml2)
+
+wikipedia_url <- "https://de.wikipedia.org/wiki/Liste_der_Mitglieder_des_Deutschen_Bundestages_%2816._Wahlperiode%29"
+page <- xml2::read_html(wikipedia_url)
+tables <- rvest::html_nodes(page, "table")
+tab <- rvest::html_table(tables[[2]])
+```
+
+---
+
+# Ergebnis der Daten-Extraktion
+
+```{r}
+head(tab[,1:3])
+```
+
+Wir können beispielsweise das Durchschnittsalter beim Zusammentritt des Bundestags berechnen ...
+
+```{r}
+mean(2005 - tab[,2])
+```
+
+---
+
+# Navigation im XML
+
+- Um Text aus html-Dokumenten zu extrahieren, wird die hierarchische Baumstruktur des html-Dokuments mit Xpath-Ausdrücken abgefragt. 
+
+- Ein typisches Szenario ist die Extraktion von Text aus einem Archiv von Pressemitteilungen (z.B. des [Bundespresse- und Informationsamts](https://de.wikipedia.org/wiki/Liste_der_Mitglieder_des_Deutschen_Bundestages_%2816._Wahlperiode%29))
+
+```{r}
+pm <- "http://www.bundesregierung.de/Content/DE/Pressemitteilungen/BPA/2015/07/2015-07-09-bkm-kulturelle-bildung.html"
+page <- xml2::read_html(pm)
+```
+
+```{r}
+paragraph_nodes <- rvest::html_nodes(page, xpath = "//p") # Identifikation aller Absätze
+paragraphs <- sapply(paragraph_nodes, html_text) # Extraktion des Texts aus den Absätzeen
+paragaphs <- paragraphs[nchar(paragraphs) > 0L] # Absätze ohne Text fallen lassen
+paragaphs[1]
+```
+
+- XPath
+
+---
+
+# pdf-Dokumente: Tabellen extrahieren
+
+```{rm, eval = FALSE}
+url_ltw <- "https://www.bundeswahlleiter.de/dam/jcr/a333e523-0717-42ad-a772-d5ad7e7e97cc/ltw_erg_gesamt.pdf"
+ltw_local <- tempfile()
+pdf_local <- download.file(url = url_ltw, destfile = ltw_local)
+```
+
+
+```{r, eval = FALSE}
+library(tabulizer)
+tabulizer::extract_tables(file = ltw_local, pages = 74)
+```  
+
+---
+
+# pdf-Dokumente: Text extrahieren
+
+```{r, eval = FALSE}
+cdu_btw2017 <- "https://www.cdu.de/system/tdf/media/dokumente/170703regierungsprogramm2017.pdf?file=1"
+cdu_btw2017_local <- tempfile()
+download.file(url = cdu_btw2017, destfile = cdu_btw2017_local)
+```
+
+```{r, eval = FALSE}
+library(pdftools)
+pdftools::pdf_info(cdu_btw2017_local)
+txt <- pdftools::pdf_text(cdu_btw2017_local)
+```
+
+---
+
+# Reguläre Ausdrücke
+
+| Ausdruck | Beschreibung |
+|:-------:| --------------|
+| .       |Ein Punkt (".") steht für ein beliebiges Zeichen |
+| \\d | "digit" (Ziffer), d.h. 0 bis 9 |
+| \\s | "whitespace" - Leerzeichen | 
+| \\w | Buchstaben (keine Ziffern oder Leerzeichen) | 
+---
+
+# Quantoren
+
+| Ausdruck | Beschreibung |
+|:-------:| --------------|
+|?|Der voranstehende Ausdruck kommt kein- oder einmal vor.|
+|+|Der voranstehende Ausdruck tritt einmal oder mehrfach auf. |
+|*|Der voranstehende Ausdruck tritt keinmal oder beliebig oft auf.|
+|{n}|Der voranstehende Ausdruck tritt exakt n-fach auf.|
+|{min,}| Der voranstehende Ausdruck tritt mindestens min-fach auf.|
+|{min,max}|Der voranstehende Ausdruck tritt mindestens min-fach und maximal max-fach auf.|
+|{0,max}| Der voranstehende Ausdruck darf maximal max-fach vorkommen.|
+
+---
+
+#  Rückwärts-Referenzen
+
+
+---
+
+# gsub
+
+```{r, eval = FALSE}
+txt2 <- gsub("\\s{6,}\\d+", "", txt)
+txt3 <- gsub("\\n", " ", txt2)
+txt4 <- gsub("\\s+", " ", txt3)# große Lücken weg
+txt5 <- gsub("", " ", txt4) # Kästchen weg
+txt6 <- gsub("-\\s+(?!und)", "", txt5, perl = TRUE) # Bundestriche weg
+```
+
+---
+
+# strsplit
+
+```{r, eval = FALSE}
+word_list <- strsplit(x = txt6, split = "\\s")
+words <- unlist(word_list)
+```
+
+```{r, eval = FALSE}
+words_cleaned <- gsub("[,:\\.!?]", "", words)
+words_cleaned <- tolower(words_cleaned)
+words_cleaned <- words_cleaned[!words_cleaned %in% tm::stopwords("de")]
+words_count <- table(words_cleaned)
+words_count_sorted <- words_count[order(words_count, decreasing = TRUE)]
+```
+
+---
+  
+# Wortwolke
+
+```{r, eval = FALSE}
+library(wordcloud)
+
+wordcloud(
+  words = names(words_count_sorted)[1:50],
+  freq = unname(words_count_sorted)[1:50]
+)
+```
+
+
+---
+
+# Übungsaufgaben 
+
+Säubern Sie das Wahlprogramm von 
+- SPD
+- Bündnis 90/Die Grünen 
+- FDP 
+- Die LINKE
+- AfD
+
+... und erstellen Sie eine Wortwolke mit den häufigsten Worten.
