@@ -1,0 +1,122 @@
+---
+title: "Erste Schritte"
+subtitle: "Installation von Paketen"
+author: "Andreas Blaette"
+date: "20. April 2021"
+output: 
+  xaringan::moon_reader:
+    css: [default, metropolis, robot-fonts, './css/polminify.css']
+    nature:
+      countIncrementalSlides: false
+editor_options:
+  chunk_output_type: console
+---
+
+# Badges und Credit Points
+
+- Übungsaufgaben zu Sitzungen
+
+- Auszeichnungen (Micro-Badges)
+  - "Rechenkünstlerin"
+  - "Statistikmeisterin"
+  - "Textbefreierin"
+  - "Gefühlsanalytikerin"
+
+- Takeaway-Badge
+
+- Projektarbeit und Credit Points
+
+---
+
+# R und RStudio
+
+- R ist der Motor 
+
+- RStudio ist eine IDE ([Integrated Development Environment](https://de.wikipedia.org/wiki/Integrierte_Entwicklungsumgebung))
+  - Viele nützliche features (z.B. code completion, Navigation in Befehlsgeschichte)
+  - Tabellen erkunden mit `View()`
+  - Immer wieder hilfreich: Anzeige von Hilfe
+  
+```{r, eval = FALSE}
+?install.packages
+View(iris)
+```
+
+- Wichtig: Neue R-Version - neue Paketinstallationen!
+
+
+---
+
+
+# Installation von Paketen
+
+- Installation von CRAN-Paketen
+
+```{r, eval = FALSE}
+install.packages("beepr")
+```
+
+- Was sind eigentlich "dependencies"?
+
+- Unterschied von "source packages" und "binary packages"
+
+- Installation von Paketen von CRAN-artigen Repositorien
+
+```{r, eval = FALSE}
+install.packages("drat")
+drat::addRepo("polmine")
+install.packages("gles")
+```
+
+- Installation von Paketen von GitHub
+
+```{r, eval = FALSE}
+devtools::install_github("PolMine/polmineR")
+```
+
+---
+
+# Zum Schluss: beepr
+
+- Installation des Pakets [beepr](https://cran.r-project.org/package=beepr)
+
+```{r, eval = FALSE}
+install.packages("beepr")
+```
+
+- Laden des Paketes!
+
+```{r, eval = FALSE}
+library(beepr)
+```
+
+- Und rumbeepen
+
+```{r, eval = FALSE}
+beep(5)
+```
+
+- Alternativ ...
+
+```{r, eval = FALSE}
+beepr::beep(6)
+```
+
+- Viel Freude mit beepr!
+
+---
+
+# Ausblick: Ein "Hallo Welt"-Programm
+
+- Anlegen einer Datei "foo.R"
+
+```{r, eval = FALSE}
+print("Hallo Welt!")
+```
+
+- Ausführung über die Konsole
+
+```{r, eval = FALSE}
+Rscript foo.R
+```
+
