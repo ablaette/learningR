@@ -5,9 +5,9 @@ The repository is used for an introductory course to scientific programming and 
 
 ## Finding the slides online
 
-- [https://ablaette.github.io/learningR/00_getting_started.html#1](Allererste Schritte)
-- [https://ablaette.github.io/learningR/01_installation.html#1](Installation von Paketen)
-- [https://ablaette.github.io/learningR/02_vektoren.html#1](Datenstrukturen: Vektoren)
+- [Allererste Schritte](https://ablaette.github.io/learningR/00_getting_started.html#1)
+- [Installation von Paketen](https://ablaette.github.io/learningR/01_installation.html#1)
+- [Datenstrukturen: Vektoren](https://ablaette.github.io/learningR/02_vektoren.html#1)
 
 
 ## Using the slides
