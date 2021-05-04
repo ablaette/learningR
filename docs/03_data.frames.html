@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Wissenschaftliches Programmieren mit R</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Andreas Blaette" />
+    <link href="03_data.frames_files/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="03_data.frames_files/remark-css-0.0.1/metropolis.css" rel="stylesheet" />
+    <link href="03_data.frames_files/remark-css-0.0.1/robot-fonts.css" rel="stylesheet" />
+    <link href="03_data.frames_files/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
+    <script src="03_data.frames_files/anchor-sections-1.0/anchor-sections.js"></script>
+    <link rel="stylesheet" href="css/polminify.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Wissenschaftliches Programmieren mit R
+## Matrizen - Liste - data.frame
+### Andreas Blaette
+### 4. Mai 2021
+
+---
+
+
+# Matrizen
+
+- Matrizen umfassen immer eine Datenart (Zahlen, logische Werte, Strings)!
+- Matrizen sind zweidimensional (vgl. "Arrays" mit 3 oder mehr Dimensionen)
+- Matrizen sind Vektoren, die als Matrix arrangiert werden und die mit Zeilen- und Spaltennamen versehen werden können
+  
+
+```r
+matrix_data &lt;- rep(c(1, 2, 3), times = 3)
+m &lt;- matrix(data = matrix_data, ncol = 3, nrow = 3)
+m &lt;- matrix(data = c(1:9), ncol = 3)
+m 
+```
+
+```
+##      [,1] [,2] [,3]
+## [1,]    1    4    7
+## [2,]    2    5    8
+## [3,]    3    6    9
+```
+
+---
+
+# Zeilen- und Spaltennamen
+
+Hinzufügen einer Beschriftung der Reihen
+
+
+```r
+rownames(m) &lt;- c("a", "b", "c") 
+```
+
+Beschriftung der Spalten
+
+
+```r
+colnames(m) &lt;- c("one", "two", "three") 
+m
+```
+
+```
+##   one two three
+## a   1   4     7
+## b   2   5     8
+## c   3   6     9
+```
+
+Oder man könnte Zeilen- und Spaltennamen von Anfang an hinzufügen ...
+
+
+```r
+m &lt;- matrix(
+  matrix_data,
+  ncol = 3,
+  dimnames = list(c("a", "b", "c"), c("one", "two", "three"))
+)
+```
+
+
+---
+
+# Indizierung von Matrizen
+  
+Indizierung wie bei Vektoren über eckige Klammern, allerdings unter Angabe von zwei Werten (kommagetrennt).
+
+
+```r
+m[1,1] # Wert der ersten Reihe, erste Spalte
+```
+
+```
+## [1] 1
+```
+
+```r
+m[1,2]
+```
+
+```
+## [1] 1
+```
+
+```r
+m[2,3] # 
+```
+
+```
+## [1] 2
+```
+
+```r
+m[,2] # die zweite Spalte
+```
+
+```
+## a b c 
+## 1 2 3
+```
+
+---
+
+# Indizierung von Matrizen II
+
+
+```r
+m[,"one"] # Indizierung über Spaltenbeschriftung
+```
+
+```
+## a b c 
+## 1 2 3
+```
+
+```r
+is(m[,"one"]) # man sollte immer wissen was man bekommt!
+```
+
+```
+## [1] "numeric" "vector"
+```
+
+```r
+m[,c("one", "two")]
+```
+
+```
+##   one two
+## a   1   1
+## b   2   2
+## c   3   3
+```
+
+```r
+is(m[,c("one", "two")])
+```
+
+```
+## [1] "matrix"    "array"     "structure" "vector"
+```
+
+
+---
+
+# Rechnen mit Matrizen
+  
+
+```r
+rowSums(m) # Reihensummen
+```
+
+```
+## a b c 
+## 3 6 9
+```
+
+```r
+colSums(m) # Spaltensummen
+```
+
+```
+##   one   two three 
+##     6     6     6
+```
+
+Vorausblick: Eine wirklich sehr "R"-artige Arbeitsweise mit Matrizen ist, zeilen- oder spaltenweise Funktionen anzuwenden 
+
+
+```r
+apply(m, 1, mean) # Mittelwert zeilenweise
+```
+
+```
+## a b c 
+## 1 2 3
+```
+
+```r
+colmeans &lt;- apply(m, 2, mean) # Mittelwert reihenweise
+```
+
+---
+
+# Listen
+
+  
+Listen sind komplexe Datenstrukturen, in die beliebige andere Formate eingespeist werden. Sehr praktisch! Prinzip Apothekerschrank.
+
+
+```r
+fgw_exp &lt;- c(39, 16, 9, 5, 7, 18, 6)
+parties &lt;- c("CDU/CSU", "SPD", "AfD", "FDP", "LINKE", "GRÜNE", "Sonstige")
+party_colors &lt;- c("black", "red", "blue", "yellow", "pink", "green", "grey")
+fgw &lt;- list(party = parties, share = fgw_exp, color = party_colors)
+fgw
+```
+
+```
+## $party
+## [1] "CDU/CSU"  "SPD"      "AfD"      "FDP"      "LINKE"    "GRÜNE"    "Sonstige"
+## 
+## $share
+## [1] 39 16  9  5  7 18  6
+## 
+## $color
+## [1] "black"  "red"    "blue"   "yellow" "pink"   "green"  "grey"
+```
+
+
+---
+
+# Listen (continued)
+
+
+```r
+fgw[["share"]] # Zugriff auf ein Element der Liste
+```
+
+```
+## [1] 39 16  9  5  7 18  6
+```
+
+```r
+fgw$share # Zugriff mit Dollarzeichen
+```
+
+```
+## [1] 39 16  9  5  7 18  6
+```
+
+```r
+is(fgw$share)
+```
+
+```
+## [1] "numeric" "vector"
+```
+
+```r
+is(fgw$color)
+```
+
+```
+## [1] "character"           "vector"              "data.frameRowLabels"
+## [4] "SuperClassMethod"
+```
+
+```r
+names(fgw)
+```
+
+```
+## [1] "party" "share" "color"
+```
+
+---
+
+# Listen (final)
+
+
+
+```r
+length(fgw)
+```
+
+```
+## [1] 3
+```
+
+```r
+length(fgw[[1]])
+```
+
+```
+## [1] 7
+```
+
+Ausblick: Nichts ist so "R"-ish wie lapply
+
+
+
+```r
+lapply(fgw, length)
+```
+
+```
+## $party
+## [1] 7
+## 
+## $share
+## [1] 7
+## 
+## $color
+## [1] 7
+```
+
+
+---
+
+# Zwei data.frame Klassiker
+
+
+```r
+head(iris)
+```
+
+```
+##   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+## 1          5.1         3.5          1.4         0.2  setosa
+## 2          4.9         3.0          1.4         0.2  setosa
+## 3          4.7         3.2          1.3         0.2  setosa
+## 4          4.6         3.1          1.5         0.2  setosa
+## 5          5.0         3.6          1.4         0.2  setosa
+## 6          5.4         3.9          1.7         0.4  setosa
+```
+
+
+
+```r
+head(mtcars)
+```
+
+```
+##                    mpg cyl disp  hp drat    wt  qsec vs am gear carb
+## Mazda RX4         21.0   6  160 110 3.90 2.620 16.46  0  1    4    4
+## Mazda RX4 Wag     21.0   6  160 110 3.90 2.875 17.02  0  1    4    4
+## Datsun 710        22.8   4  108  93 3.85 2.320 18.61  1  1    4    1
+## Hornet 4 Drive    21.4   6  258 110 3.08 3.215 19.44  1  0    3    1
+## Hornet Sportabout 18.7   8  360 175 3.15 3.440 17.02  0  0    3    2
+## Valiant           18.1   6  225 105 2.76 3.460 20.22  1  0    3    1
+```
+
+---
+
+# Ein data.frame ist nur eine  Liste!
+
+
+```r
+df &lt;- data.frame(fgw)
+is(df)
+```
+
+```
+## [1] "data.frame" "list"       "oldClass"   "vector"
+```
+
+```r
+df[["share"]]
+```
+
+```
+## [1] 39 16  9  5  7 18  6
+```
+
+```r
+df$share
+```
+
+```
+## [1] 39 16  9  5  7 18  6
+```
+
+---
+
+# data.frame: Basics
+
+.pull-left[
+
+```r
+nrow(df)
+```
+
+```
+## [1] 7
+```
+
+```r
+ncol(df)
+```
+
+```
+## [1] 3
+```
+
+```r
+dim(df)
+```
+
+```
+## [1] 7 3
+```
+
+```r
+colnames(df)
+```
+
+```
+## [1] "party" "share" "color"
+```
+
+```r
+rownames(df)
+```
+
+```
+## [1] "1" "2" "3" "4" "5" "6" "7"
+```
+]
+
+.pull-right[
+
+```r
+df[, c("party", "share")]
+```
+
+```
+##      party share
+## 1  CDU/CSU    39
+## 2      SPD    16
+## 3      AfD     9
+## 4      FDP     5
+## 5    LINKE     7
+## 6    GRÜNE    18
+## 7 Sonstige     6
+```
+
+```r
+df[1:3,]
+```
+
+```
+##     party share color
+## 1 CDU/CSU    39 black
+## 2     SPD    16   red
+## 3     AfD     9  blue
+```
+]
+
+---
+
+# data.frame: Subsetting
+
+Subsetting über Indizierung
+
+
+```r
+df[df$share &gt; 10,]
+```
+
+```
+##     party share color
+## 1 CDU/CSU    39 black
+## 2     SPD    16   red
+## 6   GRÜNE    18 green
+```
+
+Subsetting mit der `subset()`-Funktion
+
+
+```r
+subset(df, share &gt; 10)
+```
+
+```
+##     party share color
+## 1 CDU/CSU    39 black
+## 2     SPD    16   red
+## 6   GRÜNE    18 green
+```
+
+
+---
+
+# Mein erster "echter" data.frame
+
+
+```r
+library(gles)
+data(bt2013) # see questionnaire("bt2013")
+dim(bt2013)
+```
+
+```
+## [1] 3911  979
+```
+
+
+```r
+party_vote &lt;- bt2013[["v11aa"]]
+party_vote_min &lt;- party_vote[!is.na(party_vote)]
+round(table(party_vote_min) / length(party_vote_min) * 100, 2)
+```
+
+```
+## party_vote_min
+##       CDU/CSU           CDU           CSU           SPD           FDP 
+##         44.53          0.00          0.00         29.85          3.21 
+##        GRUENE     DIE LINKE           NPD       PIRATEN           AfD 
+##          9.20          9.12          0.44          1.61          1.46 
+## andere Partei 
+##          0.58
+```
+---
+
+# Übungsaufgaben
+
+&lt;br/&gt;
+
+1. Welcher Anteil der Befragten ist über 20/30/40/50/60/70?
+2. Wie gestaltet sich die Alterstruktur der AfD-Wähler?
+
+Wenn Sie möchten ... gerne Antwort mit Balkendiagramm!
+
+---
+
+# Ausblick: Webscraping ist einfach
+
+- Im Netz gibt es reichlich Informationen - Tabellen und Daten "wie Sand am Meer".
+
+- Wie extrahiert man Tabellen aus html-Dokumenten? Ein Mini-Szenario:
+
+
+```r
+fgw_url &lt;- "https://www.wahlrecht.de/umfragen/politbarometer.htm"
+xml &lt;- xml2::read_html(fgw_url)
+tab &lt;- rvest::html_table(xml, fill = TRUE)[[2]]
+```
+
+- Man muss nur ein wenig Nacharbeit leisten:
+  - Spalten anpassen
+  - Prozentangaben entfernen (Tip: `gsub()`)
+  - Datumsangaben standardisieren
+  
+- Viel Spass beim Datensammeln!
+
+---
+
+# Szenario: Wahlkreisergebnisse
+
+(Mögliches Ziel: Visualisierung der Wahlbeteiligung in Wahlkreisen in Balkendiagramm in absteigender Reihenfolge)
+
+
+```r
+# Wir hollen Tabelle in Rohformat von Internet-Seite des Bundeswahlleiters geholt werden
+btw2013url &lt;- "https://www.bundeswahlleiter.de/dam/jcr/2ace94c3-15cb-476b-aa98-806b97209353/btw13_kerg.csv"
+bt13raw &lt;- read.table(btw2013url, header = T, skip = 2, fileEncoding = "ISO-8859-1", sep = ";")
+bt13 &lt;- bt13raw[3:nrow(bt13raw),] # Zeilen 1 und 2 loswerden
+bt13min &lt;- bt13[, c("Gebiet", "gehört", "Wahlberechtigte", "Wähler")]
+bt13min[, "Wahlberechtigte"] &lt;- as.numeric(as.vector(bt13min[,"Wahlberechtigte"]))
+bt13min[, "Wähler"] &lt;- as.numeric(as.vector(bt13min[,"Wähler"]))
+bt13min[["Wahlbeteiligung"]] &lt;- bt13min[["Wähler"]] / bt13min[["Wahlberechtigte"]]
+head(bt13min, n = 3)
+```
+
+```
+##                              Gebiet gehört Wahlberechtigte Wähler
+## 3             Flensburg - Schleswig      1          226944 162749
+## 4 Nordfriesland - Dithmarschen Nord      1          186177 131527
+## 5      Steinburg - Dithmarschen Süd      1          176731 126409
+##   Wahlbeteiligung
+## 3       0.7171329
+## 4       0.7064621
+## 5       0.7152622
+```
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
