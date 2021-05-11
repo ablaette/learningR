@@ -105,7 +105,11 @@ Listen sind komplexe Datenstrukturen, in die beliebige andere Formate eingespeis
 fgw_exp <- c(39, 16, 9, 5, 7, 18, 6)
 parties <- c("CDU/CSU", "SPD", "AfD", "FDP", "LINKE", "GRÜNE", "Sonstige")
 party_colors <- c("black", "red", "blue", "yellow", "pink", "green", "grey")
-fgw <- list(party = parties, share = fgw_exp, color = party_colors)
+fgw <- list(
+  party = parties,
+  share = fgw_exp,
+  color = party_colors
+)
 fgw
 ```
 

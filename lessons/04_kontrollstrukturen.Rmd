@@ -1,0 +1,217 @@
+---
+title: "Wissenschaftliches Programmieren mit R"
+subtitle: "Funktionen und Kontrollstrukturen"
+author: "Andreas Blaette"
+date: "11. Mai 2021"
+output: 
+  xaringan::moon_reader:
+    css: [default, metropolis, robot-fonts, './css/polminify.css']
+    nature:
+      countIncrementalSlides: false
+editor_options:
+  chunk_output_type: console
+---
+
+# Datenformate und Tabellen Revisited
+
+- Man wird sich an eine Reihe von Datenformaten gewöhnen müssen:
+  - txt (plain text)
+  - csv / tsv (comma separated values / tab separated values)
+  - json (für Web-Technologien verbreitet)
+  - XML (eXtended Markup Language)
+  
+- Es gibt Alternativen zum "base R" `data.frame`: 
+  - `tibble` (verbesserte Ausgabe)
+  - `data.table` (Vermeidung des Kopierens von Daten)
+
+- Das dplyr-Paket bietet ein weit verbreitetes Vokabular zur Arbeit mit Tabellen
+
+- Mind the tidyverse!
+
+---
+
+# Artithmetische Operatoren (Wdh.)
+
+* Mit arithmetischen Operatoren kann man mit Vektoren rechnen
+
+| Operator | 	Description |
+|----------|--------------|
+| + |	addition |
+| - |	subtraction |
+| * |	multiplication |
+| / |	division |
+| ^ or ** | exponentiation |
+
+- Beachte: Länge des zweiten Vektors muss entweder 1 oder identisch mit der des ersten Vektors sein.
+- Die Reihenfolge der Anwendung arithmetischer Operatoren lässt sich durch Klammern steuern => Umsetzung von Formeln wie in der gängigen mathematischen Notation´
+
+---
+
+# Logische Operatoren
+
+| Operator | Description |
+|----------|-------------|
+| < |	kleiner als / less than |
+| <= | kleiner gleich / less than or equal to |
+| > | größer als / greater than |
+| >= | größer gleich / greater than or equal to |
+| == | exakt gleich / exactly equal to |
+| != |	ungleich / not equal to |
+| !x | nicht x / Not x | 
+| x & y |	x UND y / x AND y |
+| isTRUE(x) | ist wahr? / test if X is TRUE |
+
+- Beachte: Logische Operatoren werden auf Vektoren angewendet, das Ergebnis kann ein logischer Vektor der Länge > 1 sein
+- Oft ist der Operator `%in%` nützlich, um das Auftreten der Elemente eines Vektors in einem zweiten Vektor zu prüfen
+
+---
+
+# Kontrollstrukturen: if-else 
+
+```{r eval=TRUE}
+schokolade <- c("milka", "lindt", "ritter-sport", "alpia", "schogetten")
+schokolade[4] == "alpia"
+```
+
+```{r}
+if (schokolade[5] != "alpia"){
+  print("her mit dem zeug")
+} else {
+  print("bleib mir weg damit")
+}
+
+```
+
+- Beachte:
+  - Zeilenumbrüche werden so gesetzt, dass dies die Lesbarkeit des Codes optimiert
+  - geschweifte Klammern können entfallen, wenn der auszuführende Ausdruck aus nur einer Funktion besteht
+  - Abfragen können beliebig mit `else if` erweitert werden´
+
+---
+
+# Kontrollstrukturen:  for-Schleifen
+
+- einfaches Iterieren durch einen numerischen Vektor
+
+```{r eval = FALSE}
+for (i in c(1,2,3,4,5)) print(i) # auch für character vectors, logische vektoren
+```
+
+- oft sieht mqn dies: Iteration durch eine Zahlenreihe
+
+```{r, eval = FALSE}
+for (i in 1:5){ print(i) }
+```
+
+- man kann auch durch einen character vector iterieren
+
+```{r, eval = FALSE}
+for (i in c("a", "b", "c")){ print(i) }
+```
+
+- und dabei kann natürlich der Vektor schon früher definiert worden sein
+
+```{r, eval = FALSE}
+for (schoki in schokolade) print(schoki)
+```
+
+- oft arbeitet man auch mit der Indizierung eines Vektors
+
+```{r, eval = FALSE}
+for (i in 1:length(schokolade)) print(schokolade[i])
+```
+
+---
+
+# Verknüpfung von Kontrollstrukturen 
+
+Hier ein ganz einfaches Szenario, das man aber in der Praxis oft
+nutzen kann: Iteration durch einen Vektor und Durchführung einer
+Anweisung, wenn eine bestimmte Bedingung erfüllt ist.
+
+```{r}
+for (schoki in schokolade){
+  if (schoki == "alpia"){
+    print("großer jubel")
+  } else {
+    print("weg damit!!!!")
+  }  
+}
+```
+
+
+---
+
+# Definition von Funktionen
+
+```{r}
+add_one <- function(x){x + 1}
+add_one(1)
+```
+
+```{r}
+add_anything <- function(x, y){x + y}
+add_anything(5, 5)
+```
+
+- Beachte: Der letzte Ausdruck einer Funktion fungiert als Rückgabewert
+- Beim Aufruf einer Funktion kann die Benennung der Argumente entfallen
+
+---
+
+# Funktionen II
+
+- Argumente können "default values" haben
+
+```{r}
+add_anything_default <- function(x, y = 2){
+  x + y
+}
+add_anything_default(x = 5)
+add_anything_default(x = 5, 3)
+add_anything_default(x = 5, y = 6)
+```
+
+---
+
+# Funktionen richtig anwenden
+
+Warum es gut ist, Funktionen zu verstehen ... Ein kleines Szenario:
+
+```{r}
+tab <- read.table("https://opendata-duisburg.de/sites/default/files/Corona%2030.04.2020.csv")
+tab[1:5,]
+```
+
+Was muss man tun, um eine ordentliche Tabelle zu importieren?
+
+---
+
+# Ausblick: sapply
+
+- es ist kaum etwas so "Rish" wie lapply
+
+```{r}
+lapply(1:3, function(x){x + 1})
+sapply(1:3, function(x){x + 1})
+```
+
+- Einsatz: Splitten einer Tabelle entsprechend eines Vektors, Anwendung einer Funktion und Re-Kombination
+
+---
+
+# Aufgabe
+
+Analysieren Sie die Altersstruktur der Wähler_innen der Parteien bei der Bundestagswahl 2017 mit dem GLES-Datensatz. Legen Sie dafür ein mehrseitiges pdf-Dokument an: Auf jeder Seite soll ein Törtchen-Diagramm den prozentualen Anteil einer Alterskohorte zeigen.
+
+Tip: Vermutlich werden Sie mit einer Schleife arbeiten? Bevor eine Schleife durchgeführt wird, öffnen Sie ein pdf-Dokument.
+
+```{r, eval = FALSE}
+pdf(file = tempfile())
+```
+
+Dieses muss dann am Ende geschlossen werden ... 
+
+```{r, eval = FALSE}
+dev.off()
+```

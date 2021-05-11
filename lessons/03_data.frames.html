@@ -141,7 +141,10 @@ is(m[,"one"]) # man sollte immer wissen was man bekommt!
 ```
 
 ```
-## [1] "numeric" "vector"
+##  [1] "numeric"       "vector"        "index"        
+##  [4] "replValue"     "numLike"       "number"       
+##  [7] "atomicVector"  "numericVector" "replValueSp"  
+## [10] "Mnumeric"
 ```
 
 ```r
@@ -160,7 +163,7 @@ is(m[,c("one", "two")])
 ```
 
 ```
-## [1] "matrix"    "array"     "structure" "vector"
+## [1] "matrix"    "array"     "mMatrix"   "structure" "vector"
 ```
 
 
@@ -215,19 +218,25 @@ Listen sind komplexe Datenstrukturen, in die beliebige andere Formate eingespeis
 fgw_exp &lt;- c(39, 16, 9, 5, 7, 18, 6)
 parties &lt;- c("CDU/CSU", "SPD", "AfD", "FDP", "LINKE", "GRÜNE", "Sonstige")
 party_colors &lt;- c("black", "red", "blue", "yellow", "pink", "green", "grey")
-fgw &lt;- list(party = parties, share = fgw_exp, color = party_colors)
+fgw &lt;- list(
+  party = parties,
+  share = fgw_exp,
+  color = party_colors
+)
 fgw
 ```
 
 ```
 ## $party
-## [1] "CDU/CSU"  "SPD"      "AfD"      "FDP"      "LINKE"    "GRÜNE"    "Sonstige"
+## [1] "CDU/CSU"  "SPD"      "AfD"      "FDP"      "LINKE"   
+## [6] "GRÜNE"    "Sonstige"
 ## 
 ## $share
 ## [1] 39 16  9  5  7 18  6
 ## 
 ## $color
-## [1] "black"  "red"    "blue"   "yellow" "pink"   "green"  "grey"
+## [1] "black"  "red"    "blue"   "yellow" "pink"   "green" 
+## [7] "grey"
 ```
 
 
@@ -257,7 +266,10 @@ is(fgw$share)
 ```
 
 ```
-## [1] "numeric" "vector"
+##  [1] "numeric"       "vector"        "index"        
+##  [4] "replValue"     "numLike"       "number"       
+##  [7] "atomicVector"  "numericVector" "replValueSp"  
+## [10] "Mnumeric"
 ```
 
 ```r
@@ -265,7 +277,9 @@ is(fgw$color)
 ```
 
 ```
-## [1] "character"           "vector"              "data.frameRowLabels" "SuperClassMethod"
+## [1] "character"           "vector"             
+## [3] "data.frameRowLabels" "SuperClassMethod"   
+## [5] "index"               "atomicVector"
 ```
 
 ```r
@@ -344,13 +358,20 @@ head(mtcars)
 ```
 
 ```
-##                    mpg cyl disp  hp drat    wt  qsec vs am gear carb
-## Mazda RX4         21.0   6  160 110 3.90 2.620 16.46  0  1    4    4
-## Mazda RX4 Wag     21.0   6  160 110 3.90 2.875 17.02  0  1    4    4
-## Datsun 710        22.8   4  108  93 3.85 2.320 18.61  1  1    4    1
-## Hornet 4 Drive    21.4   6  258 110 3.08 3.215 19.44  1  0    3    1
-## Hornet Sportabout 18.7   8  360 175 3.15 3.440 17.02  0  0    3    2
-## Valiant           18.1   6  225 105 2.76 3.460 20.22  1  0    3    1
+##                    mpg cyl disp  hp drat    wt  qsec vs am gear
+## Mazda RX4         21.0   6  160 110 3.90 2.620 16.46  0  1    4
+## Mazda RX4 Wag     21.0   6  160 110 3.90 2.875 17.02  0  1    4
+## Datsun 710        22.8   4  108  93 3.85 2.320 18.61  1  1    4
+## Hornet 4 Drive    21.4   6  258 110 3.08 3.215 19.44  1  0    3
+## Hornet Sportabout 18.7   8  360 175 3.15 3.440 17.02  0  0    3
+## Valiant           18.1   6  225 105 2.76 3.460 20.22  1  0    3
+##                   carb
+## Mazda RX4            4
+## Mazda RX4 Wag        4
+## Datsun 710           1
+## Hornet 4 Drive       1
+## Hornet Sportabout    2
+## Valiant              1
 ```
 
 ---
@@ -516,10 +537,12 @@ round(table(party_vote_min) / length(party_vote_min) * 100, 2)
 
 ```
 ## party_vote_min
-##       CDU/CSU           CDU           CSU           SPD           FDP        GRUENE     DIE LINKE 
-##         44.53          0.00          0.00         29.85          3.21          9.20          9.12 
-##           NPD       PIRATEN           AfD andere Partei 
-##          0.44          1.61          1.46          0.58
+##       CDU/CSU           CDU           CSU           SPD 
+##         44.53          0.00          0.00         29.85 
+##           FDP        GRUENE     DIE LINKE           NPD 
+##          3.21          9.20          9.12          0.44 
+##       PIRATEN           AfD andere Partei 
+##          1.61          1.46          0.58
 ```
 ---
 
@@ -574,10 +597,14 @@ head(bt13min, n = 3)
 ```
 
 ```
-##                              Gebiet gehört Wahlberechtigte Wähler Wahlbeteiligung
-## 3             Flensburg - Schleswig      1          226944 162749       0.7171329
-## 4 Nordfriesland - Dithmarschen Nord      1          186177 131527       0.7064621
-## 5      Steinburg - Dithmarschen Süd      1          176731 126409       0.7152622
+##                              Gebiet gehört Wahlberechtigte
+## 3             Flensburg - Schleswig      1          226944
+## 4 Nordfriesland - Dithmarschen Nord      1          186177
+## 5      Steinburg - Dithmarschen Süd      1          176731
+##   Wähler Wahlbeteiligung
+## 3 162749       0.7171329
+## 4 131527       0.7064621
+## 5 126409       0.7152622
 ```
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
