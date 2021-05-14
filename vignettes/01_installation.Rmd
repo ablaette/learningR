@@ -10,6 +10,10 @@ output:
       countIncrementalSlides: false
 editor_options:
   chunk_output_type: console
+vignette: >
+  %\VignetteIndexEntry{Installation von Paketen}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}  
 ---
 
 # Badges und Credit Points

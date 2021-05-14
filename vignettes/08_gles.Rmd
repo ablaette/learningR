@@ -3,6 +3,10 @@ title: "Kurzeinführung in die Arbeit mit dem GLES-Datensatz"
 author: "Andreas Blaette"
 date: "18. Juni 2015"
 output: html_document
+vignette: >
+  %\VignetteIndexEntry{Kurzeinführung GLES}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}  ´
 ---
 
 Initialisierung
@@ -23,7 +27,7 @@ data(nrw2012)
 Aufrufen der Dokumentation der Fragebögen
 =========================================
 
-```{r}
+```{r, eval = FALSE}
 questionnaire("bt2009")
 questionnaire("bt2013")
 questionnaire("nrw2010")

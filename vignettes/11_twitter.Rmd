@@ -1,8 +1,12 @@
 ---
-title: "Untitled"
+title: "Twitter"
 author: "Andreas Blaette"
 date: "14 Juli 2017"
 output: html_document
+vignette: >
+  %\VignetteIndexEntry{Twitter}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}  
 ---
 
 ```{r}
@@ -13,7 +17,7 @@ library(twitteR)
 ```
 
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, eval = FALSE}
 setwd("~/Lab/analysen/twitter")
 api_key <- scan(file = "api_key.txt", what = character())
 api_secret <- scan(file = "api_secret.txt", what = character())
@@ -21,7 +25,7 @@ access_token <- scan(file = "access_token.txt", what = character())
 access_token_secret <- scan(file = "access_token_secret.txt", what = character())
 ```
 
-```{r}
+```{r, eval = FALSE}
 setup_twitter_oauth(
   consumer_key = api_key,
   consumer_secret = api_secret,
@@ -30,7 +34,7 @@ setup_twitter_oauth(
   )
 ```
 
-```{r}
+```{r, eval = FALSE}
 tweet_list <- list()
 dates <- seq(from = as.Date("2017-06-01"), to = as.Date("2017-07-14"), by = "day")
 
@@ -53,13 +57,13 @@ tweets_df <- do.call(rbind, tweet_list)
 # tweets_df[["date"]] <- gsub("^(\\d{4}-\\d{2}-\\d{2}).*$", "\\1", # rownames(tweets_df))
 ```
 
-```{r}
+```{r, eval = FALSE}
 unique(tweets_df[, "created"])
 unique(tweets_df[, "date"])
 ```
 
 
-```{r}
+```{r, eval = FALSE}
 dt <- as.data.table(tweets_df)
 dt_n <- dt[, .N, by = c("screen_name", "date")]
 

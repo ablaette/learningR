@@ -3,12 +3,16 @@ title: "Mehr Graphik"
 author: "Andreas Blaette"
 date: "25. Mai 2015"
 output: html_document
+vignette: >
+  %\VignetteIndexEntry{Mehr Graphik}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}  
 ---
 
 Initialisierung
 ===============
 
-```{r}
+```{r, eval = FALSE}
 rm(list=ls(all=TRUE))
 library(ess)
 data(ess6)
@@ -21,7 +25,7 @@ Szenario 1: Vergleich der durchschnittlichen politischen Zufriedenheit (Balkendi
 Schritt 1: Subset bilden!
 -------------------------
 
-```{r}
+```{r, eval = FALSE}
 essToExplore <- ess6
 x.axis <- "stfgov"
 y.axis <- "stfdem"
@@ -36,7 +40,7 @@ tab <- data.frame(
 Lösung 1: Befüllen eines leeren data.frames
 -------------------------------------------
 
-```{r}
+```{r, eval = FALSE}
 countries <- levels(tab$cntry)
 noCountries <- length(levels(tab$cntry))
 meanTab <- data.frame(
@@ -55,7 +59,7 @@ for (country in countries){
 Lösung 2: data.frame auf Basis einer Liste
 ------------------------------------------
 
-```{r}
+```{r, eval = FALSE}
 countries <- levels(essToExplore$cntry)
 
 meanList <- list()
@@ -73,7 +77,7 @@ plotTab1 <- do.call(rbind, meanList)
 Lösung 3: by
 ------------
 
-```{r}
+```{r, eval = FALSE}
 meanList <- by(tab, tab$cntry, FUN=function(subTab){
   c(
     xMean=mean(as.numeric(subTab$x), na.rm=TRUE) - 1,
@@ -87,7 +91,7 @@ plotTab2 <- do.call(rbind, foo)
 Lösung 3: ddply
 ---------------
 
-```{r}
+```{r, eval = FALSE}
 library(plyr)
 plotTab3 <- ddply(.data=tab, .variables=.(cntry), .fun=function(subTab){
     c(xMean=mean(as.numeric(subTab$x), na.rm=TRUE) - 1,
@@ -99,7 +103,7 @@ plotTab3 <- ddply(.data=tab, .variables=.(cntry), .fun=function(subTab){
 Und jetzt wird geplottet!
 =========================
 
-```{r}
+```{r, eval = FALSE}
 par(mar=c(4,4,2,2))
 plot(
   x=plotTab1[,"xMean"], y=plotTab1[,"yMean"], type="n",
@@ -124,7 +128,7 @@ cex.lab=0.4
 Ausblick
 ========
 
-```{r}
+```{r, eval = FALSE}
 library(lattice)
 histogram(~polintr|cntry, data=ess6)
 xyplot(stfgov~stfdem|cntry, data=ess6)
@@ -141,7 +145,7 @@ Noch ein Szenario
 
 Wie verteilt sich Ausländerablehnung, politisches Interesse über die Bundesländer?
 
-```{r}
+```{r, eval = FALSE}
 library(allbus)
 data(allbus2010)
 grep("BUNDESLAND", variables("allbus2010"), value=T) # hier: V975 -> Bundesland

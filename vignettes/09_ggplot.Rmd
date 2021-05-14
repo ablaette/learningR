@@ -3,6 +3,10 @@ title: "Einführung in ggplot2"
 author: "Andreas Blaette"
 date: "02. Juli 2015"
 output: html_document
+vignette: >
+  %\VignetteIndexEntry{Einführung in ggplot2}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}  ´
 ---
 
 Initialisierung
@@ -26,7 +30,7 @@ data(bt2013)
 Aufrufen der Dokumentation der Fragebögen
 =========================================
 
-```{r}
+```{r, eval = FALSE}
 questionnaire("bt2009")
 questionnaire("bt2013")
 questionnaire("nrw2010")
@@ -36,7 +40,7 @@ questionnaire("nrw2012")
 Vorbereiten der Daten 
 =====================
 
-```{r}
+```{r, eval = FALSE}
 glesSubsets <- list(
   "2009"=data.frame(
     gewicht=bt2009[,"wei_trow"],
@@ -80,7 +84,7 @@ Let's go with ggplot
 Die Wahlabsicht eines Geschlechts
 ---------------------------------
 
-```{r}
+```{r, eval = FALSE}
 d <- ggplot(data=wahlabsGeschlecht, aes(x=jahr, y=weiblich))
 d <- d + geom_bar(aes(fill=partei), stat="identity", position="dodge")
 d <- d + xlab("Jahr") + ylab("Wahlwahrscheinlichkeit in Prozent")
@@ -90,7 +94,7 @@ d
 Stimmgewinne und -verluste
 -------------------------
 
-```{r}
+```{r, eval = FALSE}
 wahlabs2 <- melt(wahlabsGeschlecht) # Umwandlung in extensive Form
 colnames(wahlabs2)[3] <- "geschlecht"
 d <- ggplot(data=wahlabs2, aes(x=partei, y=value, fill=jahr))
@@ -102,7 +106,7 @@ d
 Analyse für einzelne Parteien
 -----------------------------
 
-```{r}
+```{r, eval = FALSE}
 partyToSelect <- "CDU/CSU"
 partySubset <- subset(wahlabs2, partei==partyToSelect)
 d <- ggplot(data=partySubset, aes(x=jahr, y=value, fill=geschlecht))
@@ -115,7 +119,7 @@ d
 Liniendiagramm
 --------------
 
-```{r}
+```{r, eval = FALSE}
 d <- ggplot(data=wahlabsGeschlecht, aes(x=jahr, y=weiblich, group=partei))
 d <- d + geom_line(aes(colour=partei), stat="identity")
 d <- d + xlab("Jahr") + ylab("Wahlwahrscheinlichkeit in Prozent")

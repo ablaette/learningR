@@ -1,11 +1,15 @@
 ---
-title: "Untitled"
+title: "Basics Text Mining"
 author: "Andreas Blaette"
 date: "14 Juli 2017"
 output: html_document
+vignette: >
+  %\VignetteIndexEntry{Basics Text Mining}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}  
 ---
   
-```{r}
+```{r, eval = FALSE}
 install.packages("tm")
 ```
 

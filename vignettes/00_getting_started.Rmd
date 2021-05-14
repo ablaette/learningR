@@ -10,6 +10,10 @@ output:
       countIncrementalSlides: false
 editor_options:
   chunk_output_type: console
+vignette: >
+  %\VignetteIndexEntry{Der Anfang ist noch nicht so schwer}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}  
 ---
 
 # LSF-Ankündigungstext

@@ -10,6 +10,10 @@ output:
       countIncrementalSlides: false
 editor_options:
   chunk_output_type: console
+vignette: >
+  %\VignetteIndexEntry{Datenstrukturen: Vektoren}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}  
 ---
 
 

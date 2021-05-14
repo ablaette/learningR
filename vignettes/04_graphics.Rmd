@@ -3,6 +3,10 @@ title: "Einfache "
 author: "Andreas Blaette"
 date: "07. Mai 2015"
 output: html_document
+vignette: >
+  %\VignetteIndexEntry{Einfache }
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}  
 ---
 
 
@@ -19,7 +23,8 @@ rm(list=ls(all=TRUE))
 Wir rekonstruieren die Tabelle mit den Wahlkreisergebnissen der Parteien
 ------------------------------------------------------------------------
 
-```{r eval=FALSE}
+```{r eval = FALSE}
+# NEU: https://www.bundeswahlleiter.de/dam/jcr/ce2d2b6a-f211-4355-8eea-355c98cd4e47/btw_kerg.zip
 bt13raw <- read.table(
   "http://www.bundeswahlleiter.de/de/bundestagswahlen/BTW_BUND_13/veroeffentlichungen/ergebnisse/kerg.csv",
   header=T, skip=2, fileEncoding="ISO-8859-1", sep=";"
@@ -49,7 +54,7 @@ Das Vokabular der Visualisierung
 Grundlegende Visualisierungen
 -----------------------------
 
-```{r}
+```{r, eval = FALSE}
 barplot() # Balkendiagramme
 pie() # Kuchendiagramme
 hist() # Histogramme 
@@ -59,7 +64,7 @@ boxplot() # Boxplots
 Ausgaben auf 'graphical devices'
 --------------------------------
 
-```{r}
+```{r, eval = FALSE}
 pdf()
 bmp()
 png()
@@ -69,7 +74,7 @@ tiff()
 Veränderung von Graphikparametern
 ---------------------------------
 
-```{r}
+```{r, eval = FALSE}
 par()
 ```
 
@@ -80,7 +85,7 @@ Erstes Szenario: Ich will ein Kuchendiagramm!
 mit den Ergebnissen in einem Wahlkreis
 --------------------------------------
 
-```{r}
+```{r, eval = FALSE}
 duPos <- grep("Duisburg", rownames(partyShare), value=T)
 duI <- partyShare[duPos[1],]
 duIvector <- as.numeric(duI)
@@ -109,7 +114,7 @@ mehrere Wahlkreise in einem Diagramm
 
 Hier fehlt noch ein Titel!
 
-```{r}
+```{r, eval = FALSE}
 posAll <- c()
 constOfInterest <- c(
   "Duisburg", "Hochsauerland", "Olpe", "Münster", "Euskirchen"
@@ -142,7 +147,7 @@ for (pos in posAll){
 ```
 
 
-```{r}
+```{r, eval = FALSE}
 toKeep <- which(is.na(partyShare$cdu) == FALSE)
 partyShare2 <- partyShare[toKeep,]
 
@@ -204,7 +209,7 @@ Daten: Die Wahlkreisergebnisse
 Hygiene muss sein - Speicher putzen!
 ------------------------------------
 
-```{r}
+```{r, eval = FALSE}
 ls()
 rm(list=ls(all=TRUE))
 ```
@@ -244,7 +249,7 @@ Zugegeben: Wir haben es uns etwas einfach gemacht und zunächst nur die Wahlkrei
 in denen die CDU angetreten ist...
 
 
-```{r}
+```{r, eval = FALSE}
 # in welchen Wahlkreisen ist die CDU nicht angetreten? Die wollen wir ausschließen
 toKeep <- which(is.na(partyShare$cdu) == FALSE)
 partyShare2 <- partyShare[toKeep,]

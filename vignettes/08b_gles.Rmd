@@ -5,6 +5,10 @@ date: "14 Juli 2017"
 output:
   html_document: default
   pdf_document: default
+vignette: >
+  %\VignetteIndexEntry{GLES II}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}  
 ---
 
 ```{r installation}

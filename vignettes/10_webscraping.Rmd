@@ -3,6 +3,10 @@ title: "Grundlagen des Webscraping"
 author: "Andreas Blaette"
 date: "09. Juli 2015"
 output: html_document
+vignette: >
+  %\VignetteIndexEntry{Grundlagen des Webscraping}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}  
 ---
 
 
@@ -14,7 +18,7 @@ direktes Einlesen von Tabellen (csv-Format)
 
 ** Unser altes Beispiel: Wahlkreisergebnisse **
 
-```{r}
+```{r, eval = FALSE}
 urlWahlkreisergebnisse <- "http://www.bundeswahlleiter.de/de/bundestagswahlen/BTW_BUND_13/veroeffentlichungen/ergebnisse/kerg.csv"
 wkTab <- read.table(
   urlWahlkreisergebnisse, header=T, skip=2, fileEncoding="ISO-8859-1", sep=";"
@@ -33,7 +37,7 @@ koelnTab <- read.table(wahlenKoelnUrl, header=T, sep=",")
 
 ** Daten von Eurostat **
 
-```{r}
+```{r, eval = FALSE}
 library("eurostat")
 eurostatId <- "tps00189" # asylum and new asylum applicants
 asylum <- get_eurostat(eurostatId)
@@ -48,7 +52,7 @@ Aha! Wir bekommen die Daten in extensiver Form. Kennen wir von ggplot ...
 Download und Speichern von Dateien
 ==================================
 
-```{r}
+```{r, eval = FALSE}
 btArchive <- "http://dipbt.bundestag.de/doc/btp/"
 lp <- 18
 lpArchive <- paste(btArchive, as.character(lp), sep="")
@@ -69,7 +73,7 @@ for (docNo in c(1:maxDoc)){
 Einlesen von html-Tabellen
 ==========================
 
-```{r}
+```{r, eval = FALSE}
 library(RCurl)
 library(XML)
 wikipediaUrl <- "https://de.wikipedia.org/wiki/Liste_der_Mitglieder_des_Deutschen_Bundestages_%2818._Wahlperiode%29"
@@ -81,7 +85,7 @@ table <- readHTMLTable(tableXml)
 
 ```
 
-```{r}
+```{r, eval = FALSE}
 library(rvest)
 wikipediaUrl <- "https://de.wikipedia.org/wiki/Liste_der_Mitglieder_des_Deutschen_Bundestages_%2816._Wahlperiode%29"
 page <- html(wikipediaUrl)
@@ -91,7 +95,7 @@ tab <- html_table(tables[[1]])
 
 Webscraping 2 
 ==============
-```{r}
+```{r, eval = FALSE}
 pm <- "http://www.bundesregierung.de/Content/DE/Pressemitteilungen/BPA/2015/07/2015-07-09-bkm-kulturelle-bildung.html"
 page <- html(pm)
 dateNode <- html_nodes(page, xpath='//div[@class="abstract"]')
@@ -100,7 +104,7 @@ html_text(pClass)
 abstractText <- html_text(dateNode[[1]])
 ```
 
-```{r}
+```{r, eval = FALSE}
 faz <- "http://www.faz.net/aktuell/politik/inland/die-steuer-die-spaltet-13692526.html"
 fazPage <- html(faz)
 linkedComments <- html_nodes(fazPage, "LMFuss")

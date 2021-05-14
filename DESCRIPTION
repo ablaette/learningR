@@ -13,7 +13,8 @@ Imports:
   haven,
   utils
 Suggests:
-  knitr
+  knitr,
+  rmarkdown
 LazyData: yes
 VignetteBuilder: knitr
 Collate:

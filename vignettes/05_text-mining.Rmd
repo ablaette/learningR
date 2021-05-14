@@ -9,6 +9,10 @@ output:
       countIncrementalSlides: false
 editor_options:
   chunk_output_type: console
+vignette: >
+  %\VignetteIndexEntry{Text Mining - erste Schritte}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
 ---
   
 # Webscraping-Szenarien
@@ -88,8 +92,8 @@ head(tab[,1:3])
 
 Wir können beispielsweise das Durchschnittsalter beim Zusammentritt des Bundestags berechnen ...
 
-```{r}
-mean(2005 - tab[,2])
+```{r, eval = FALSE}
+mean(2005 - as.integer(tab[,2])) # NOT WORKING
 ```
 
 ---
@@ -118,7 +122,7 @@ paragaphs[1]
 
 # pdf-Dokumente: Tabellen extrahieren
 
-```{rm, eval = FALSE}
+```{r, eval = FALSE}
 url_ltw <- "https://www.bundeswahlleiter.de/dam/jcr/a333e523-0717-42ad-a772-d5ad7e7e97cc/ltw_erg_gesamt.pdf"
 ltw_local <- tempfile()
 pdf_local <- download.file(url = url_ltw, destfile = ltw_local)

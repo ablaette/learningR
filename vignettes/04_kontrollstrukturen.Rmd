@@ -10,6 +10,10 @@ output:
       countIncrementalSlides: false
 editor_options:
   chunk_output_type: console
+vignette: >
+  %\VignetteIndexEntry{Funktionen und Kontrollstrukturen}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}  
 ---
 
 # Datenformate und Tabellen Revisited
