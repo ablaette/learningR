@@ -3,8 +3,6 @@ title: "Wissenschaftliches Programmieren mit R"
 subtitle: "Der Anfang ist noch nicht so schwer"
 author: "Andreas Blaette"
 date: "13. April 2021"
-pkgdown:
-  as_is: true
 output: 
   xaringan::moon_reader:
     self_contained: TRUE

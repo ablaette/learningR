@@ -3,8 +3,6 @@ title: "Wissenschaftliches Programmieren mit R"
 subtitle: "Datenstrukturen: Vektoren"
 author: "Andreas Blaette"
 date: "27. April 2021"
-pkgdown:
-  as_is: true
 output: 
   xaringan::moon_reader:
     css: [default, metropolis, robot-fonts, './css/polminify.css']
