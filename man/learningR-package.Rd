@@ -4,6 +4,9 @@
 \name{learningR}
 \alias{learningR}
 \title{learningR package.}
+\description{
+This is a story to be told.
+}
 \author{
 Andreas Blaette (andreas.blaette@uni-due.de)
 }

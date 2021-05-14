@@ -1,16 +1,18 @@
 ---
-title: "Text Mining - erste Schritte"
+title: "Wissenschaftliches Programmieren mit R"
+subtitle: "Text Mining Basics"
 author: "Andreas Blaette"
 date: "4. Juni 2020"
 output: 
   xaringan::moon_reader:
+    stand_alone: TRUE
     css: [default, metropolis, robot-fonts, './css/polminify.css']
     nature:
       countIncrementalSlides: false
 editor_options:
   chunk_output_type: console
 vignette: >
-  %\VignetteIndexEntry{Text Mining - erste Schritte}
+  %\VignetteIndexEntry{08 - Text Mining Basics}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 ---
@@ -234,3 +236,38 @@ Säubern Sie das Wahlprogramm von
 - AfD
 
 ... und erstellen Sie eine Wortwolke mit den häufigsten Worten.
+
+
+---
+
+```{r, eval = FALSE}
+install.packages("tm")
+```
+
+```{r}
+library(tm)
+stopwords("german")
+```
+
+```{r}
+sentence <- c("Das", "ist", "ein", "Satz", "mit", "vielen", "Füllwörtern", ".")
+interpunctation <- c(".", ",", "?", "!", ":", ";")
+to_remove <- c(interpunctation, stopwords("german"))
+
+sentence_lowered <- tolower(sentence)
+sentence_filtered <- sentence[!sentence_lowered %in% to_remove]
+```
+
+
+```{r}
+sentence_filtered <- character()
+for (word in sentence_lowered){
+  if (word %in% to_remove){
+    print("word")
+    print("Das ist ein Stopword! Weg damit!")
+  } else {
+    print("Das behalte ich!")
+    sentence_filtered <- c(sentence_filtered, word)
+  }
+}
+```

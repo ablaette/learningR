@@ -1,8 +1,7 @@
 ---
 title: "Wissenschaftliches Programmieren mit R"
-subtitle: "Der Anfang ist noch nicht so schwer"
-author: "Andreas Blaette"
-date: "13. April 2021"
+subtitle: "Themen- und Folienübersicht"
+author: "Andreas Blaette | Universität Duisburg-Essen"
 output: 
   xaringan::moon_reader:
     self_contained: TRUE
@@ -11,14 +10,19 @@ output:
       countIncrementalSlides: false
 editor_options:
   chunk_output_type: console
-vignette: >
-  %\VignetteIndexEntry{00 - Der Anfang ist noch nicht so schwer}
-  %\VignetteEncoding{UTF-8}
-  %\VignetteEngine{knitr::rmarkdown}  
 ---
 
 # Folienübersicht
 
-- [Erste Schritte](./a_getting-started.html)
-- [Installationen](./b_installation.html)
-- [Vektoren](./c_vektoren.html)
+- [01 - Erste Schritte](./a_getting-started.html)
+- [02 - Installation von Paketen](./b_installation.html)
+- [03 - Vektoren als grundlegende Datenstruktur](./c_vektoren.html)
+- [04 - Matrizen - Listen - Tabellen](./d_data.frames.html)
+- [05 - Funktionen und Kontrollstrukturen](./e_kontrollstrukturen.html)
+- 06 - Elementare Statistik (Foliensatz noch nicht online)
+- 07 - Visualisierung (Foliensatz noch nicht online)
+- 08 - Text maschinell verarbeiten (Foliensatz noch nicht online)
+- 09 - Text numerisch repräsentiert (Foliensatz noch nicht online)
+- 10 - Sentiment-Analysen (Foliensatz noch nichtz online)
+- 11 - Grundlagen des Webscraping (Foliensatz noch nicht online)
+- 12 - Integrierte quantitative und qualitative Textdatenanalyse (Foliensatz noch nicht online)

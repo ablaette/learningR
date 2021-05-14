@@ -1,6 +1,6 @@
 ---
 title: "Wissenschaftliches Programmieren mit R"
-subtitle: "Matrizen - Liste - data.frame"
+subtitle: "Matrizen - Listen - Tabellen"
 author: "Andreas Blaette"
 date: "4. Mai 2021"
 output: 
@@ -12,7 +12,7 @@ output:
 editor_options:
   chunk_output_type: console
 vignette: >
-  %\VignetteIndexEntry{Matrizen - Liste - data.frame}
+  %\VignetteIndexEntry{04 - Matrizen - Listen - Tabellen}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}  
 ---

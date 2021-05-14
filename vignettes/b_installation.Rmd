@@ -12,7 +12,7 @@ output:
 editor_options:
   chunk_output_type: console
 vignette: >
-  %\VignetteIndexEntry{Installation von Paketen}
+  %\VignetteIndexEntry{02 - Installation von Paketen}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}  
 ---

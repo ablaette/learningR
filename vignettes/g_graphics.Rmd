@@ -1,10 +1,11 @@
 ---
-title: "Einfache "
+title: "Wissenschaftliches Programmieren mit R"
+subtitle: "Visualisierung"
 author: "Andreas Blaette"
 date: "07. Mai 2015"
 output: html_document
 vignette: >
-  %\VignetteIndexEntry{Einfache }
+  %\VignetteIndexEntry{07 - Visualisierung}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}  
 ---
@@ -295,4 +296,265 @@ Was noch zu tun ist
 - Erst während der Arbeit mit den Daten ist uns aufgefallen, dass die Bundesländer und das Bundesgebiet in der Tabelle enthalten sind. Solle man das nicht gesondert ausgeben bzw. aus dem Dossier entfernen?
 
 
+Initialisierung
+===============
+
+
+```{r}
+rm(list=ls(all=TRUE))
+library(gles)
+library(ggplot2)
+library(reshape2)
+```
+
+```{r}
+data(bt2009) # Datensatz für 2009
+data(bt2013)
+```
+
+
+
+Aufrufen der Dokumentation der Fragebögen
+=========================================
+
+```{r, eval = FALSE}
+questionnaire("bt2009")
+questionnaire("bt2013")
+questionnaire("nrw2010")
+questionnaire("nrw2012")
+```
+
+Vorbereiten der Daten 
+=====================
+
+```{r, eval = FALSE}
+glesSubsets <- list(
+  "2009"=data.frame(
+    gewicht=bt2009[,"wei_trow"],
+    geschlecht=bt2009[,"vn1"],
+    wahlabsicht=bt2009[,"v254_1a"]
+  ),
+  "2013"=data.frame(
+    gewicht=bt2013[,"w_trow"],
+    geschlecht=bt2013[,"vn1"],
+    wahlabsicht=bt2013[,"v11aa"]
+  )
+)
+
+
+wahlabsGeschlechtList <- lapply(
+  names(glesSubsets),
+  function(year){
+    glesSubset <- glesSubsets[[year]]
+    wahlabsGeschlecht <- xtabs(gewicht~wahlabsicht+geschlecht, data=glesSubset)
+    wahlabsGewichtet <- apply(wahlabsGeschlecht, 2, function(x) x / sum(x))
+    rowsToDrop <- c(which(rownames(wahlabsGewichtet) %in% c("CDU", "CSU")))
+    if (length(rowsToDrop > 0)){
+      wahlabsGewichtet <- wahlabsGewichtet[-rowsToDrop,]
+    }
+    wahlabsichtProzent <- round(wahlabsGewichtet * 100, 2)
+    wahlabsicht <- data.frame(
+      partei=rownames(wahlabsichtProzent),
+      jahr=rep(year, times=nrow(wahlabsichtProzent)),
+      wahlabsichtProzent
+    )
+    wahlabsicht
+  }
+)
+
+wahlabsGeschlecht <- do.call(rbind, wahlabsGeschlechtList)
+```
+
+Let's go with ggplot
+====================
+
+Die Wahlabsicht eines Geschlechts
+---------------------------------
+
+```{r, eval = FALSE}
+d <- ggplot(data=wahlabsGeschlecht, aes(x=jahr, y=weiblich))
+d <- d + geom_bar(aes(fill=partei), stat="identity", position="dodge")
+d <- d + xlab("Jahr") + ylab("Wahlwahrscheinlichkeit in Prozent")
+d
+```
+
+Stimmgewinne und -verluste
+-------------------------
+
+```{r, eval = FALSE}
+wahlabs2 <- melt(wahlabsGeschlecht) # Umwandlung in extensive Form
+colnames(wahlabs2)[3] <- "geschlecht"
+d <- ggplot(data=wahlabs2, aes(x=partei, y=value, fill=jahr))
+d <- d + geom_bar(stat="identity", position="dodge")
+d <- d + xlab("Partei") + ylab("Wahlwahrscheinlichkeit in Prozent")
+d
+```
+
+Analyse für einzelne Parteien
+-----------------------------
+
+```{r, eval = FALSE}
+partyToSelect <- "CDU/CSU"
+partySubset <- subset(wahlabs2, partei==partyToSelect)
+d <- ggplot(data=partySubset, aes(x=jahr, y=value, fill=geschlecht))
+d <- d + geom_bar(stat="identity", position="dodge")
+d <- d + xlab("Jahr")
+d <- d + ylab("Wahlwahrscheinlichkeit in Prozent")
+d
+```
+
+Liniendiagramm
+--------------
+
+```{r, eval = FALSE}
+d <- ggplot(data=wahlabsGeschlecht, aes(x=jahr, y=weiblich, group=partei))
+d <- d + geom_line(aes(colour=partei), stat="identity")
+d <- d + xlab("Jahr") + ylab("Wahlwahrscheinlichkeit in Prozent")
+d
+```
+
+
+Initialisierung
+===============
+
+```{r, eval = FALSE}
+rm(list=ls(all=TRUE))
+library(ess)
+data(ess6)
+```
+
+
+Szenario 1: Vergleich der durchschnittlichen politischen Zufriedenheit (Balkendiagramm)
+=======================================================================================
+
+Schritt 1: Subset bilden!
+-------------------------
+
+```{r, eval = FALSE}
+essToExplore <- ess6
+x.axis <- "stfgov"
+y.axis <- "stfdem"
+
+tab <- data.frame(
+  cntry=essToExplore[, "cntry"],
+  x=essToExplore[, x.axis],
+  y=essToExplore[, y.axis]
+  )
+```
+
+Lösung 1: Befüllen eines leeren data.frames
+-------------------------------------------
+
+```{r, eval = FALSE}
+countries <- levels(tab$cntry)
+noCountries <- length(levels(tab$cntry))
+meanTab <- data.frame(
+  xMean=rep(0, times=noCountries),
+  yMean=rep(0, times=noCountries),
+  row.names=levels(tab$cntry)
+  )
+
+for (country in countries){
+  subTab <- subset(tab, cntry==country)
+  meanTab[country, "xMean"] <- mean(as.numeric(subTab$x), na.rm=TRUE) - 1
+  meanTab[country, "yMean"] <- mean(as.numeric(subTab$y), na.rm=TRUE) - 1
+}
+```
+
+Lösung 2: data.frame auf Basis einer Liste
+------------------------------------------
+
+```{r, eval = FALSE}
+countries <- levels(essToExplore$cntry)
+
+meanList <- list()
+for (country in countries){
+  subTab <- subset(tab, cntry==country)
+  meanList[[country]] <- c(
+    xMean=mean(as.numeric(subTab$x), na.rm=TRUE) - 1,
+    yMean=mean(as.numeric(subTab$y), na.rm=TRUE) -1 
+    )
+}
+plotTab1 <- do.call(rbind, meanList)
+```
+
+
+Lösung 3: by
+------------
+
+```{r, eval = FALSE}
+meanList <- by(tab, tab$cntry, FUN=function(subTab){
+  c(
+    xMean=mean(as.numeric(subTab$x), na.rm=TRUE) - 1,
+    yMean=mean(as.numeric(subTab$y), na.rm=TRUE) -1 
+    )
+})
+plotTab2 <- do.call(rbind, foo)
+```
+
+
+Lösung 3: ddply
+---------------
+
+```{r, eval = FALSE}
+library(plyr)
+plotTab3 <- ddply(.data=tab, .variables=.(cntry), .fun=function(subTab){
+    c(xMean=mean(as.numeric(subTab$x), na.rm=TRUE) - 1,
+    yMean=mean(as.numeric(subTab$y), na.rm=TRUE) -1)
+})
+```
+
+
+Und jetzt wird geplottet!
+=========================
+
+```{r, eval = FALSE}
+par(mar=c(4,4,2,2))
+plot(
+  x=plotTab1[,"xMean"], y=plotTab1[,"yMean"], type="n",
+  xlab="mean satisfaction with government",
+  ylab="mean satisfation with democracy",
+  main="Analyse! This!",
+  xlim=c(0,10), ylim=c(0,10)
+  )
+points(x=plotTab1[,"xMean"], y=plotTab1[,"yMean"], type="p", col="blue", pch=16, cex=1)
+text(x=plotTab1[,"xMean"], y=plotTab1[,"yMean"], labels=rownames(plotTab1), cex=0.5, pos=2)
+
+regression <- lm(yMean~xMean, data=as.data.frame(plotTab1))
+abline(regression)
+```
+
+
+par(mar=c(9,2,1,1))
+barplot(plotTab1[,"xMean"], las=2,
+cex.lab=0.4
+)
+
+Ausblick
+========
+
+```{r, eval = FALSE}
+library(lattice)
+histogram(~polintr|cntry, data=ess6)
+xyplot(stfgov~stfdem|cntry, data=ess6)
+stfdem <- as.numeric(tab$x) - 1
+tab2 <- tab
+tab2$x <- as.numeric(tab2$x) - 1
+par(mar=c(8,2,1,1))
+boxplot(x~cntry, data=tab2, las=2, cex=0.8, col="blue")
+```
+
+
+Noch ein Szenario
+=================
+
+Wie verteilt sich Ausländerablehnung, politisches Interesse über die Bundesländer?
+
+```{r, eval = FALSE}
+library(allbus)
+data(allbus2010)
+grep("BUNDESLAND", variables("allbus2010"), value=T) # hier: V975 -> Bundesland
+grep("AUSLAENDER", variables("allbus2010"), value=T) # hier: V320, V318, V321
+grep("INTERESSE", variables("allbus2010"), value=T)
+```
 

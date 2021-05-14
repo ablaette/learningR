@@ -9,14 +9,24 @@ Description: Material for course 'Wissenschaftliches Programmieren mit R' taught
 Encoding: UTF-8
 Depends:
   R (>= 3.5.0)
-Imports:
-  haven,
-  utils
 Suggests:
   knitr,
-  rmarkdown
+  rmarkdown,
+  wordcloud,
+  xml2,
+  ggplot2,
+  gles,
+  polmineR,
+  reshape2,
+  rvest,
+  tm,
+  twitteR,
+  haven,
+  utils,
+  car
 LazyData: yes
 VignetteBuilder: knitr
 Collate:
   'learningR-package.R'
 RoxygenNote: 7.1.1
+License: CC BY 4.0
