@@ -3,16 +3,19 @@ title: "Wissenschaftliches Programmieren mit R"
 subtitle: "Datenstrukturen: Vektoren"
 author: "Andreas Blaette"
 date: "27. April 2021"
+pkgdown:
+  as_is: true
 output: 
   xaringan::moon_reader:
     css: [default, metropolis, robot-fonts, './css/polminify.css']
+    self_contained: TRUE
     nature:
       countIncrementalSlides: false
 editor_options:
   chunk_output_type: console
 vignette: >
-  %\VignetteIndexEntry{Datenstrukturen: Vektoren}
   %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Datenstrukturen: Vektoren}
   %\VignetteEngine{knitr::rmarkdown}  
 ---
 
