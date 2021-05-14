@@ -23,7 +23,8 @@ Suggests:
   twitteR,
   haven,
   utils,
-  car
+  car,
+  RefManageR
 LazyData: yes
 VignetteBuilder: knitr
 Collate:

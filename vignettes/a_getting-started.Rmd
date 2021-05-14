@@ -17,6 +17,17 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}  
 ---
 
+```{r, load_refs, include=FALSE, cache=FALSE}
+library(RefManageR)
+BibOptions(check.entries = FALSE,
+           bib.style = "authoryear",
+           cite.style = "authoryear",
+           style = "markdown",
+           hyperlink = FALSE,
+           dashed = FALSE)
+myBib <- ReadBib("./readings.bib", check = FALSE)
+```
+
 # LSF-Ankündigungstext
 
 Digitalisierung bedeutet: Wir leben in einer datenreichen Zeit. Es gibt Daten wie Sand am Meer. So sind auch die Dimensionen digitaler Textdaten im Sinne von „**Big Data**“ überwältigend. Um aber die Materialflut bewältigen und ordnen zu können, sind neue digitale Wege zu gehen. In dieser Veranstaltung werden wir daher Verfahren des „Text Mining“ nutzen, um große Textdaten-Sammlungen (d.h. Korpora) effizient mit Algorithmen zu analysieren.
@@ -37,7 +48,7 @@ Als Voraussetzung müssen Sie keinerlei Programmierkenntnisse mitbringen - nur O
 
 **Warum es generell keine schlechte Idee ist**
 
-- Code is everywhere / Macht der Algorithmen / "code is law" 
+- Code is everywhere / Macht der Algorithmen / "code is law" `r Citep(myBib, "Lessig1999")`
 
 - Code schreiben ist nicht teuer, sondern günstig(er)
 
@@ -187,4 +198,12 @@ Kann ich eigentlich mit R auf meinem Tablet arbeiten?
   - selbst gewählte Aufgabenstellung
   - Projektbericht mit R Markdown
   - digitale Abgabe zum Semesterende (Ende September)
+
+---
+
+# Literatur
+
+```{r refs, echo = FALSE, results = "asis"}
+PrintBibliography(myBib)
+```
 
