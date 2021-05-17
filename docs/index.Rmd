@@ -4,8 +4,7 @@ subtitle: "Themen- und Folienübersicht"
 author: "Andreas Blaette | Universität Duisburg-Essen"
 output: 
   xaringan::moon_reader:
-    self_contained: TRUE
-    css: [default, metropolis, robot-fonts, '~/Lab/github/learningR/vignettes/css/polminify.css']
+    css: ["./css/default.css", "./css/metropolis.css", "./css/robot-fonts.css", './css/polminify.css']
     nature:
       countIncrementalSlides: false
 editor_options:

@@ -1,12 +1,11 @@
 ---
 title: "Wissenschaftliches Programmieren mit R"
-subtitle: "Vektoren als grundlegende Datenstruktur"
+subtitle: "Vektoren allerorten"
 author: "Andreas Blaette"
 date: "27. April 2021"
 output: 
   xaringan::moon_reader:
     css: ["./css/default.css", "./css/metropolis.css", "./css/robot-fonts.css", './css/polminify.css']
-    self_contained: TRUE
     nature:
       countIncrementalSlides: false
 editor_options:

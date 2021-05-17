@@ -6,5 +6,6 @@
 #' @docType package
 #' @rdname learningR-package
 #' @name learningR
+#' @importFrom xaringan moon_reader
 NULL
 

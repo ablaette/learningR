@@ -5,7 +5,6 @@ author: "Andreas Blaette"
 date: "11. Mai 2021"
 output: 
   xaringan::moon_reader:
-    self_contained: TRUE
     css: ["./css/default.css", "./css/metropolis.css", "./css/robot-fonts.css", './css/polminify.css']
     nature:
       countIncrementalSlides: false
