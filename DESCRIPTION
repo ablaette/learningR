@@ -8,7 +8,8 @@ Maintainer: Andreas Blaette <andreas.blaette@uni-due.de>
 Description: Material for course 'Wissenschaftliches Programmieren mit R' taught at UDE.
 Encoding: UTF-8
 Depends:
-  R (>= 3.5.0)
+  R (>= 3.5.0),
+  xaringan (>= 0.20)
 Suggests:
   knitr,
   rmarkdown,
