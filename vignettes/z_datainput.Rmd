@@ -1,0 +1,173 @@
+---
+title: "Wissenschaftliches Programmieren mit R"
+subtitle: "Einlesen von Daten"
+author: "Andreas Blaette"
+output: 
+  xaringan::moon_reader:
+    css: ["./css/default.css", "./css/metropolis.css", "./css/robot-fonts.css", './css/polminify.css']
+    nature:
+      countIncrementalSlides: false
+editor_options:
+  chunk_output_type: console
+vignette: >
+  %\VignetteIndexEntry{A01 - Einlesen von Daten}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}  
+---
+
+# Vorbemerkung
+
+R bietet Ihnen weitreichende Flexibilität, mit verschiedenen Dateiformaten zu arbeiten.
+
+---
+
+# Das Dateisystem
+
+- Arbeiten Sie mit Windows, macOS oder Linux? Während bei Pfadangaben bei Windows der umgedrehte/nach links geneigte Schrägstrich ("\") als Trennzeichen benutzt wird ([backlash](https://de.wikipedia.org/wiki/Backslash)), verwenden Linux und macOS das nach rechts geneigte Trennzeichen ("/")
+
+- Bei Windows ist der Pfadangabe eine Laufwerksbezeichnung vorangestellt (oft "C:" oder "D:"): Was sehen Sie, wenn Sie mit `.libPaths()` das Verzeichnis abfragen, in dem Ihre R Pakete installiert sind?
+
+- Zum Verbinden von Pfadangaben aus Vektoren empfiehlt sich die `file.path()` Funktion.
+
+- Mit `list.files()` erhalten Sie 
+
+```{r}
+head(list.files(.libPaths()[1]))
+```
+
+---
+
+# Funktionen für Dateien und Pfade
+
+| Funktion | Beschreibung |
+|----------|--------------|
+| `list.files()` | Auflisten von Dateien und Verzeichnissen |
+| `mkdir()` | Anlegen eines neuen Verzeichnisses | 
+| `setwd()` | Setzen des Arbeitsverzeichnisses | 
+| `getwd()` | Was ist das gültige Arbeitsverzeichnis |
+| `file.path()` | Vektoren zu Pfad verbinden |
+| `path.expand()` | Tilde in Pfadangaben durch vollständigen Pfad ersetzen |
+| `file.exists()` | Logischer Test ob Verzeichnis oder Pfad existiert |
+| `basename()` | Dateiname ohne Pfadangabe |
+| `dirname()` | Übergeordnetes Verzeichnis einer Dateiangabe |
+
+---
+
+# Navigation im Dateisystem
+
+- Oft sehen Sie das "Tilde"-Zeichen (`~`) am Anfang von Pfadangaben. Dieses ist eine Abkürzung für die Pfadangabe Ihres persönlichen Nutzerverzeichnis. Welches Verzeichnis sich hinter `~` verbirgt, erfahren Sie mit der `path.expand()`-Funktion. Viele R-Funktionen wenden `path.expand()` auf Pfadangaben an.
+
+```{r}
+path.expand("~")
+```
+
+- Mit `tempfile()` erhalten Sie einen zufälligen, temporären Dateinamen im temporären R Verzeichnis (Wert von `tempdir()`), das für jede R-Sitzung angelegt wird. Das temporäre Verzeichnis wird beim Beenden der Sitzung (inklusive aller Dateien darin) gelöscht wird.
+
+```{r}
+tempdir()
+tempfile()
+```
+
+
+---
+
+# Einlesen und Schreiben von Daten
+
+| Funktion | Beschreibung |
+|----------|--------------|
+| `scan()` | Einlesen von Vektoren (aus Datei oder interaktive Eingabe) |
+| `cat()` | Schreiben von Vektoren |
+| `readLines()` | zeilenweises Einlesen von `character`-Vektoren |
+| `writeLines()` | zeilenweises Schreiben von `character`-Vektoren |
+| `read.table()`, `read.csv()`, `read.csv2()`, `read.delim()`, `read.delim2()` | Einlesen von Tabellen |
+| `download.file()` oder `curl::curl_download()` |  Download von Dateien | 
+
+---
+
+# Datenformate - Paketempfehlungen
+
+| Datenformat | Paket |
+|-------------|-------|
+| SPSS (.sav) / STATA (.dta) | [foreign](https://CRAN.R-project.org/package=foreign) oder [haven](https://CRAN.R-project.org/package=haven) |
+| JSON (.json) | [jsonlite](https://CRAN.R-project.org/package=jsonlite) |
+| Excel (.xlsx) | [openxlsx](https://CRAN.R-project.org/package=openxlsx) | 
+| XML (.xml) | [xml2](https://CRAN.R-project.org/package=xml2) |
+| csv (.csv) / tsv (.tsv) | [readr](https://CRAN.R-project.org/package=readr) |
+
+---
+
+# Beispiel
+
+Einlesen einer lokalen Kopie der Excel-Datei ... 
+
+```{r, eval = TRUE}
+excel_online <- "https://opendata-duisburg.de/sites/default/files/Corona%2030.04.2021.xlsx"
+excel_local <- file.path(tempdir(), basename(excel_online))
+download.file(url = excel_online, destfile = excel_local, quiet = !interactive())
+data <- openxlsx::read.xlsx(xlsxFile = excel_local)
+```
+
+Nachbereinigung der Zellen ...
+
+```{r, eval = TRUE}
+library(readr)
+data[[1]] <- parse_date(gsub("\u00A0", "", data[[1]]), format = "%d.%m.%Y", trim_ws = TRUE)
+purge <- function(x){
+  loc <- readr::locale(grouping_mark = ".")
+  readr::parse_number(x, locale = loc, trim_ws = TRUE, na = "\u00A0\u00A0")
+}
+for (col in colnames(data[2:ncol(data)])) data[[col]] <- purge(data[[col]])
+```
+
+---
+
+# Ergebnis
+
+```{r, echo = FALSE, eval = FALSE}
+DT::datatable(data, options = list(pageLength = 8L), rownames = FALSE)
+```
+
+```{r}
+head(data, 15)
+```
+
+---
+
+# Einlesen des csv-Dateiformats
+
+```{r}
+library(readr)
+tab_csv <- readr::read_delim(
+  file = "https://opendata-duisburg.de/sites/default/files/Corona%2030.04.2021.csv",
+  col_types = cols(col_date(format = "%d.%m.%Y"), col_number(), col_number(), col_number(), col_number()),
+  locale = locale(decimal_mark = ",", grouping_mark = "."),
+  delim = ";",
+  na = c("", "\u00A0")
+)
+```
+
+Zur Sicherheit: Sind die Daten identisch?
+
+```{r}
+sapply(
+  2:ncol(data),
+  function(i) identical(sum(data[[i]], na.rm = TRUE), sum(tab_csv[[i]], na.rm = TRUE))
+)
+```
+
+
+---
+
+# JSON
+
+```{r}
+json_url <- "https://opendata-duisburg.de/api/action/datastore/search.json?resource_id=00766064-4cab-4f40-8f67-82ec6b14d6ca"
+json_data <- jsonlite::fromJSON(json_url)
+tab <- json_data$result$records
+for (i in 2:ncol(tab)) tab[[i]] <- as.integer(tab[[i]])
+head(tab, n = 3)
+```
+
+```{r}
+tail(tab, n  = 3)
+```

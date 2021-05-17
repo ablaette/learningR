@@ -27,7 +27,11 @@ Suggests:
   utils,
   car,
   RefManageR,
-  bibtex
+  bibtex,
+  bit64,
+  openxlsx,
+  jsonlite,
+  readr
 LazyData: yes
 VignetteBuilder: knitr
 Collate:
