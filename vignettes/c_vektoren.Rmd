@@ -248,7 +248,7 @@ fgw_exp[which(fgw_exp > 10)]
 
 # Funktionen für character-Vektoren
 
-```{r}
+```{r, eval = FALSE}
 library(polmineR)
 words <- get_token_stream("GERMAPARLMINI", p_attribute = "word")
 length(words)
@@ -261,12 +261,12 @@ tolower(words) %>% head()
 
 # Funktionen für character-Vektoren (II)
 
-```{r}
+```{r, eval = FALSE}
 wordcount <- table(words)
 head(wordcount)
 ```
 
-```{r}
+```{r, eval = FALSE}
 stopwords <- tm::stopwords("de")
 detect_stopwords <- words %in% stopwords
 word_count <- table(words[!words %in% stopwords]) # Negation durch !
@@ -278,7 +278,7 @@ tail(word_count)
 
 # Polierarbeit
 
-```{r}
+```{r, eval = FALSE}
 noise <- c(",", ".", ":", ")", "(", "/", "-", "!", "[", "]", "?", ";", '"')
 word_count_denoised <- word_count[!names(word_count) %in% noise]
 head(word_count_denoised)
@@ -290,7 +290,7 @@ head(word_count_sorted, 10)
 
 # Meine erste Wortwolke
 
-```{r}
+```{r, eval = FALSE}
 wordcloud::wordcloud(
   words = names(word_count_sorted)[1:50], freq = unname(word_count_sorted)[1:50],
   colors = rep(palette(), 10)[1:50]
