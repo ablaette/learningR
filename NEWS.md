@@ -4,3 +4,4 @@
 - Added https://polmine.github.io/drat/ to field 'Additional_repositories' in DESCRIPTION file so that the gles package can be installed from there.
 - Code chunks in the slides on vectors that rely on the polmineR are not evaluated: Tbe current CRAN release of polmineR throws an error if `localeToCharset()` is `NA`, which occurs on GitHub actions Linux test machines.
 - The slides on package installation have been extended to include an information how to cite R packages and R.
+- The package now includes a dataset `coronastats` with the reports of Open Data Duisburg.

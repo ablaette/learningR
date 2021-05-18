@@ -9,3 +9,9 @@
 #' @importFrom xaringan moon_reader
 NULL
 
+
+#' Corona-Faelle in Duisburg.
+#' 
+#' @docType data
+#' @keywords datasets
+"coronastats"

@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Wissenschaftliches Programmieren mit R</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Andreas Blaette" />
+    <link rel="stylesheet" href="css/default.css" type="text/css" />
+    <link rel="stylesheet" href="css/metropolis.css" type="text/css" />
+    <link rel="stylesheet" href="css/robot-fonts.css" type="text/css" />
+    <link rel="stylesheet" href="css/polminify.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Wissenschaftliches Programmieren mit R
+## Einlesen von Daten
+### Andreas Blaette
+
+---
+
+
+# Vorbemerkung
+
+R bietet Ihnen weitreichende Flexibilität, mit verschiedenen Dateiformaten zu arbeiten.
+
+---
+
+# Das Dateisystem
+
+- Arbeiten Sie mit Windows, macOS oder Linux? Während bei Pfadangaben bei Windows der umgedrehte/nach links geneigte Schrägstrich ("\") als Trennzeichen benutzt wird ([backlash](https://de.wikipedia.org/wiki/Backslash)), verwenden Linux und macOS das nach rechts geneigte Trennzeichen ("/")
+
+- Bei Windows ist der Pfadangabe eine Laufwerksbezeichnung vorangestellt (oft "C:" oder "D:"): Was sehen Sie, wenn Sie mit `.libPaths()` das Verzeichnis abfragen, in dem Ihre R Pakete installiert sind?
+
+- Zum Verbinden von Pfadangaben aus Vektoren empfiehlt sich die `file.path()` Funktion.
+
+- Mit `list.files()` erhalten Sie 
+
+
+```r
+head(list.files(.libPaths()[1]))
+```
+
+```
+## [1] "abind"    "acepack"  "ALLBUS"   "annolite" "annotask" "ape"
+```
+
+---
+
+# Funktionen für Dateien und Pfade
+
+| Funktion | Beschreibung |
+|----------|--------------|
+| `list.files()` | Auflisten von Dateien und Verzeichnissen |
+| `mkdir()` | Anlegen eines neuen Verzeichnisses | 
+| `setwd()` | Setzen des Arbeitsverzeichnisses | 
+| `getwd()` | Was ist das gültige Arbeitsverzeichnis |
+| `file.path()` | Vektoren zu Pfad verbinden |
+| `path.expand()` | Tilde in Pfadangaben durch vollständigen Pfad ersetzen |
+| `file.exists()` | Logischer Test ob Verzeichnis oder Pfad existiert |
+| `basename()` | Dateiname ohne Pfadangabe |
+| `dirname()` | Übergeordnetes Verzeichnis einer Dateiangabe |
+
+---
+
+# Navigation im Dateisystem
+
+- Oft sehen Sie das "Tilde"-Zeichen (`~`) am Anfang von Pfadangaben. Dieses ist eine Abkürzung für die Pfadangabe Ihres persönlichen Nutzerverzeichnis. Welches Verzeichnis sich hinter `~` verbirgt, erfahren Sie mit der `path.expand()`-Funktion. Viele R-Funktionen wenden `path.expand()` auf Pfadangaben an.
+
+
+```r
+path.expand("~")
+```
+
+```
+## [1] "/Users/andreasblaette"
+```
+
+- Mit `tempfile()` erhalten Sie einen zufälligen, temporären Dateinamen im temporären R Verzeichnis (Wert von `tempdir()`), das für jede R-Sitzung angelegt wird. Das temporäre Verzeichnis wird beim Beenden der Sitzung (inklusive aller Dateien darin) gelöscht wird.
+
+
+```r
+tempdir()
+```
+
+```
+## [1] "/var/folders/m_/431fjnbs1t32_62d35wvs7pr0000gp/T//RtmpEnyBkl"
+```
+
+```r
+tempfile()
+```
+
+```
+## [1] "/var/folders/m_/431fjnbs1t32_62d35wvs7pr0000gp/T//RtmpEnyBkl/file1642e4ed8387d"
+```
+
+
+---
+
+# Einlesen und Schreiben von Daten
+
+| Funktion | Beschreibung |
+|----------|--------------|
+| `scan()` | Einlesen von Vektoren (aus Datei oder interaktive Eingabe) |
+| `cat()` | Schreiben von Vektoren |
+| `readLines()` | zeilenweises Einlesen von `character`-Vektoren |
+| `writeLines()` | zeilenweises Schreiben von `character`-Vektoren |
+| `read.table()`, `read.csv()`, `read.csv2()`, `read.delim()`, `read.delim2()` | Einlesen von Tabellen |
+| `download.file()` oder `curl::curl_download()` |  Download von Dateien | 
+
+---
+
+# Datenformate - Paketempfehlungen
+
+| Datenformat | Paket |
+|-------------|-------|
+| SPSS (.sav) / STATA (.dta) | [foreign](https://CRAN.R-project.org/package=foreign) oder [haven](https://CRAN.R-project.org/package=haven) |
+| JSON (.json) | [jsonlite](https://CRAN.R-project.org/package=jsonlite) |
+| Excel (.xlsx) | [openxlsx](https://CRAN.R-project.org/package=openxlsx) | 
+| XML (.xml) | [xml2](https://CRAN.R-project.org/package=xml2) |
+| csv (.csv) / tsv (.tsv) | [readr](https://CRAN.R-project.org/package=readr) |
+
+---
+
+# Beispiel
+
+Einlesen einer lokalen Kopie der Excel-Datei ... 
+
+
+```r
+excel_online &lt;- "https://opendata-duisburg.de/sites/default/files/Corona%2030.04.2021.xlsx"
+excel_local &lt;- file.path(tempdir(), basename(excel_online))
+download.file(url = excel_online, destfile = excel_local, quiet = !interactive())
+data &lt;- openxlsx::read.xlsx(xlsxFile = excel_local)
+```
+
+Nachbereinigung der Zellen ...
+
+
+```r
+library(readr)
+data[[1]] &lt;- parse_date(gsub("\u00A0", "", data[[1]]), format = "%d.%m.%Y", trim_ws = TRUE)
+purge &lt;- function(x){
+  loc &lt;- readr::locale(grouping_mark = ".")
+  readr::parse_number(x, locale = loc, trim_ws = TRUE, na = "\u00A0\u00A0")
+}
+for (col in colnames(data[2:ncol(data)])) data[[col]] &lt;- purge(data[[col]])
+```
+
+---
+
+# Ergebnis
+
+
+
+
+```r
+head(data, 15)
+```
+
+```
+##         Datum Bestätigte.Fälle Aktuell.infiziert Genesen Verstorben
+## 1  2021-04-30            26567              1865   24099        603
+## 2  2021-04-29            26458              1898   23957        603
+## 3  2021-04-28            26290              1891   23799        600
+## 4  2021-04-27            26142              1909   23634        599
+## 5  2021-04-26            26019              1946   23481        592
+## 6  2021-04-25            25878              1978   23309        591
+## 7  2021-04-24            25752              2003   23160        589
+## 8  2021-04-23            25520              1916   23015        589
+## 9  2021-04-22            25323              1898   22839        586
+## 10 2021-04-21            25130              1872   22673        585
+## 11 2021-04-20            24919              1770   22570        579
+## 12 2021-04-19            24789              1810   22403        576
+## 13 2021-04-18            24631              1786   22270        575
+## 14 2021-04-17            24481              1741   22168        572
+## 15 2021-04-16            24295              1680   22043        572
+```
+
+---
+
+# Einlesen des csv-Dateiformats
+
+
+```r
+library(readr)
+tab_csv &lt;- readr::read_delim(
+  file = "https://opendata-duisburg.de/sites/default/files/Corona%2030.04.2021.csv",
+  col_types = cols(col_date(format = "%d.%m.%Y"), col_number(), col_number(), col_number(), col_number()),
+  locale = locale(decimal_mark = ",", grouping_mark = "."),
+  delim = ";",
+  na = c("", "\u00A0")
+)
+```
+
+Zur Sicherheit: Sind die Daten identisch?
+
+
+```r
+sapply(
+  2:ncol(data),
+  function(i) identical(sum(data[[i]], na.rm = TRUE), sum(tab_csv[[i]], na.rm = TRUE))
+)
+```
+
+```
+## [1] TRUE TRUE TRUE TRUE
+```
+
+
+---
+
+# JSON
+
+
+```r
+json_url &lt;- "https://opendata-duisburg.de/api/action/datastore/search.json?resource_id=00766064-4cab-4f40-8f67-82ec6b14d6ca"
+json_data &lt;- jsonlite::fromJSON(json_url)
+tab &lt;- json_data$result$records
+for (i in 2:ncol(tab)) tab[[i]] &lt;- as.integer(tab[[i]])
+head(tab, n = 3)
+```
+
+```
+##        Datum Bestätigte Fälle Aktuell infiziert Genesen Verstorben
+## 1 30.04.2021               26                 1       0        603
+## 2 29.04.2021               26                 1       0        603
+## 3 28.04.2021               26                 1       0        600
+```
+
+
+```r
+tail(tab, n  = 3)
+```
+
+```
+##         Datum Bestätigte Fälle Aktuell infiziert Genesen Verstorben
+## 8  23.04.2021               25                 1       0        589
+## 9  22.04.2021               25                 1       0        586
+## 10 21.04.2021               25                 1       0        585
+```
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

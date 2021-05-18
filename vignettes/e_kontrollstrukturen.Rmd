@@ -191,6 +191,21 @@ Was muss man tun, um eine ordentliche Tabelle zu importieren?
 
 ---
 
+# Funktionen und Pipes
+
+Insbesondere im "tidyverse"-Ökosystem sind Verkettungen von Funktionsaufrufen über "Pipes" gängig. Hier wird der Rückgabewert einer Funktion zum ersten Argument der nachfolgenden Funktion, die mit dem Pipe-Operator `%>%` angebunden wird.
+
+```{r, eval = FALSE}
+library(magrittr)
+tab <- read.table("https://opendata-duisburg.de/sites/default/files/Corona%2030.04.2020.csv", sep = ";", header = TRUE)
+tab[["Datum"]] <- as.Date(tab[["Datum"]], format = "%d.%m.%Y ")
+tab %>%
+  subset(Datum >= as.Date("2020-04-01")) %>%
+  barplot(height = .[["X.Aktuell.infiziert"]])
+```
+
+---
+
 # Ausblick: sapply
 
 - es ist kaum etwas so "Rish" wie lapply

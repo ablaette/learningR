@@ -31,7 +31,8 @@ Suggests:
   bit64,
   openxlsx,
   jsonlite,
-  readr
+  readr,
+  magrittr
 LazyData: yes
 VignetteBuilder: knitr
 Collate:
