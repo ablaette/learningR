@@ -110,6 +110,29 @@ beepr::beep(6)
 
 ---
 
+# Wie zitiert man Pakete?
+
+Eine Empfehlung zum Zitieren von Paketen erhalten Sie mit der Funktion `citation()`. 
+
+```{r}
+citation(package = "polmineR")
+```
+
+---
+
+# R und Zitation (continued)
+
+- Sie müssen nicht jegliches Paket installieren, mit dem Sie gearbeitet haben. Aber es ist gute Praxis, dass Sie jene zitieren, die für Ihre konkrete Analyse zentral sind und die für die Reproduktion von Forschungsergebnissen wichtig sind. 
+
+- Wenn bei `citation()` die Angabe eines Pakets als Argument entfällt, wird eine Empfehlung zum Zitieren von R angezeigt.
+
+- Zuweilen erfordert die Reproduktion von Ergebnissen spezifische Kombinationen von Paketversionen. Der Aufruf von `sessionInfo()` zeigt die Versionen aller geladenen Pakete (und noch etwas mehr). Es ist gute Praxis, am Ende eines technischen Berichts diese Ausgabe aufzuführen.
+
+- Bei der Suche nach Hilfe via GitHub Issues oder in Foren (Stackoverflow) ist es oft nützlich, wenn Ihre Ratgeber die Paketversionen kennen. Falls es relevant sein kann, kopieren Sie im Zweifelsfall die Ausgabe von `sessionInfo()` in das Issue ein.
+
+
+---
+
 # Ausblick: Ein "Hallo Welt"-Programm
 
 - Anlegen einer Datei "foo.R"
