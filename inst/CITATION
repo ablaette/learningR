@@ -1,0 +1,9 @@
+citHeader("To cite package 'learningR' in publications use:")
+
+citEntry(entry = "Manual",
+         title = "learningR",
+         author = person("Andreas", "Blaette", email="andreas.blaette@uni-due.de"),
+         year = "2021",
+         note = "R package version 0.0.2",
+         textVersion = "Blaette, Andreas (2020). learningR. R package version v0.0.2."
+)
