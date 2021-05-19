@@ -183,7 +183,10 @@ add_anything_default(x = 5, y = 6)
 Warum es gut ist, Funktionen zu verstehen ... Ein kleines Szenario:
 
 ```{r}
-tab <- read.table("https://opendata-duisburg.de/sites/default/files/Corona%2030.04.2020.csv")
+tab <- read.table(
+  "https://opendata-duisburg.de/sites/default/files/Corona%2030.04.2020.csv",
+  sep = ";"
+)
 tab[1:5,]
 ```
 

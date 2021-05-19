@@ -98,13 +98,11 @@ tempfile()
 
 # Beispiel
 
-Einlesen einer lokalen Kopie der Excel-Datei ... 
+Einlesen einer Excel-Datei ... 
 
 ```{r, eval = TRUE}
 excel_online <- "https://opendata-duisburg.de/sites/default/files/Corona%2030.04.2021.xlsx"
-excel_local <- file.path(tempdir(), basename(excel_online))
-download.file(url = excel_online, destfile = excel_local, quiet = !interactive())
-data <- openxlsx::read.xlsx(xlsxFile = excel_local)
+data <- openxlsx::read.xlsx(xlsxFile = excel_online)
 ```
 
 Nachbereinigung der Zellen ...

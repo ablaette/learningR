@@ -6,3 +6,4 @@
 - The slides on package installation have been extended to include an information how to cite R packages and R.
 - A new slide explains the use of the magrittr pipe operator `%>%`, in a rudimentary fashion though.
 - The package now includes a dataset `coronastats` with the reports of Open Data Duisburg.
+- Code not working on Windows has been adjusted.
