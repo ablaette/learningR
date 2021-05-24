@@ -1,5 +1,6 @@
 library(dplyr)
 library(tibble)
+library(openxlsx)
 
 mi_url <- "https://service.destatis.de/DE/karten/data/migration_integration_regionen.zip"
 mi_reg <- file.path(tempdir(), basename(mi_url))
@@ -17,12 +18,35 @@ afd <- read.csv(file = "~/Lab/github/learningR/data-raw/afd_zweitanstimmenanteil
   rename(RS = "Schluessel", AfD = "Wert")
 
 rki <- read.csv(file = "~/Lab/github/learningR/data-raw/RKI_Corona_Landkreise.csv") %>%
-  select(c("RS", "BEZ", "death_rate", "BL", "cases7_per_100k"))
+  select(c("RS", "BEZ", "death_rate", "cases7_per_100k"))
+
+
+## Brutto
+
+url <- "https://www.statistikportal.de/sites/default/files/2021-04/vgrdl_r2b1_bs2019_1.xlsx"
+xlsx_local <- file.path(tempdir(), basename(url))
+download.file(url, destfile = xlsx_local)
+
+raw <- openxlsx::read.xlsx(xlsx_local, sheet = "1.1")
+df <- raw[5:nrow(raw),]
+colnames(df) <- raw[4,]
+df[["RS"]] <- as.integer(df[["Regional-schlüssel"]])
+
+econ <- as_tibble(df) %>%
+  rename(lkr = "NUTS 3") %>%
+  filter(!is.na(lkr)) %>%
+  select("RS", "Land", "2018") %>%
+  rename(bip = "2018")
+
+
 
 corona_by_county <- inner_join(x = mi, y = afd, by = "RS") %>%
   inner_join(y = rki, by = "RS") %>%
+  left_join(y = econ, by = "RS") %>%
   select(!Name) %>%
-  rename(name = "NAME",  population_total = "INSGESAMT", foreign_pop_total = "AUSL_INSG", foreign_pop_share = "ANT_AI", afd = "AfD", type = "BEZ", region = "BL") %>%
+  rename(name = "NAME",  population_total = "INSGESAMT", foreign_pop_total = "AUSL_INSG", foreign_pop_share = "ANT_AI", afd = "AfD", type = "BEZ", region = "Land") %>%
   relocate(RS, name, region, type, population_total, cases7_per_100k, death_rate, foreign_pop_total, foreign_pop_share, afd)
+
+corona_by_county[["bip_per_person"]] <- round(corona_by_county$bip * 1000000 / corona_by_county$population_total, 1)
 
 save(corona_by_county, file = "~/Lab/github/learningR/data/countydata.RData")
