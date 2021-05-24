@@ -1,3 +1,7 @@
+# learningR v0.0.3
+
+- The package includes a new dataset `corona_by_county`.
+
 # learningR v0.0.2
 
 - To reduce the size of the vignettes in the installed package, relevant css files are present in the vignettes folder and in the inst/doc folder; the header files of the vignettes include hard-coded paths.
@@ -7,3 +11,4 @@
 - A new slide explains the use of the magrittr pipe operator `%>%`, in a rudimentary fashion though.
 - The package now includes a dataset `coronastats` with the reports of Open Data Duisburg.
 - Code not working on Windows has been adjusted.
+
