@@ -102,12 +102,8 @@ jobs:
       - name: Add pkg to drat repo
         if: runner.os == 'macOS'
         run: |
-          dir.create("~/drat")
-          git2r::clone(url = "https://github.com/PolMine/drat.git", local_path = "~/drat", branch = "gh-pages", progress = FALSE)
-          print(list.files("~/drat/drat"))
-          pkg_tarball <- Sys.glob("./learningR_*.tar.gz")
-          print(pkg_tarball)
-          drat::insertPackage(file = pkg_tarball, repodir = "~/drat/drat")
+          drat_repo <- git2r::clone(url = "https://github.com/PolMine/drat.git", local_path = path.expand("~/drat"))
+          git2r::checkout(drat_repo, branch = "gh-pages")
+          pkg_tarball <- Sys.glob("./learningR_*.tar.gz")[1]
+          drat::insertPackage(file = pkg_tarball, repodir = "~/drat")
         shell: Rscript {0}
-
-
