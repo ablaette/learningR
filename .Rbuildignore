@@ -1,3 +1,5 @@
 ^docs/*$
 ^LICENSE\.md$
 ^\.github$
+^data-raw$
+^README.Rmd$
