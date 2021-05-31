@@ -70,6 +70,7 @@ jobs:
           remotes::install_cran("rcmdcheck")
           install.packages('drat')
           install.packages("git2r")
+          install.packages("pkgbuild")
         shell: Rscript {0}
 
       - name: Check
@@ -104,6 +105,6 @@ jobs:
         run: |
           drat_repo <- git2r::clone(url = "https://github.com/PolMine/drat.git", local_path = path.expand("~/drat"))
           git2r::checkout(drat_repo, branch = "gh-pages")
-          pkg_tarball <- Sys.glob("./learningR_*.tar.gz")[1]
+          pkg_tarball <- pkgbuild::build()
           drat::insertPackage(file = pkg_tarball, repodir = "~/drat")
         shell: Rscript {0}
