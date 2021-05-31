@@ -68,6 +68,8 @@ jobs:
         run: |
           remotes::install_deps(dependencies = TRUE)
           remotes::install_cran("rcmdcheck")
+          install.packages('drat')
+          install.packages("git2r")
         shell: Rscript {0}
 
       - name: Check
@@ -89,10 +91,23 @@ jobs:
         if: runner.os == 'Windows'
         run: pkgbuild::build(binary = TRUE, dest_path = Sys.getenv("GITHUB_WORKSPACE"))
         shell: Rscript {0}
-          
+
       - name: Upload Windows binary
         if: runner.os == 'Windows'
         uses: actions/upload-artifact@v2
         with:
           name: learningR-Windows-binary
           path: ./*.zip
+
+      - name: Add pkg to drat repo
+        if: runner.os == 'macOS'
+        run: |
+          dir.create("~/drat")
+          git2r::clone(url = "https://github.com/PolMine/drat.git", local_path = "~/drat", branch = "gh-pages", progress = FALSE)
+          print(list.files("~/drat"))
+          pkg_tarball <- Sys.glob("./learningR_*.tar.gz")
+          print(pkg_tarball)
+          drat::insertPackage(file = pkg_tarball, repodir = "~/drat")
+        shell: Rscript {0}
+
+
