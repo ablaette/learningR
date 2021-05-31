@@ -123,6 +123,62 @@ beepr::beep(6)
 
 ---
 
+# Wie zitiert man Pakete?
+
+Eine Empfehlung zum Zitieren von Paketen erhalten Sie mit der Funktion `citation()`. 
+
+
+```r
+citation(package = "polmineR")
+```
+
+```
+## 
+## To cite package 'polmineR' in publications use:
+## 
+##   Blaette, Andreas (2020). polmineR: Verbs and Nouns for Corpus
+##   Analysis. R package version v0.8.2.
+##   http://doi.org/10.5281/zenodo.4042093
+## 
+## A BibTeX entry for LaTeX users is
+## 
+##   @Manual{,
+##     title = {polmineR: Verbs and Nouns for Corpus Analysis},
+##     author = {Andreas Blaette},
+##     year = {2020},
+##     note = {R package version 0.8.2},
+##     doi = {10.5281/zenodo.4042093},
+##   }
+```
+
+---
+
+# R und Zitation (continued)
+
+- Sie müssen nicht jegliches Paket installieren, mit dem Sie gearbeitet haben. Aber es ist gute Praxis, dass Sie jene zitieren, die für Ihre konkrete Analyse zentral sind und die für die Reproduktion von Forschungsergebnissen wichtig sind. 
+
+- Wenn bei `citation()` die Angabe eines Pakets als Argument entfällt, wird eine Empfehlung zum Zitieren von R angezeigt.
+
+- Zuweilen erfordert die Reproduktion von Ergebnissen spezifische Kombinationen von Paketversionen. Der Aufruf von `sessionInfo()` zeigt die Versionen aller geladenen Pakete (und noch etwas mehr). Es ist gute Praxis, am Ende eines technischen Berichts diese Ausgabe aufzuführen.
+
+- Bei der Suche nach Hilfe via GitHub Issues oder in Foren (Stackoverflow) ist es oft nützlich, wenn Ihre Ratgeber die Paketversionen kennen. Falls es relevant sein kann, kopieren Sie im Zweifelsfall die Ausgabe von `sessionInfo()` in das Issue ein.
+
+---
+
+# Wo finde ich den Einstieg in R-Pakete?
+
+Um die Logik und Funktionsweise eines Pakets verstehen zu lernen, gibt es die folgenden klassischen Orte, um Hilfe zu finden:
+
+- Im 'Reference manual', das es zu jedem Paket gibt, gibt es stets einen Eintrag, der das Paket als Ganzes erläutert. Diese Hilfeseite ruft man auf durch ?PAKETNAME auf (z.B. `?beepr`)
+
+- Der Code vieler R-Pakete lagert in GitHub-Repositorien. Eine README-Datei im Paket, die zugleich als Startseite der GitHub-Seite des Repos angezeigt wird, beschreit das Paket. An dieser Stelle finden sich auch oft wichtige Hilfestellungen zur Installation (vgl. z.B. https://github.com/PolMine/polmineR).
+
+- Etwas komplexere Pakete enthalten "Vignetten" (pdf- oder html-Dokumente), die in die wichtigsten Funktionen einführen. Vignetten sind auf der Überblicksseite eines Pakets bei CRAN aufgeführt. Zu installierten Paketen gibt Ihnen `browseVignettes()` einen Überblick über die verfügbaren Vignetten (z.B. `browseVignettes("dplyr")`)
+
+- Eine kompakte und in aller Regel sehr nützliche Hilfestellung mit ansprechendem Layout bieten "cheatsheets". Sehr hilfreich ist die von [RStudio gepflege Cheatsheets-Überblicksseite](https://www.rstudio.com/resources/cheatsheets/)!
+
+---
+
 # Ausblick: Ein "Hallo Welt"-Programm
 
 - Anlegen einer Datei "foo.R"

@@ -1,6 +1,7 @@
 # learningR v0.0.3
 
 - The package includes a new dataset `corona_by_county`.
+- A new slide in 'b_installation.Rmd' explains where to find help on a package you are not yet acquainted with.
 
 # learningR v0.0.2
 
