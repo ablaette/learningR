@@ -114,10 +114,12 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           drat_repo <- git2r::clone(url = "https://github.com/PolMine/drat.git", local_path = path.expand("~/drat"))
+          config(drat_repo, user.name = "Alice", user.email = "alice@wonderland.org")
           git2r::checkout(drat_repo, branch = "gh-pages")
           pkg_tarball <- pkgbuild::build(binary = TRUE)
           drat::insertPackage(file = pkg_tarball, repodir = "~/drat")
           updated <- unname(unlist(git2r::status(drat_repo, untracked = TRUE, unstaged = TRUE)))
-          git2r::add(drat_repo, path = updated)
-          git2r::commit(drat_repo, message = "automatic update")
+          git2r::add(drat_repo, path = file.path(workdir(drat_repo), updated))
+          git2r::commit(drat_repo, message = "GitHub Action build")
+          git2r::push(drat_repo)
         shell: Rscript {0}
