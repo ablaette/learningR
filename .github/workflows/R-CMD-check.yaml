@@ -104,7 +104,7 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           drat_repo <- git2r::clone(url = "https://github.com/PolMine/drat.git", local_path = path.expand("~/drat"))
-          config(drat_repo, user.name = "Alice", user.email = "alice@wonderland.org")
+          git2r::config(drat_repo, user.name = "Alice", user.email = "alice@wonderland.org")
           git2r::checkout(drat_repo, branch = "gh-pages")
           pkg_tarball <- pkgbuild::build(binary = TRUE)
           drat::insertPackage(file = pkg_tarball, repodir = "~/drat")
