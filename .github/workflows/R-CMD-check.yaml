@@ -107,7 +107,7 @@ jobs:
           print(list.files("~/drat/drat"))
           pkg_tarball <- Sys.glob("./learningR_*.tar.gz")
           print(pkg_tarball)
-          drat::insertPackage(file = pkg_tarball, repodir = "~/drat")
+          drat::insertPackage(file = pkg_tarball, repodir = "~/drat/drat")
         shell: Rscript {0}
 
 
