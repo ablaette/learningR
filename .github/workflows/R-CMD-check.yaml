@@ -100,11 +100,24 @@ jobs:
           name: learningR-Windows-binary
           path: ./*.zip
 
-      - name: Add pkg to drat repo
+      - name: Add pkg to drat repo (macOS)
         if: runner.os == 'macOS'
         run: |
           drat_repo <- git2r::clone(url = "https://github.com/PolMine/drat.git", local_path = path.expand("~/drat"))
           git2r::checkout(drat_repo, branch = "gh-pages")
-          pkg_tarball <- pkgbuild::build()
+          pkg_tarball <- pkgbuild::build(binary = TRUE)
           drat::insertPackage(file = pkg_tarball, repodir = "~/drat")
+          git2r::add(drat_repo)
+        shell: Rscript {0}
+
+      - name: Add pkg to drat repo (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          drat_repo <- git2r::clone(url = "https://github.com/PolMine/drat.git", local_path = path.expand("~/drat"))
+          git2r::checkout(drat_repo, branch = "gh-pages")
+          pkg_tarball <- pkgbuild::build(binary = TRUE)
+          drat::insertPackage(file = pkg_tarball, repodir = "~/drat")
+          updated <- unname(unlist(git2r::status(drat_repo, untracked = TRUE, unstaged = TRUE)))
+          git2r::add(drat_repo, path = updated)
+          git2r::commit(drat_repo, message = "automatic update")
         shell: Rscript {0}
