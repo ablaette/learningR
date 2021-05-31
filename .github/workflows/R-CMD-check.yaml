@@ -71,6 +71,7 @@ jobs:
           install.packages('drat')
           install.packages("git2r")
           install.packages("pkgbuild")
+          install.packages("usethis")
         shell: Rscript {0}
 
       - name: Check
@@ -103,6 +104,7 @@ jobs:
       - name: Add pkg to drat repo (macOS)
         if: runner.os == 'macOS'
         run: |
+          usethis::gh_token_help()
           drat_repo <- git2r::clone(url = "https://github.com/PolMine/drat.git", local_path = path.expand("~/drat"))
           git2r::config(drat_repo, user.name = "Alice", user.email = "alice@wonderland.org")
           git2r::checkout(drat_repo, branch = "gh-pages")
