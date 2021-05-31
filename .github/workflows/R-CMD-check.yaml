@@ -104,7 +104,7 @@ jobs:
         run: |
           dir.create("~/drat")
           git2r::clone(url = "https://github.com/PolMine/drat.git", local_path = "~/drat", branch = "gh-pages", progress = FALSE)
-          print(list.files("~/drat"))
+          print(list.files("~/drat/drat"))
           pkg_tarball <- Sys.glob("./learningR_*.tar.gz")
           print(pkg_tarball)
           drat::insertPackage(file = pkg_tarball, repodir = "~/drat")
