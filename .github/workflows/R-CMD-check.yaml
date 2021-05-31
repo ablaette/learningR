@@ -105,12 +105,12 @@ jobs:
       - name: Add pkg to drat repo (macOS)
         if: runner.os == 'macOS'
         run: |
+          pkg_tarball <- pkgbuild::build(binary = TRUE)
           usethis::gh_token_help()
           repodir <- path.expand("~/drat")
           gert::git_clone(url = "https://github.com/PolMine/drat.git", path = repodir)
           setwd(repodir)
           gert::git_branch_checkout(branch = "gh-pages", repo = repodir)
-          pkg_tarball <- pkgbuild::build(binary = TRUE)
           drat::insertPackage(file = pkg_tarball, repodir = repodir)
           updated <- file.path(repodir, gert::git_status(repo = repodir)[["file"]])
           gert::git_add(repo = repodir, files = ".")
