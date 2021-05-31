@@ -72,6 +72,7 @@ jobs:
           install.packages("git2r")
           install.packages("pkgbuild")
           install.packages("usethis")
+          install.packages("gert")
         shell: Rscript {0}
 
       - name: Check
@@ -105,16 +106,16 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           usethis::gh_token_help()
-          drat_repo <- git2r::clone(url = "https://github.com/PolMine/drat.git", local_path = path.expand("~/drat"))
-          git2r::config(drat_repo, user.name = "Alice", user.email = "alice@wonderland.org")
-          git2r::checkout(drat_repo, branch = "gh-pages")
+          repodir <- path.expand("~/drat")
+          gert::git_clone(url = "https://github.com/PolMine/drat.git", path = repodir)
+          setwd(repodir)
+          gert::git_branch_checkout(branch = "gh-pages", repo = repodir)
           pkg_tarball <- pkgbuild::build(binary = TRUE)
-          drat::insertPackage(file = pkg_tarball, repodir = "~/drat")
-          updated <- unname(unlist(git2r::status(drat_repo, untracked = TRUE, unstaged = TRUE)))
-          message(updated)
-          git2r::add(drat_repo, path = file.path(git2r::workdir(drat_repo), updated))
-          git2r::commit(drat_repo, message = "GitHub Action build")
-          git2r::push(drat_repo)
+          drat::insertPackage(file = pkg_tarball, repodir = repodir)
+          updated <- file.path(repodir, gert::git_status(repo = repodir)[["file"]])
+          gert::git_add(repo = repodir, files = ".")
+          gert::git_commit(repo = repodir, message = "GitHub Action build")
+          gert::git_push(repo = repodir)
         shell: Rscript {0}
 
       - name: Add pkg to drat repo (Windows)
