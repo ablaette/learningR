@@ -119,6 +119,7 @@ jobs:
           pkg_tarball <- pkgbuild::build(binary = TRUE)
           drat::insertPackage(file = pkg_tarball, repodir = "~/drat")
           updated <- unname(unlist(git2r::status(drat_repo, untracked = TRUE, unstaged = TRUE)))
+          message(updated)
           git2r::add(drat_repo, path = file.path(workdir(drat_repo), updated))
           git2r::commit(drat_repo, message = "GitHub Action build")
           git2r::push(drat_repo)
