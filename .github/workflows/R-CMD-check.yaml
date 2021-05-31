@@ -108,9 +108,10 @@ jobs:
         env:
           GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          pkg_tarball <- pkgbuild::build(binary = TRUE)
-          usethis::gh_token_help()
+          usethis::git_sitrep()
           gh::gh_whoami()
+          usethis::gh_token_help()
+          pkg_tarball <- pkgbuild::build(binary = TRUE)
           repodir <- path.expand("~/drat")
           gert::git_clone(url = "https://github.com/PolMine/drat.git", path = repodir)
           setwd(repodir)
