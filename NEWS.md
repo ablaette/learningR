@@ -2,7 +2,8 @@
 
 - Packages xaringan and rstudioapi habe been moved from 'Depends:' to 'Imports:'
 - Entirely reworked slide 'f_statistics.Rmd' with introductory statistics.
-
+- Preliminary file 'regression_draft.Rmd' has been removed from the data-raw folder.
+- The missing region value in the `corona_by_county` for Hamburg (RS 2000) has been filled so that there are not NA values in the region column (#14).
 
 # learningR v0.0.3
 

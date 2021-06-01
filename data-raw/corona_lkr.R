@@ -74,6 +74,7 @@ corona_by_county <- inner_join(x = mi, y = afd, by = "RS") %>%
   rename(name = "NAME",  population_total = "INSGESAMT", foreign_pop_total = "AUSL_INSG", foreign_pop_share = "ANT_AI", afd = "AfD", type = "BEZ", region = "Land") %>%
   relocate(RS, name, region, type, population_total, cases7_per_100k, death_rate, foreign_pop_total, foreign_pop_share, afd)
 
+corona_by_county[which(corona_by_county$RS == 2000), "region"] <- "HH"
 
 save(corona_by_county, file = "~/Lab/github/learningR/data/countydata.RData")
 
