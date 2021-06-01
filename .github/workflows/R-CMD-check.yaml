@@ -104,11 +104,10 @@ jobs:
           path: ./*.zip
 
       - name: Add pkg to drat repo (macOS)
-        if: runner.os == 'macOS'
         env:
           GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          pkg_tarball <- pkgbuild::build(binary = TRUE)
+          pkg_tarball <- pkgbuild::build(binary = Sys.info()["sysname"] %in% c("Darwin", "Windows"))
           repodir <- path.expand("~/drat")
           gert::git_clone(url = "https://github.com/PolMine/drat.git", path = repodir)
           setwd(repodir)
