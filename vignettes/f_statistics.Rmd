@@ -2,175 +2,323 @@
 title: "Wissenschaftliches Programmieren mit R"
 subtitle: "Elementare Statistik"
 author: "Andreas Blaette"
-date: "18. Juni 2015"
-output: html_document
+date: "13. April 2021"
+output: 
+  xaringan::moon_reader:
+    css: ["./css/default.css", "./css/metropolis.css", "./css/robot-fonts.css", './css/polminify.css']
+    nature:
+      countIncrementalSlides: false
+editor_options:
+  chunk_output_type: console
 vignette: >
   %\VignetteIndexEntry{06 - Elementare Statistik}
   %\VignetteEncoding{UTF-8}
-  %\VignetteEngine{knitr::rmarkdown}  ´
+  %\VignetteEngine{knitr::rmarkdown}  
 ---
 
-Initialisierung
-===============
-
-
-```{r}
-rm(list=ls(all=TRUE))
-library(gles)
-data(bt2009) # Datensatz für 2009
-data(bt2013)
-data(nrw2010)
-data(nrw2012)
+```{r, load_refs, include=FALSE, cache=FALSE}
+library(RefManageR)
+BibOptions(check.entries = FALSE,
+           bib.style = "authoryear",
+           cite.style = "authoryear",
+           style = "markdown",
+           hyperlink = FALSE,
+           dashed = FALSE)
+myBib <- ReadBib("./readings.bib", check = FALSE)
 ```
 
 
+# Vorbereitungen
 
-Aufrufen der Dokumentation der Fragebögen
-=========================================
+Die Folien nutzen den Datensatz `corona_by_county`, der ab v0.0.3 im [learningR]()-Paket enthalten ist. Die Tabelle enthält zur Corona-Pandemie etliche Variablen auf Kreisebene (Landkreise, kreisfreie Städte).
 
 ```{r, eval = FALSE}
-questionnaire("bt2009")
-questionnaire("bt2013")
-questionnaire("nrw2010")
-questionnaire("nrw2012")
+remotes::install_github("ablaette/learningR") # Installation der aktuellen Version
 ```
 
-Knifflig: Die Gewichtung von Variablen
-======================================
+```{r, eval = TRUE}
+library(learningR)
+dim(corona_by_county)
+```
+
+Die HTML-Variante dieser Folien ist im Paket als "Vignette" enthalten. Sie können Sie wie folgt aufrufen:
+
+```{r, eval = FALSE}
+browseVignettes(package = "learningR")
+```
+
+Um den Code selbst nachzuvollziehen, öffnen Sie die R Markdown-Datei, auf welcher der Foliensatz beruht (Auswahl von "f_statistics.Rmd"):
+
+```{r, eval = FALSE}
+learningR::open_rmd_file()
+```
+
+---
+
+# Über den Corona-Regionaldatensatz
+
+Der Corona-Regionaldatensatz `corona_by_county`, der im Paket enthalten ist, umfasst die folgenden Variablen:
+
+- *RS*: Regionalschlüssel
+- *name*: Name des Landkreises, der kreisfreien Stadt
+- *region*: Name des Bundeslandes
+- *type*: Landkreis / kreisfreie Stadt
+- *population_total*: Bevölkerung insgesamt
+- *cases7_per_100k*: 7-Tage-Inzidenz (Stand: Mai 2021)
+- *death_rate*: Todesrate
+- *foreign_pop_total*: Bevölkerung ohne deutsche Staatsangehörigkeit
+- *afd*: Prozentualer Anteil der AfD am Zweitstimmenergebnis
+- *income*: Durchschnittliches Haushaltseinkommen
+- *per_100km2*: Bevölkerungsdichte
+- *agequot*: Altersquotient - Anteil der Bevölkerung der mindestens 65 ist
+
+Der Datensatz wurde mit diesem R-Skript durch die Verknüpfung verschiedener Datenquellen automatisch erstellt. Die konsistente Nutzung des Regionalschlüssels (RS) in offiziellen Daten auf Kreisebene erleichtert diese Verknüpfung von Daten ungemein.
+
+---
+
+# Statistische Daten: 'dplyr' als Standard
+
+- Bei der Arbeit mit statistischen Daten etabliert sich das Vokabular des [dplyr](https://dplyr.tidyverse.org)-Pakets als de facto-Standard
+
+| Funktion | Kurzbeschreibung |
+| ---------|------------------|
+| mutate() |  Definition neuer Variablen, die von existierenden Variablen abgeleitet sind |
+| select() |  Auswahl von Variablen |
+| filter() | Auswahl von Fällen entsprechend ihrer Werte |
+| summarise() | Erstellen von "summary statistics" |
+| arrange() | Umgruppierung von Spalten (Reihenfolge von Variablen) |
+
+- Das dplyr-Paket ist eingebettet in das "tidyverse" als eigenständiges Ökosystem von R-Paketen:
+  - Ausgiebige Nutzung des "Pipe"-Operators des [magrittr](https://magrittr.tidyverse.org)-Pakets
+  - Der klassische R-`data.frame` wird überwölbt vom `tibble` als Datenstruktur (u.a. bessere `show()`-Methode)
+
+- Das ["dplyr"-Cheatsheet](https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf) bietet eine großartige Handreichung!
+
+---
+
+# Deskriptive Statistik
 
 ```{r}
-gewicht <- bt2013[,"w_trow"] # hier ist das Gewicht
-geschlecht <- bt2013[,"vn1"] # das Geschlecht
-wahlabsicht <- bt2013[,"v11aa"] # beabsichtigte Parteiwahl
-wahlabsichtTab <- tapply(gewicht, wahlabsicht, sum)
+income <- corona_by_county[["income"]]
 ```
 
 ```{r}
-bt2013subset <- bt2013[, c("v11aa", "vn1", "w_trow")]
-colnames(bt2013subset) <- c("wahlabsicht", "geschlecht", "gewicht")
-wahlabsichtGeschlecht <- xtabs(gewicht~wahlabsicht+geschlecht, data=bt2013subset)
-wahlabsichtMaenner <- wahlabsichtGeschlecht[,1] / sum(wahlabsichtGeschlecht[,1])
-wahlabsichtFrauen <- wahlabsichtGeschlecht[,2] / sum(wahlabsichtGeschlecht[,2])
-
-
-# die schnellere, schwerer zu durchschauenden Variante ...
-wahlabsichtGewichtet <- apply(wahlabsichtGeschlecht, 2, function(x) x / sum(x))
-rowsToDrop <- c(which(rownames(wahlabsichtGewichtet) %in% c("CDU", "CSU")))
-wahlabsichtGewichtet <- wahlabsichtGewichtet[-rowsToDrop,]
-wahlabsichtProzent <- round(wahlabsichtGewichtet * 100, 2)
-par(mar=c(8,3,1,1))
-barplot(t(wahlabsichtProzent), beside=T, las=2, col=c("blue", "red"))
-legend(x=18, y=30, legend=c("männlich", "weiblich"), col=c("blue", "red"), fill=T)
+mean(income, na.rm = TRUE)
+sd(income, na.rm = TRUE)
+c(min = min(income, na.rm = TRUE), max = max(income, na.rm = TRUE))
 ```
 
+... doch welcher Landkreis hat das höchste durchschnittliche Haushaltseinkommen (den höchsten Ausländeranteil, die niedrigste Inzidenz etc.)?
 
-```{r installation}
-if (!"car" %in% rownames(installed.packages())){
-  install.packages("car")
+---
+
+# Verteilungen
+
+```{r, fig.height = 6, fig.width = 10}
+hist(corona_by_county[["income"]])
+```
+
+---
+
+# Deskriptive Statistik II (for-Schleife)
+
+```{r}
+by_county_data <- subset(corona_by_county, !is.na(region))
+```
+
+```{r}
+regions <- unique(by_county_data[["region"]])
+```
+
+```{r}
+county_data_aggr_li <- list()
+for (buland in regions){
+  corona_by_county_min <- subset(corona_by_county, region == buland)
+  county_data_aggr_li[[buland]] <- data.frame(
+    mean = mean(corona_by_county_min[["agequot"]], na.rm = TRUE),
+    sd = sd(corona_by_county_min[["agequot"]], na.rm = TRUE)
+  )
 }
+county_data_aggr <- do.call(rbind, county_data_aggr_li)
+head(county_data_aggr, 3)
+```
 
-if (!"gles" %in% rownames(installed.packages())){
-  install.packages("gles", repos = "http://polmine.sowi.uni-due.de/packages")
-}
+---
 
+# Deskriptive Statistik II (lapply-Variante)
+
+```{r}
+regions <- unique(by_county_data[["region"]])
 ```
 
 ```{r}
-library(gles)
-data(bt2013)
-dim(bt2013)
-```
-
-```{r}
-# colnames(bt2013)
-# View(bt2013)
-# questionnaire("bt2013")
-```
-
-Anlegen einer Untertabelle
---------------------------
-
-Unser Ziel ist zunächst, eine Untertabelle anzulegen, mit der man
-besser arbeiten kann.
-
-```{r}
-cols_to_get <- c(
-  geburtsjahr = "vn2c",
-  geschlecht = "vn1",
-  parteiwahl = "v11aa",
-  bild = "v104",
-  faz = "v105",
-  nettoeinkommen = "vn215"
+county_data_aggr_li <- lapply(
+  regions,
+  function(buland){
+    corona_by_county_min <- subset(corona_by_county, region == buland)
+    data.frame(
+      region = buland,
+      mean = mean(corona_by_county_min[["agequot"]], na.rm = TRUE),
+      sd = sd(corona_by_county_min[["agequot"]], na.rm = TRUE)
+    )
+  }
 )
-bt2013sub <- bt2013[, cols_to_get]
-colnames(bt2013sub) <- names(cols_to_get)
+county_data_aggr <- do.call(rbind, county_data_aggr_li)
+head(county_data_aggr, 3)
 ```
 
-Eine Information wollen wir noch zusätzlich: Das Jahr des Befragten, nicht bloss
-das Geburtsjahr.
+---
+
+# Deskriptive Statistik II (dplyr-Variante)
 
 ```{r}
-bt2013sub[,"alter"] <- 2013 - bt2013sub[,"geburtsjahr"]
-age <- table(bt2013sub[,"alter"])
+library(dplyr, quietly = TRUE, warn.conflicts = FALSE)
+corona_by_county %>%
+  filter(!is.na(region)) %>%
+  group_by(region) %>%
+  summarise(mean = mean(agequot), sd = sd(agequot)) %>%
+  head(6)
 ```
 
-Das schauen wir uns jetzt in einem Balkendiagramm an.
+---
+
+# Deskriptive Statistik II (data.table)
 
 ```{r}
-barplot(height = age, las = 2)
+library(data.table, warn.conflicts = FALSE)
+dt <- data.table(corona_by_county)
+dt[!is.na(region), list(mean = mean(.SD$agequot), sd = sd(.SD$agequot)), by = "region"]
 ```
 
-Mit der Magie der regulären Ausdrücke generieren wir das Nettoeinkommen.
+---
+
+# Formeln in R: Boxplot
+
+```{r, fig.height = 6, fig.width = 10}
+boxplot(agequot ~ region , data = by_county_data, las = 2)
+```
+
+---
+
+# Formeln in R: lattice
+
+```{r, fig.height = 6, fig.width = 10}
+lattice::histogram(~ afd | region, data = corona_by_county)
+```
+
+---
+
+# Formeln in R: lattice
+
+```{r, fig.height = 6, fig.width = 10}
+library(lattice)
+vars <- c("cases7_per_100k", "foreign_pop_share", "afd", "income", "per_km2", "agequot")
+lattice::splom(~ corona_by_county[, vars], data = corona_by_county)
+```
+
+---
+
+# Lineare Regression
+
+
+Auch bei der Regression kommt die Formelnotation zum Einsatz. Diese übersetzt die Regressionsgleichung.
 
 ```{r}
-netto <- bt2013sub[,"nettoeinkommen"]
-netto_char <- as.character(netto)
-netto_lower <- as.numeric(gsub("^(\\d+).*$", "\\1", netto_char))
-netto_upper <- as.numeric(gsub("^.+\\s(\\d+).*$", "\\1", netto_char))
-netto_mean <- (netto_upper + netto_lower) / 2
+r <- lm(cases7_per_100k ~ afd, data = by_county_data)
 ```
 
 ```{r}
-mean(netto_mean, na.rm = TRUE)
-sd(netto_mean, na.rm = TRUE)
-barplot(table(netto_mean), las = 2)
+r
 ```
+
+
+---
+
+# Lineare Regression - summary()
+
+```{r, echo = TRUE}
+summary(r)
+```
+
+---
+
+# Das lm-Objekt - str()
 
 ```{r}
-bt2013sub$nettoeinkommen2 <- netto_mean
+str(summary(r))
 ```
 
-Bevor wir uns an das Boxplot machen, noch eine kleine Recodierung:
-CDU und CSU wollen wir zur Kategorie CDU/CSU hinzufügen.
+---
+
+# Lineare Regression im Scatterplot
+
+```{r, fig.height = 6, fig.width = 10}
+plot(by_county_data$afd, by_county_data$cases7_per_100k)
+abline(r)
+```
+
+---
+
+# Multivariate Regression: Vorbereitungen
+
+Vor der Berechnung einer Regression sollten die Variablen normalisiert werden.
 
 ```{r}
-library(car)
-bt2013sub$parteiwahl <- recode(
-  bt2013sub$parteiwahl,
-  recodes = '"CDU"="CDU/CSU"; "CSU"="CDU/CSU";'
-  )
-levels(bt2013sub$parteiwahl)
-```
+normalize <- function(x) (max(x, na.rm = TRUE) - x) / (max(x, na.rm = TRUE) - min(x, na.rm = TRUE))
+by_county_data_norm <- mutate(
+  .data = by_county_data,
+  cases7_per_100k = normalize(cases7_per_100k),
+  foreign_pop_share = normalize(foreign_pop_share),
+  afd = normalize(afd), income = normalize(income),
+  per_km2 = normalize(per_km2), agequot = normalize(agequot)
+)
+``` 
+
+Alternativ:
 
 ```{r}
-par(mar = c(7,5,4,2))
-
-party_colors <- c(
-  "CDU/CSU" = "black",
-  "SPD" = "red",
-  "FDP" = "yellow",
-  "GRUENE" = "green",
-  "DIE LINKE" = "pink",
-  "NPD" = "brown",
-  "PIRATEN" = "orange",
-  "AfD" = "blue",
-  "andere Partei" = "grey"
-  )
-
-boxplot(
-  nettoeinkommen2 ~ parteiwahl, data = bt2013sub, las = 2,
-  col = party_colors[levels(bt2013sub$parteiwahl)],
-  main = "Boxplot: Einkommen und Parteiwahl",
-  ylab = "Einkommen"
-  )
+vars <- c("cases7_per_100k", "foreign_pop_share", "afd", "income", "per_km2", "agequot")
+normalize_col <- function(x){
+  x <- by_county_data[[x]]
+  (max(x, na.rm = TRUE) - x) / (max(x, na.rm = TRUE) - min(x, na.rm = TRUE))
+}
+df_norm <- data.frame(lapply(setNames(vars, vars), normalize_col))
 ```
+
+
+
+---
+
+# Modelle im Vergleich
+
+Berechnung alternativer Modelle
+
+```{r}
+m1 <- lm(cases7_per_100k ~ foreign_pop_share, data = by_county_data_norm)
+m2 <- lm(cases7_per_100k ~ foreign_pop_share + income, data = by_county_data_norm)
+m3 <- lm(cases7_per_100k ~ foreign_pop_share + income + afd, data = by_county_data_norm)
+m4 <- lm(
+  cases7_per_100k ~ foreign_pop_share + income + afd + agequot + per_km2,
+  data = by_county_data_norm
+)
+```
+
+Für den Vergleich der Modelle nutzen wir das stargazer-Paket:
+
+```{r, eval = FALSE}
+stargazer::stargazer(
+  m1, m2, m3, m4,
+  dep.var.labels.include = FALSE, type = "html", align = TRUE, single.row = TRUE, column.sep.width = "1pt",
+  omit.stat = c("n", "rsq", "f", "ser")
+)
+```
+
+---
+
+# Modelle im Vergleich
+
+```{r, results = "asis", echo = FALSE}
+s <- stargazer::stargazer(m1, m2, m3, m4, dep.var.labels.include = FALSE, title = "Results", type = "html", align = TRUE, font.size = "tiny", single.row = TRUE, column.sep.width = "1pt", omit.stat = c("n", "rsq", "f", "ser"))
+```
+
+

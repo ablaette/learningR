@@ -10,8 +10,9 @@ Encoding: UTF-8
 Additional_repositories: https://polmine.github.io/drat/
 Depends:
   R (>= 3.5.0),
-  rstudioapi,
-  xaringan (>= 0.20)
+Imports:
+  xaringan (>= 0.20),
+  rstudioapi
 Suggests:
   knitr,
   rmarkdown,

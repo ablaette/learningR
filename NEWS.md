@@ -1,3 +1,9 @@
+# learningR v0.0.4
+
+- Packages xaringan and rstudioapi habe been moved from 'Depends:' to 'Imports:'
+- Entirely reworked slide 'f_statistics.Rmd' with introductory statistics.
+
+
 # learningR v0.0.3
 
 - The package includes a new dataset `corona_by_county`.
