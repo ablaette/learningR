@@ -62,7 +62,7 @@ install.packages("beepr")
 
 - Was sind eigentlich "dependencies"?
 
-- Unterschied von "source packages" und "binary packages"
+- Unterschied von "source packages" und "binary packages" (vgl. [Wickham's Erklärung](https://r-pkgs.org/package-structure-state.html))
 
 - Installation von Paketen von CRAN-artigen Repositorien
 
@@ -77,6 +77,16 @@ install.packages("gles")
 ```{r, eval = FALSE}
 devtools::install_github("PolMine/polmineR")
 ```
+
+---
+
+# Quell- und Binärpakete
+
+- Der Quellcode von R-Paketen ist grundsätzlich offen, in vielen Fällen findet sich dieser in GitHub-Repositorien
+
+- R-Pakete können Quellcode enthalten, der erst durch Kompilierung in maschinenlesbaren Code überführt werden muss (insbesondere C, C++, FORTRAN). Weil auf macOS und Windows-Rechnern die dafür erforderlichen Kompiler nicht unbedingt verfügbar sind, werden für diese System von CRAN sogenannte "Binärpakete" zur Verfügung gestellt. Diese enden auf ".tgz" (macOS) bzw. ".zip" (Windows)
+
+- Die Erstellung von Binärpaketen nimmt nach der Veröffentlichung eines Pakets oft einige Tage in Anspruch. Dadurch können die Quellpakete zuweilen aktueller seien als Binärpakete. R/RStudio fragen dann nach, ob man die neuere Version eines Pakets nutzen möchte. Dann wird lokal kompiliert - insofern das möglich ist. Oder man installiert das ältere Binärpaket. Oft ist letzteres eine gute Entscheidung.
 
 ---
 

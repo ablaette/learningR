@@ -120,5 +120,6 @@ jobs:
           updated <- file.path(repodir, gert::git_status(repo = repodir)[["file"]])
           gert::git_add(repo = repodir, files = ".")
           gert::git_commit(repo = repodir, message = "GitHub Action build")
-          # gert::git_push(repo = repodir)
+          message("Pushin'")
+          gert::git_push(repo = repodir)
         shell: Rscript {0}

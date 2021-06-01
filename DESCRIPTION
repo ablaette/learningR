@@ -34,7 +34,8 @@ Suggests:
   openxlsx,
   jsonlite,
   readr,
-  magrittr
+  magrittr,
+  stargazer
 LazyData: yes
 VignetteBuilder: knitr
 Collate:
