@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Wissenschaftliches Programmieren mit R</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Andreas Blaette" />
+    <link rel="stylesheet" href="css/default.css" type="text/css" />
+    <link rel="stylesheet" href="css/metropolis.css" type="text/css" />
+    <link rel="stylesheet" href="css/robot-fonts.css" type="text/css" />
+    <link rel="stylesheet" href="css/polminify.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Wissenschaftliches Programmieren mit R
+## Elementare Statistik
+### Andreas Blaette
+### 13. April 2021
+
+---
+
+
+
+
+
+# Vorbereitungen
+
+Die Folien nutzen den Datensatz `corona_by_county`, der ab v0.0.3 im [learningR]()-Paket enthalten ist. Die Tabelle enthält zur Corona-Pandemie etliche Variablen auf Kreisebene (Landkreise, kreisfreie Städte).
+
+
+```r
+remotes::install_github("ablaette/learningR") # Installation der aktuellen Version
+```
+
+
+```r
+library(learningR)
+dim(corona_by_county)
+```
+
+```
+## [1] 400  13
+```
+
+Die HTML-Variante dieser Folien ist im Paket als "Vignette" enthalten. Sie können Sie wie folgt aufrufen:
+
+
+```r
+browseVignettes(package = "learningR")
+```
+
+Um den Code selbst nachzuvollziehen, öffnen Sie die R Markdown-Datei, auf welcher der Foliensatz beruht (Auswahl von "f_statistics.Rmd"):
+
+
+```r
+learningR::open_rmd_file()
+```
+
+---
+
+# Über den Corona-Regionaldatensatz
+
+Der Corona-Regionaldatensatz `corona_by_county`, der im Paket enthalten ist, umfasst die folgenden Variablen:
+
+- *RS*: Regionalschlüssel
+- *name*: Name des Landkreises, der kreisfreien Stadt
+- *region*: Name des Bundeslandes
+- *type*: Landkreis / kreisfreie Stadt
+- *population_total*: Bevölkerung insgesamt
+- *cases7_per_100k*: 7-Tage-Inzidenz (Stand: Mai 2021)
+- *death_rate*: Todesrate
+- *foreign_pop_total*: Bevölkerung ohne deutsche Staatsangehörigkeit
+- *afd*: Prozentualer Anteil der AfD am Zweitstimmenergebnis
+- *income*: Durchschnittliches Haushaltseinkommen
+- *per_100km2*: Bevölkerungsdichte
+- *agequot*: Altersquotient - Anteil der Bevölkerung der mindestens 65 ist
+
+Der Datensatz wurde mit diesem R-Skript durch die Verknüpfung verschiedener Datenquellen automatisch erstellt. Die konsistente Nutzung des Regionalschlüssels (RS) in offiziellen Daten auf Kreisebene erleichtert diese Verknüpfung von Daten ungemein.
+
+---
+
+# Statistische Daten: 'dplyr' als Standard
+
+- Bei der Arbeit mit statistischen Daten etabliert sich das Vokabular des [dplyr](https://dplyr.tidyverse.org)-Pakets als de facto-Standard
+
+| Funktion | Kurzbeschreibung |
+| ---------|------------------|
+| mutate() |  Definition neuer Variablen, die von existierenden Variablen abgeleitet sind |
+| select() |  Auswahl von Variablen |
+| filter() | Auswahl von Fällen entsprechend ihrer Werte |
+| summarise() | Erstellen von "summary statistics" |
+| arrange() | Umgruppierung von Spalten (Reihenfolge von Variablen) |
+
+- Das dplyr-Paket ist eingebettet in das "tidyverse" als eigenständiges Ökosystem von R-Paketen:
+  - Ausgiebige Nutzung des "Pipe"-Operators des [magrittr](https://magrittr.tidyverse.org)-Pakets
+  - Der klassische R-`data.frame` wird überwölbt vom `tibble` als Datenstruktur (u.a. bessere `show()`-Methode)
+
+- Das ["dplyr"-Cheatsheet](https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf) bietet eine großartige Handreichung!
+
+---
+
+# Deskriptive Statistik
+
+
+```r
+income &lt;- corona_by_county[["income"]]
+```
+
+
+```r
+mean(income, na.rm = TRUE)
+```
+
+```
+## [1] 22651.04
+```
+
+```r
+sd(income, na.rm = TRUE)
+```
+
+```
+## [1] 2649.815
+```
+
+```r
+c(min = min(income, na.rm = TRUE), max = max(income, na.rm = TRUE))
+```
+
+```
+##   min   max 
+## 16450 36883
+```
+
+... doch welcher Landkreis hat das höchste durchschnittliche Haushaltseinkommen (den höchsten Ausländeranteil, die niedrigste Inzidenz etc.)?
+
+---
+
+# Verteilungen
+
+
+```r
+hist(corona_by_county[["income"]])
+```
+
+![](f_statistics_files/figure-html/unnamed-chunk-7-1.png)&lt;!-- --&gt;
+
+---
+
+# Deskriptive Statistik II (for-Schleife)
+
+
+```r
+by_county_data &lt;- subset(corona_by_county, !is.na(region))
+```
+
+
+```r
+regions &lt;- unique(by_county_data[["region"]])
+```
+
+
+```r
+county_data_aggr_li &lt;- list()
+for (buland in regions){
+  corona_by_county_min &lt;- subset(corona_by_county, region == buland)
+  county_data_aggr_li[[buland]] &lt;- data.frame(
+    mean = mean(corona_by_county_min[["agequot"]], na.rm = TRUE),
+    sd = sd(corona_by_county_min[["agequot"]], na.rm = TRUE)
+  )
+}
+county_data_aggr &lt;- do.call(rbind, county_data_aggr_li)
+head(county_data_aggr, 3)
+```
+
+```
+##        mean        sd
+## SH 23.27333 2.2269347
+## NI 22.68889 2.5623340
+## HB 21.50000 0.7071068
+```
+
+---
+
+# Deskriptive Statistik II (lapply-Variante)
+
+
+```r
+regions &lt;- unique(by_county_data[["region"]])
+```
+
+
+```r
+county_data_aggr_li &lt;- lapply(
+  regions,
+  function(buland){
+    corona_by_county_min &lt;- subset(corona_by_county, region == buland)
+    data.frame(
+      region = buland,
+      mean = mean(corona_by_county_min[["agequot"]], na.rm = TRUE),
+      sd = sd(corona_by_county_min[["agequot"]], na.rm = TRUE)
+    )
+  }
+)
+county_data_aggr &lt;- do.call(rbind, county_data_aggr_li)
+head(county_data_aggr, 3)
+```
+
+```
+##   region     mean        sd
+## 1     SH 23.27333 2.2269347
+## 2     NI 22.68889 2.5623340
+## 3     HB 21.50000 0.7071068
+```
+
+---
+
+# Deskriptive Statistik II (dplyr-Variante)
+
+
+```r
+library(dplyr, quietly = TRUE, warn.conflicts = FALSE)
+corona_by_county %&gt;%
+  filter(!is.na(region)) %&gt;%
+  group_by(region) %&gt;%
+  summarise(mean = mean(agequot), sd = sd(agequot)) %&gt;%
+  head(6)
+```
+
+```
+## # A tibble: 6 x 3
+##   region  mean    sd
+##   &lt;chr&gt;  &lt;dbl&gt; &lt;dbl&gt;
+## 1 BB      25.6 2.71 
+## 2 BW      20.5 1.76 
+## 3 BY      21.2 1.99 
+## 4 HB      21.5 0.707
+## 5 HE      21.5 2.57 
+## 6 MV      25.2 1.08
+```
+
+---
+
+# Deskriptive Statistik II (data.table)
+
+
+```r
+library(data.table, warn.conflicts = FALSE)
+dt &lt;- data.table(corona_by_county)
+dt[!is.na(region), list(mean = mean(.SD$agequot), sd = sd(.SD$agequot)), by = "region"]
+```
+
+```
+##     region     mean        sd
+##  1:     SH 23.27333 2.2269347
+##  2:     NI 22.68889 2.5623340
+##  3:     HB 21.50000 0.7071068
+##  4:     NW 21.42075 1.5197872
+##  5:     HE 21.48462 2.5671295
+##  6:     RP 22.37500 2.0793371
+##  7:     BW 20.51591 1.7590885
+##  8:     BY 21.24687 1.9945163
+##  9:     SL 24.31667 0.9368387
+## 10:     BB 25.56667 2.7062020
+## 11:     MV 25.22500 1.0819955
+## 12:     SN 27.33846 3.0357697
+## 13:     ST 27.22143 2.3664900
+## 14:     TH 26.63043 2.6929934
+```
+
+---
+
+# Formeln in R: Boxplot
+
+
+```r
+boxplot(agequot ~ region , data = by_county_data, las = 2)
+```
+
+![](f_statistics_files/figure-html/unnamed-chunk-15-1.png)&lt;!-- --&gt;
+
+---
+
+# Formeln in R: lattice
+
+
+```r
+lattice::histogram(~ afd | region, data = corona_by_county)
+```
+
+![](f_statistics_files/figure-html/unnamed-chunk-16-1.png)&lt;!-- --&gt;
+
+---
+
+# Formeln in R: lattice
+
+
+```r
+library(lattice)
+vars &lt;- c("cases7_per_100k", "foreign_pop_share", "afd", "income", "per_km2", "agequot")
+lattice::splom(~ corona_by_county[, vars], data = corona_by_county)
+```
+
+![](f_statistics_files/figure-html/unnamed-chunk-17-1.png)&lt;!-- --&gt;
+
+---
+
+# Lineare Regression
+
+Fragestellungen:
+
+- In der Diskussion um die Triebkräft der Pandemie wurde im Mai 2021 die Beobachtung diskutiert, Personen mit Migrationsbiographie wären besonders stark von COVD-19 betroffen.
+
+- Verhaltensvorschriften, welche die Ausbreitung der Pandemie dämpfen sollen, finden bei der AfD wenig Akzeptanz. Zum Teil werden diese offen abgelehnt. Führt eine mangelnde Akzeptanz von Verhaltensregeln (Kontaktreduktion, Tragen von Masken, Abstandsregeln), welche sich regional in einem hohen Anteil der AfD am Zweitstimmenergebnis ausdrücken könnte, zu einer höheren Inzidenz?
+
+Auch bei der Regression kommt die Formelnotation zum Einsatz. Diese übersetzt die Regressionsgleichung.
+
+
+```r
+r &lt;- lm(cases7_per_100k ~ afd, data = by_county_data)
+```
+
+
+---
+
+# Lineare Regression - summary()
+
+
+```r
+summary(r)
+```
+
+```
+## 
+## Call:
+## lm(formula = cases7_per_100k ~ afd, data = by_county_data)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -62.016 -20.235  -4.869  15.037 170.976 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  38.9239     4.0783   9.544  &lt; 2e-16 ***
+## afd           1.8428     0.2827   6.519 2.16e-10 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 30.09 on 397 degrees of freedom
+## Multiple R-squared:  0.09668,	Adjusted R-squared:  0.09441 
+## F-statistic: 42.49 on 1 and 397 DF,  p-value: 2.158e-10
+```
+
+---
+
+# Das lm-Objekt - str()
+
+
+```r
+str(summary(r))
+```
+
+```
+## List of 11
+##  $ call         : language lm(formula = cases7_per_100k ~ afd, data = by_county_data)
+##  $ terms        :Classes 'terms', 'formula'  language cases7_per_100k ~ afd
+##   .. ..- attr(*, "variables")= language list(cases7_per_100k, afd)
+##   .. ..- attr(*, "factors")= int [1:2, 1] 0 1
+##   .. .. ..- attr(*, "dimnames")=List of 2
+##   .. .. .. ..$ : chr [1:2] "cases7_per_100k" "afd"
+##   .. .. .. ..$ : chr "afd"
+##   .. ..- attr(*, "term.labels")= chr "afd"
+##   .. ..- attr(*, "order")= int 1
+##   .. ..- attr(*, "intercept")= int 1
+##   .. ..- attr(*, "response")= int 1
+##   .. ..- attr(*, ".Environment")=&lt;environment: R_GlobalEnv&gt; 
+##   .. ..- attr(*, "predvars")= language list(cases7_per_100k, afd)
+##   .. ..- attr(*, "dataClasses")= Named chr [1:2] "numeric" "numeric"
+##   .. .. ..- attr(*, "names")= chr [1:2] "cases7_per_100k" "afd"
+##  $ residuals    : Named num [1:399] -47.2 -7.88 -11.91 -14.26 -45.76 ...
+##   ..- attr(*, "names")= chr [1:399] "1" "2" "3" "4" ...
+##  $ coefficients : num [1:2, 1:4] 38.924 1.843 4.078 0.283 9.544 ...
+##   ..- attr(*, "dimnames")=List of 2
+##   .. ..$ : chr [1:2] "(Intercept)" "afd"
+##   .. ..$ : chr [1:4] "Estimate" "Std. Error" "t value" "Pr(&gt;|t|)"
+##  $ aliased      : Named logi [1:2] FALSE FALSE
+##   ..- attr(*, "names")= chr [1:2] "(Intercept)" "afd"
+##  $ sigma        : num 30.1
+##  $ df           : int [1:3] 2 397 2
+##  $ r.squared    : num 0.0967
+##  $ adj.r.squared: num 0.0944
+##  $ fstatistic   : Named num [1:3] 42.5 1 397
+##   ..- attr(*, "names")= chr [1:3] "value" "numdf" "dendf"
+##  $ cov.unscaled : num [1:2, 1:2] 1.84e-02 -1.18e-03 -1.18e-03 8.83e-05
+##   ..- attr(*, "dimnames")=List of 2
+##   .. ..$ : chr [1:2] "(Intercept)" "afd"
+##   .. ..$ : chr [1:2] "(Intercept)" "afd"
+##  - attr(*, "class")= chr "summary.lm"
+```
+
+---
+
+# Lineare Regression im Scatterplot
+
+
+```r
+plot(by_county_data$afd, by_county_data$cases7_per_100k)
+abline(r)
+```
+
+![](f_statistics_files/figure-html/unnamed-chunk-21-1.png)&lt;!-- --&gt;
+
+---
+
+# Multivariate Regression: Vorbereitungen
+
+Vor der Berechnung einer Regression sollten die Variablen normalisiert werden.
+
+
+```r
+normalize &lt;- function(x) (max(x, na.rm = TRUE) - x) / (max(x, na.rm = TRUE) - min(x, na.rm = TRUE))
+by_county_data_norm &lt;- mutate(
+  .data = by_county_data,
+  cases7_per_100k = normalize(cases7_per_100k),
+  foreign_pop_share = normalize(foreign_pop_share),
+  afd = normalize(afd), income = normalize(income),
+  per_km2 = normalize(per_km2), agequot = normalize(agequot)
+)
+```
+
+Alternativ:
+
+
+```r
+vars &lt;- c("cases7_per_100k", "foreign_pop_share", "afd", "income", "per_km2", "agequot")
+normalize_col &lt;- function(x){
+  x &lt;- by_county_data[[x]]
+  (max(x, na.rm = TRUE) - x) / (max(x, na.rm = TRUE) - min(x, na.rm = TRUE))
+}
+df_norm &lt;- data.frame(lapply(setNames(vars, vars), normalize_col))
+```
+
+
+---
+
+# Modelle im Vergleich
+
+Berechnung alternativer Modelle
+
+
+```r
+m1 &lt;- lm(cases7_per_100k ~ foreign_pop_share, data = by_county_data_norm)
+m2 &lt;- lm(cases7_per_100k ~ foreign_pop_share + income, data = by_county_data_norm)
+m3 &lt;- lm(cases7_per_100k ~ foreign_pop_share + income + afd, data = by_county_data_norm)
+m4 &lt;- lm(
+  cases7_per_100k ~ foreign_pop_share + income + afd + agequot + per_km2,
+  data = by_county_data_norm
+)
+```
+
+Für den Vergleich der Modelle nutzen wir das stargazer-Paket:
+
+
+```r
+stargazer::stargazer(
+  m1, m2, m3, m4,
+  dep.var.labels.include = FALSE, type = "html", align = TRUE, single.row = TRUE, column.sep.width = "1pt",
+  omit.stat = c("n", "rsq", "f", "ser")
+)
+```
+
+---
+
+# Modelle im Vergleich
+
+
+&lt;table style="text-align:center"&gt;&lt;caption&gt;&lt;strong&gt;Results&lt;/strong&gt;&lt;/caption&gt;
+&lt;tr&gt;&lt;td colspan="5" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td colspan="4"&gt;&lt;em&gt;Dependent variable:&lt;/em&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&lt;/td&gt;&lt;td colspan="4" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td&gt;(1)&lt;/td&gt;&lt;td&gt;(2)&lt;/td&gt;&lt;td&gt;(3)&lt;/td&gt;&lt;td&gt;(4)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan="5" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style="text-align:left"&gt;foreign_pop_share&lt;/td&gt;&lt;td&gt;0.181&lt;sup&gt;***&lt;/sup&gt; (0.043)&lt;/td&gt;&lt;td&gt;0.200&lt;sup&gt;***&lt;/sup&gt; (0.045)&lt;/td&gt;&lt;td&gt;0.331&lt;sup&gt;***&lt;/sup&gt; (0.043)&lt;/td&gt;&lt;td&gt;0.424&lt;sup&gt;***&lt;/sup&gt; (0.069)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;income&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;-0.071 (0.054)&lt;/td&gt;&lt;td&gt;0.064 (0.051)&lt;/td&gt;&lt;td&gt;0.024 (0.055)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;afd&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;0.377&lt;sup&gt;***&lt;/sup&gt; (0.039)&lt;/td&gt;&lt;td&gt;0.374&lt;sup&gt;***&lt;/sup&gt; (0.043)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;agequot&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;0.007 (0.052)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;per_km2&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;-0.123&lt;sup&gt;*&lt;/sup&gt; (0.063)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;Constant&lt;/td&gt;&lt;td&gt;0.614&lt;sup&gt;***&lt;/sup&gt; (0.033)&lt;/td&gt;&lt;td&gt;0.650&lt;sup&gt;***&lt;/sup&gt; (0.043)&lt;/td&gt;&lt;td&gt;0.186&lt;sup&gt;***&lt;/sup&gt; (0.061)&lt;/td&gt;&lt;td&gt;0.253&lt;sup&gt;***&lt;/sup&gt; (0.083)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan="5" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style="text-align:left"&gt;Adjusted R&lt;sup&gt;2&lt;/sup&gt;&lt;/td&gt;&lt;td&gt;0.041&lt;/td&gt;&lt;td&gt;0.043&lt;/td&gt;&lt;td&gt;0.224&lt;/td&gt;&lt;td&gt;0.227&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan="5" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;em&gt;Note:&lt;/em&gt;&lt;/td&gt;&lt;td colspan="4" style="text-align:right"&gt;&lt;sup&gt;*&lt;/sup&gt;p&lt;0.1; &lt;sup&gt;**&lt;/sup&gt;p&lt;0.05; &lt;sup&gt;***&lt;/sup&gt;p&lt;0.01&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+
+
+---
+
+# Diskussion
+
+- Die Korrelation von Einwanderungssitutation und Infektionsgeschehen wird bestätigt. Hinweise, dass die soziale Lage (beengte Wohnsituation etc., hier näherungsweise gemessen durch Haushaltseinkommen) die eigentliche Quelle der Infektionsdynamik ist können nicht bestätigt werden.
+
+- Der Regionaldatensatz, der keine Aussagen auf individueller Ebene zulässt, stößt hier an die Grenzen seiner Aussagekraft!
+
+- Auch bei dem "AfD-Effekt" (eigentlich: Ablehnung von Verhaltensvorschriften =&gt; Infektionsdynamik) ist noch Vorsicht geboten: Kreise mit einem starken Abschneiden der AfD sind oft grenznah. Durch eine weitere Kontrollvariable wäre zu prüfen, dass die Nähe zu Hochinzidenz-Gebieten im Ausland die eigentlich Ursache der Infektionen ist.
+
+- Im Datensatz sind weitere Annahmen gemacht, z.B. Stabilität des Wahlverhaltens 2017-2021 ...
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

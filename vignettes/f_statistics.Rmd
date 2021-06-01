@@ -220,15 +220,16 @@ lattice::splom(~ corona_by_county[, vars], data = corona_by_county)
 
 # Lineare Regression
 
+Fragestellungen:
+
+- In der Diskussion um die Triebkräft der Pandemie wurde im Mai 2021 die Beobachtung diskutiert, Personen mit Migrationsbiographie wären besonders stark von COVD-19 betroffen.
+
+- Verhaltensvorschriften, welche die Ausbreitung der Pandemie dämpfen sollen, finden bei der AfD wenig Akzeptanz. Zum Teil werden diese offen abgelehnt. Führt eine mangelnde Akzeptanz von Verhaltensregeln (Kontaktreduktion, Tragen von Masken, Abstandsregeln), welche sich regional in einem hohen Anteil der AfD am Zweitstimmenergebnis ausdrücken könnte, zu einer höheren Inzidenz?
 
 Auch bei der Regression kommt die Formelnotation zum Einsatz. Diese übersetzt die Regressionsgleichung.
 
 ```{r}
 r <- lm(cases7_per_100k ~ afd, data = by_county_data)
-```
-
-```{r}
-r
 ```
 
 
@@ -286,7 +287,6 @@ df_norm <- data.frame(lapply(setNames(vars, vars), normalize_col))
 ```
 
 
-
 ---
 
 # Modelle im Vergleich
@@ -322,3 +322,14 @@ s <- stargazer::stargazer(m1, m2, m3, m4, dep.var.labels.include = FALSE, title 
 ```
 
 
+---
+
+# Diskussion
+
+- Die Korrelation von Einwanderungssitutation und Infektionsgeschehen wird bestätigt. Hinweise, dass die soziale Lage (beengte Wohnsituation etc., hier näherungsweise gemessen durch Haushaltseinkommen) die eigentliche Quelle der Infektionsdynamik ist können nicht bestätigt werden.
+
+- Der Regionaldatensatz, der keine Aussagen auf individueller Ebene zulässt, stößt hier an die Grenzen seiner Aussagekraft!
+
+- Auch bei dem "AfD-Effekt" (eigentlich: Ablehnung von Verhaltensvorschriften => Infektionsdynamik) ist noch Vorsicht geboten: Kreise mit einem starken Abschneiden der AfD sind oft grenznah. Durch eine weitere Kontrollvariable wäre zu prüfen, dass die Nähe zu Hochinzidenz-Gebieten im Ausland die eigentlich Ursache der Infektionen ist.
+
+- Im Datensatz sind weitere Annahmen gemacht, z.B. Stabilität des Wahlverhaltens 2017-2021 ... 
