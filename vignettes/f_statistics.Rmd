@@ -2,7 +2,7 @@
 title: "Wissenschaftliches Programmieren mit R"
 subtitle: "Elementare Statistik"
 author: "Andreas Blaette"
-date: "13. April 2021"
+date: "1. Juni 2021"
 output: 
   xaringan::moon_reader:
     css: ["./css/default.css", "./css/metropolis.css", "./css/robot-fonts.css", './css/polminify.css']
@@ -220,13 +220,16 @@ lattice::splom(~ corona_by_county[, vars], data = corona_by_county)
 
 # Lineare Regression
 
-Fragestellungen:
+Fragestellungen / Hypothesen:
 
 - In der Diskussion um die Triebkräft der Pandemie wurde im Mai 2021 die Beobachtung diskutiert, Personen mit Migrationsbiographie wären besonders stark von COVD-19 betroffen.
 
 - Verhaltensvorschriften, welche die Ausbreitung der Pandemie dämpfen sollen, finden bei der AfD wenig Akzeptanz. Zum Teil werden diese offen abgelehnt. Führt eine mangelnde Akzeptanz von Verhaltensregeln (Kontaktreduktion, Tragen von Masken, Abstandsregeln), welche sich regional in einem hohen Anteil der AfD am Zweitstimmenergebnis ausdrücken könnte, zu einer höheren Inzidenz?
 
-Auch bei der Regression kommt die Formelnotation zum Einsatz. Diese übersetzt die Regressionsgleichung.
+Bei Berechnung einer Regression mit der `lm()`-Funktion kommt die bereits bekannte Formelnotation zum Einsatz:
+
+- Die "Formel" übersetzt die Regressionsgleichung.
+- Die abhängige Variable (AV) steht links vom "Tilde"-Zeichen (~), die unabhängigen Variablen (UV) rechts von diesem.
 
 ```{r}
 r <- lm(cases7_per_100k ~ afd, data = by_county_data)
@@ -333,3 +336,15 @@ s <- stargazer::stargazer(m1, m2, m3, m4, dep.var.labels.include = FALSE, title 
 - Auch bei dem "AfD-Effekt" (eigentlich: Ablehnung von Verhaltensvorschriften => Infektionsdynamik) ist noch Vorsicht geboten: Kreise mit einem starken Abschneiden der AfD sind oft grenznah. Durch eine weitere Kontrollvariable wäre zu prüfen, dass die Nähe zu Hochinzidenz-Gebieten im Ausland die eigentlich Ursache der Infektionen ist.
 
 - Im Datensatz sind weitere Annahmen gemacht, z.B. Stabilität des Wahlverhaltens 2017-2021 ... 
+
+- Und natürlich haben wir die statistischen Möglichkeiten nur angerissen, es gibt noch viel zu entdecken `r Citep(myBib, "Sauer2019")`
+
+---
+
+# Literatur
+
+```{r refs, echo = FALSE, results = "asis"}
+PrintBibliography(myBib)
+```
+
+

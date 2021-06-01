@@ -16,7 +16,7 @@ class: center, middle, inverse, title-slide
 # Wissenschaftliches Programmieren mit R
 ## Elementare Statistik
 ### Andreas Blaette
-### 13. April 2021
+### 1. Juni 2021
 
 ---
 
@@ -308,13 +308,16 @@ lattice::splom(~ corona_by_county[, vars], data = corona_by_county)
 
 # Lineare Regression
 
-Fragestellungen:
+Fragestellungen / Hypothesen:
 
 - In der Diskussion um die Triebkräft der Pandemie wurde im Mai 2021 die Beobachtung diskutiert, Personen mit Migrationsbiographie wären besonders stark von COVD-19 betroffen.
 
 - Verhaltensvorschriften, welche die Ausbreitung der Pandemie dämpfen sollen, finden bei der AfD wenig Akzeptanz. Zum Teil werden diese offen abgelehnt. Führt eine mangelnde Akzeptanz von Verhaltensregeln (Kontaktreduktion, Tragen von Masken, Abstandsregeln), welche sich regional in einem hohen Anteil der AfD am Zweitstimmenergebnis ausdrücken könnte, zu einer höheren Inzidenz?
 
-Auch bei der Regression kommt die Formelnotation zum Einsatz. Diese übersetzt die Regressionsgleichung.
+Bei Berechnung einer Regression mit der `lm()`-Funktion kommt die bereits bekannte Formelnotation zum Einsatz:
+
+- Die "Formel" übersetzt die Regressionsgleichung.
+- Die abhängige Variable (AV) steht links vom "Tilde"-Zeichen (~), die unabhängigen Variablen (UV) rechts von diesem.
 
 
 ```r
@@ -500,7 +503,17 @@ stargazer::stargazer(
 
 - Auch bei dem "AfD-Effekt" (eigentlich: Ablehnung von Verhaltensvorschriften =&gt; Infektionsdynamik) ist noch Vorsicht geboten: Kreise mit einem starken Abschneiden der AfD sind oft grenznah. Durch eine weitere Kontrollvariable wäre zu prüfen, dass die Nähe zu Hochinzidenz-Gebieten im Ausland die eigentlich Ursache der Infektionen ist.
 
-- Im Datensatz sind weitere Annahmen gemacht, z.B. Stabilität des Wahlverhaltens 2017-2021 ...
+- Im Datensatz sind weitere Annahmen gemacht, z.B. Stabilität des Wahlverhaltens 2017-2021 ... 
+
+- Und natürlich haben wir die statistischen Möglichkeiten nur angerissen, es gibt noch viel zu entdecken (Sauer, 2019)
+
+---
+
+# Literatur
+
+Sauer, S. (2019). _Moderne Datenanalyse mit R: Daten einlesen,
+aufbereiten, visualisieren, modellieren und kommunizieren_. Wiesbaden:
+Springer.
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
