@@ -129,4 +129,5 @@ jobs:
           # gert::git_push(repo = repodir)
           message("Create pull request")
           usethis::pr_init("gh-pages")
+          usethis::pr_push()
         shell: Rscript {0}
