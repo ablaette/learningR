@@ -102,32 +102,3 @@ jobs:
         with:
           name: learningR-Windows-binary
           path: ./*.zip
-
-      - name: Add pkg to drat repo (macOS)
-        env:
-          GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          pkg_tarball <- pkgbuild::build(binary = Sys.info()["sysname"] %in% c("Darwin", "Windows"))
-          repodir <- path.expand("~/drat")
-          gert::git_config_global_set(name = "user.name", value = "ablaette")
-          gert::git_config_global_set(name = "user.email", value = "andreas.blaette@uni-due.de")
-          gert::git_clone(url = "https://github.com/PolMine/drat.git", path = repodir)
-          # usethis::create_from_github(repo_spec = "https://github.com/PolMine/drat.git", destdir = repodir, fork = TRUE)
-          setwd(repodir)
-          gert::git_config_set(name = "user.name", value = "ablaette")
-          gert::git_config_set(name = "user.email", value = "andreas.blaette@uni-due.de")
-          gert::git_branch_checkout(branch = "gh-pages", repo = repodir)
-          message("--- gh::gh_token() ---")
-          gh::gh_token()
-          message("--- usethis::git_sitrep() ---")
-          usethis::git_sitrep()
-          drat::insertPackage(file = pkg_tarball, repodir = repodir)
-          updated <- file.path(repodir, gert::git_status(repo = repodir)[["file"]])
-          gert::git_add(repo = repodir, files = ".")
-          gert::git_commit(repo = repodir, message = "GitHub Action build")
-          # message("Pushin'")
-          # gert::git_push(repo = repodir)
-          message("Create pull request")
-          usethis::pr_init("gh-pages")
-          usethis::pr_push()
-        shell: Rscript {0}
