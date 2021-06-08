@@ -340,6 +340,50 @@ s <- stargazer::stargazer(m1, m2, m3, m4, dep.var.labels.include = FALSE, title 
 
 ---
 
+# Logistische Regression: Daten
+
+Wenn die abhängige Variable binär codiert ist, kommt die logistische Regression zum Einsatz. Ein typisches Szenario hierfür ist in der Politikwissenschaft die Wahl einer Partei.
+
+Im folgenden Szenario interessieren wir uns für die möglichen Gründe einer Wahlentscheidung zugunsten der AfD bei der Bundestagswahl 2017. Als Datengrundlage verwenden wir die GLES-Nachwahlbefragung 2017.
+
+Für die Vorbereitung des Datensatzes nutzen wir Funktionen des dplyr-Pakets.
+
+```{r}
+library(dplyr)
+library(gles)
+
+bt_min <- filter(bt2017nw, !is.na(q19ba)) %>% 
+  mutate(AfD = as.character(haven::as_factor(q19ba)) == "AfD") %>%
+  mutate(income = as.integer(haven::as_factor(q192))) %>%
+  mutate(dissatisfaction = as.integer(haven::as_factor(q33))) %>%
+  mutate(citysize = as.integer(haven::as_factor(q197)))
+```
+
+Beachte: Die `glm()`-Funktion könnte auch Faktoren "verdauen"!
+
+---
+
+# Logistische Regression: Modelle
+
+Die abhängige Variable unseres ist die binär codierte Variable "AfD" mit den logischen Werten `TRUE` und `FALSE`. Wenn eine Befragte keine Angabe zur Parteiwahl gemacht hat (`NA`-Werte), haben wir den Fall aus der Analyse ausgeschlossen.
+
+Wir verfolgen - sehr grobschlächtig! - drei Hypothesen, welche die Wahl der AfD erklären könnten:
+
+- Die ökonomisch "Abgehängten" wählen AfD: Je höher das Einkommen, desto weniger wahrscheinlich ist die Wahl der Afd.
+
+- Die mit der Demokratie Unzufriedenen wählen die AfD: Je höher die Demokratiezufriedenheit, desto unwahrscheinlicher ist die Wahl der AfD.
+
+- Die AfD hat in den kosmopolitisch geprägten Städten weniger Chancen: Je größer die Stadt, desto weniger wahrscheinlich ist die Wahl der AfD.
+
+Wir berechnen hierzu zwei Modelle. Die Notation verläuft parallel zur linearen Regression ...
+
+```{r}
+m1 <- glm(AfD ~ income, data = bt_min, family = binomial())
+m2 <- glm(AfD ~ income + dissatisfaction + citysize, data = bt_min, family = binomial())
+```
+
+---
+
 # Literatur
 
 ```{r refs, echo = FALSE, results = "asis"}

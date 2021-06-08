@@ -23,7 +23,6 @@ class: center, middle, inverse, title-slide
 
 
 
-
 # Vorbereitungen
 
 Die Folien nutzen den Datensatz `corona_by_county`, der ab v0.0.3 im [learningR]()-Paket enthalten ist. Die Tabelle enthält zur Corona-Pandemie etliche Variablen auf Kreisebene (Landkreise, kreisfreie Städte).
@@ -175,10 +174,10 @@ head(county_data_aggr, 3)
 ```
 
 ```
-##        mean        sd
-## SH 23.27333 2.2269347
-## NI 22.68889 2.5623340
-## HB 21.50000 0.7071068
+##        mean       sd
+## SH 23.27333 2.226935
+## HH 18.20000       NA
+## NI 22.68889 2.562334
 ```
 
 ---
@@ -208,10 +207,10 @@ head(county_data_aggr, 3)
 ```
 
 ```
-##   region     mean        sd
-## 1     SH 23.27333 2.2269347
-## 2     NI 22.68889 2.5623340
-## 3     HB 21.50000 0.7071068
+##   region     mean       sd
+## 1     SH 23.27333 2.226935
+## 2     HH 18.20000       NA
+## 3     NI 22.68889 2.562334
 ```
 
 ---
@@ -230,14 +229,14 @@ corona_by_county %&gt;%
 
 ```
 ## # A tibble: 6 x 3
-##   region  mean    sd
-##   &lt;chr&gt;  &lt;dbl&gt; &lt;dbl&gt;
-## 1 BB      25.6 2.71 
-## 2 BW      20.5 1.76 
-## 3 BY      21.2 1.99 
-## 4 HB      21.5 0.707
-## 5 HE      21.5 2.57 
-## 6 MV      25.2 1.08
+##   region  mean     sd
+##   &lt;chr&gt;  &lt;dbl&gt;  &lt;dbl&gt;
+## 1 BB      25.6  2.71 
+## 2 BW      20.5  1.76 
+## 3 BY      21.2  1.99 
+## 4 HB      21.5  0.707
+## 5 HE      21.5  2.57 
+## 6 HH      18.2 NA
 ```
 
 ---
@@ -254,19 +253,20 @@ dt[!is.na(region), list(mean = mean(.SD$agequot), sd = sd(.SD$agequot)), by = "r
 ```
 ##     region     mean        sd
 ##  1:     SH 23.27333 2.2269347
-##  2:     NI 22.68889 2.5623340
-##  3:     HB 21.50000 0.7071068
-##  4:     NW 21.42075 1.5197872
-##  5:     HE 21.48462 2.5671295
-##  6:     RP 22.37500 2.0793371
-##  7:     BW 20.51591 1.7590885
-##  8:     BY 21.24687 1.9945163
-##  9:     SL 24.31667 0.9368387
-## 10:     BB 25.56667 2.7062020
-## 11:     MV 25.22500 1.0819955
-## 12:     SN 27.33846 3.0357697
-## 13:     ST 27.22143 2.3664900
-## 14:     TH 26.63043 2.6929934
+##  2:     HH 18.20000        NA
+##  3:     NI 22.68889 2.5623340
+##  4:     HB 21.50000 0.7071068
+##  5:     NW 21.42075 1.5197872
+##  6:     HE 21.48462 2.5671295
+##  7:     RP 22.37500 2.0793371
+##  8:     BW 20.51591 1.7590885
+##  9:     BY 21.24687 1.9945163
+## 10:     SL 24.31667 0.9368387
+## 11:     BB 25.56667 2.7062020
+## 12:     MV 25.22500 1.0819955
+## 13:     SN 27.33846 3.0357697
+## 14:     ST 27.22143 2.3664900
+## 15:     TH 26.63043 2.6929934
 ```
 
 ---
@@ -341,18 +341,18 @@ summary(r)
 ## 
 ## Residuals:
 ##     Min      1Q  Median      3Q     Max 
-## -62.016 -20.235  -4.869  15.037 170.976 
+## -62.035 -20.107  -4.908  15.067 171.005 
 ## 
 ## Coefficients:
 ##             Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)  38.9239     4.0783   9.544  &lt; 2e-16 ***
-## afd           1.8428     0.2827   6.519 2.16e-10 ***
+## (Intercept)  38.7553     4.0659   9.532  &lt; 2e-16 ***
+## afd           1.8520     0.2821   6.565 1.63e-10 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
-## Residual standard error: 30.09 on 397 degrees of freedom
-## Multiple R-squared:  0.09668,	Adjusted R-squared:  0.09441 
-## F-statistic: 42.49 on 1 and 397 DF,  p-value: 2.158e-10
+## Residual standard error: 30.07 on 398 degrees of freedom
+## Multiple R-squared:  0.09771,	Adjusted R-squared:  0.09544 
+## F-statistic:  43.1 on 1 and 398 DF,  p-value: 1.626e-10
 ```
 
 ---
@@ -381,21 +381,21 @@ str(summary(r))
 ##   .. ..- attr(*, "predvars")= language list(cases7_per_100k, afd)
 ##   .. ..- attr(*, "dataClasses")= Named chr [1:2] "numeric" "numeric"
 ##   .. .. ..- attr(*, "names")= chr [1:2] "cases7_per_100k" "afd"
-##  $ residuals    : Named num [1:399] -47.2 -7.88 -11.91 -14.26 -45.76 ...
-##   ..- attr(*, "names")= chr [1:399] "1" "2" "3" "4" ...
-##  $ coefficients : num [1:2, 1:4] 38.924 1.843 4.078 0.283 9.544 ...
+##  $ residuals    : Named num [1:400] -47.1 -7.77 -11.83 -14.19 -45.67 ...
+##   ..- attr(*, "names")= chr [1:400] "1" "2" "3" "4" ...
+##  $ coefficients : num [1:2, 1:4] 38.755 1.852 4.066 0.282 9.532 ...
 ##   ..- attr(*, "dimnames")=List of 2
 ##   .. ..$ : chr [1:2] "(Intercept)" "afd"
 ##   .. ..$ : chr [1:4] "Estimate" "Std. Error" "t value" "Pr(&gt;|t|)"
 ##  $ aliased      : Named logi [1:2] FALSE FALSE
 ##   ..- attr(*, "names")= chr [1:2] "(Intercept)" "afd"
 ##  $ sigma        : num 30.1
-##  $ df           : int [1:3] 2 397 2
-##  $ r.squared    : num 0.0967
-##  $ adj.r.squared: num 0.0944
-##  $ fstatistic   : Named num [1:3] 42.5 1 397
+##  $ df           : int [1:3] 2 398 2
+##  $ r.squared    : num 0.0977
+##  $ adj.r.squared: num 0.0954
+##  $ fstatistic   : Named num [1:3] 43.1 1 398
 ##   ..- attr(*, "names")= chr [1:3] "value" "numdf" "dendf"
-##  $ cov.unscaled : num [1:2, 1:2] 1.84e-02 -1.18e-03 -1.18e-03 8.83e-05
+##  $ cov.unscaled : num [1:2, 1:2] 0.018287 -0.001179 -0.001179 0.000088
 ##   ..- attr(*, "dimnames")=List of 2
 ##   .. ..$ : chr [1:2] "(Intercept)" "afd"
 ##   .. ..$ : chr [1:2] "(Intercept)" "afd"
@@ -482,13 +482,13 @@ stargazer::stargazer(
 &lt;tr&gt;&lt;td colspan="5" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td colspan="4"&gt;&lt;em&gt;Dependent variable:&lt;/em&gt;&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&lt;/td&gt;&lt;td colspan="4" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td&gt;(1)&lt;/td&gt;&lt;td&gt;(2)&lt;/td&gt;&lt;td&gt;(3)&lt;/td&gt;&lt;td&gt;(4)&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td colspan="5" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style="text-align:left"&gt;foreign_pop_share&lt;/td&gt;&lt;td&gt;0.181&lt;sup&gt;***&lt;/sup&gt; (0.043)&lt;/td&gt;&lt;td&gt;0.200&lt;sup&gt;***&lt;/sup&gt; (0.045)&lt;/td&gt;&lt;td&gt;0.331&lt;sup&gt;***&lt;/sup&gt; (0.043)&lt;/td&gt;&lt;td&gt;0.424&lt;sup&gt;***&lt;/sup&gt; (0.069)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan="5" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style="text-align:left"&gt;foreign_pop_share&lt;/td&gt;&lt;td&gt;0.179&lt;sup&gt;***&lt;/sup&gt; (0.043)&lt;/td&gt;&lt;td&gt;0.200&lt;sup&gt;***&lt;/sup&gt; (0.045)&lt;/td&gt;&lt;td&gt;0.331&lt;sup&gt;***&lt;/sup&gt; (0.043)&lt;/td&gt;&lt;td&gt;0.424&lt;sup&gt;***&lt;/sup&gt; (0.069)&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td style="text-align:left"&gt;income&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;-0.071 (0.054)&lt;/td&gt;&lt;td&gt;0.064 (0.051)&lt;/td&gt;&lt;td&gt;0.024 (0.055)&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td style="text-align:left"&gt;afd&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;0.377&lt;sup&gt;***&lt;/sup&gt; (0.039)&lt;/td&gt;&lt;td&gt;0.374&lt;sup&gt;***&lt;/sup&gt; (0.043)&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td style="text-align:left"&gt;agequot&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;0.007 (0.052)&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td style="text-align:left"&gt;per_km2&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;-0.123&lt;sup&gt;*&lt;/sup&gt; (0.063)&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td style="text-align:left"&gt;Constant&lt;/td&gt;&lt;td&gt;0.614&lt;sup&gt;***&lt;/sup&gt; (0.033)&lt;/td&gt;&lt;td&gt;0.650&lt;sup&gt;***&lt;/sup&gt; (0.043)&lt;/td&gt;&lt;td&gt;0.186&lt;sup&gt;***&lt;/sup&gt; (0.061)&lt;/td&gt;&lt;td&gt;0.253&lt;sup&gt;***&lt;/sup&gt; (0.083)&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td colspan="5" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style="text-align:left"&gt;Adjusted R&lt;sup&gt;2&lt;/sup&gt;&lt;/td&gt;&lt;td&gt;0.041&lt;/td&gt;&lt;td&gt;0.043&lt;/td&gt;&lt;td&gt;0.224&lt;/td&gt;&lt;td&gt;0.227&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;Constant&lt;/td&gt;&lt;td&gt;0.617&lt;sup&gt;***&lt;/sup&gt; (0.033)&lt;/td&gt;&lt;td&gt;0.650&lt;sup&gt;***&lt;/sup&gt; (0.043)&lt;/td&gt;&lt;td&gt;0.186&lt;sup&gt;***&lt;/sup&gt; (0.061)&lt;/td&gt;&lt;td&gt;0.253&lt;sup&gt;***&lt;/sup&gt; (0.083)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan="5" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style="text-align:left"&gt;Adjusted R&lt;sup&gt;2&lt;/sup&gt;&lt;/td&gt;&lt;td&gt;0.040&lt;/td&gt;&lt;td&gt;0.043&lt;/td&gt;&lt;td&gt;0.224&lt;/td&gt;&lt;td&gt;0.227&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td colspan="5" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;em&gt;Note:&lt;/em&gt;&lt;/td&gt;&lt;td colspan="4" style="text-align:right"&gt;&lt;sup&gt;*&lt;/sup&gt;p&lt;0.1; &lt;sup&gt;**&lt;/sup&gt;p&lt;0.05; &lt;sup&gt;***&lt;/sup&gt;p&lt;0.01&lt;/td&gt;&lt;/tr&gt;
 &lt;/table&gt;
 
@@ -509,7 +509,56 @@ stargazer::stargazer(
 
 ---
 
+# Logistische Regression: Daten
+
+Wenn die abhängige Variable binär codiert ist, kommt die logistische Regression zum Einsatz. Ein typisches Szenario hierfür ist in der Politikwissenschaft die Wahl einer Partei.
+
+Im folgenden Szenario interessieren wir uns für die möglichen Gründe einer Wahlentscheidung zugunsten der AfD bei der Bundestagswahl 2017. Als Datengrundlage verwenden wir die GLES-Nachwahlbefragung 2017.
+
+Für die Vorbereitung des Datensatzes nutzen wir Funktionen des dplyr-Pakets.
+
+
+```r
+library(dplyr)
+library(gles)
+
+bt_min &lt;- filter(bt2017nw, !is.na(q19ba)) %&gt;% 
+  mutate(AfD = as.character(haven::as_factor(q19ba)) == "AfD") %&gt;%
+  mutate(income = as.integer(haven::as_factor(q192))) %&gt;%
+  mutate(dissatisfaction = as.integer(haven::as_factor(q33))) %&gt;%
+  mutate(citysize = as.integer(haven::as_factor(q197)))
+```
+
+Beachte: Die `glm()`-Funktion könnte auch Faktoren "verdauen"!
+
+---
+
+# Logistische Regression: Modelle
+
+Die abhängige Variable unseres ist die binär codierte Variable "AfD" mit den logischen Werten `TRUE` und `FALSE`. Wenn eine Befragte keine Angabe zur Parteiwahl gemacht hat (`NA`-Werte), haben wir den Fall aus der Analyse ausgeschlossen.
+
+Wir verfolgen - sehr grobschlächtig! - drei Hypothesen, welche die Wahl der AfD erklären könnten:
+
+- Die ökonomisch "Abgehängten" wählen AfD: Je höher das Einkommen, desto weniger wahrscheinlich ist die Wahl der Afd.
+
+- Die mit der Demokratie Unzufriedenen wählen die AfD: Je höher die Demokratiezufriedenheit, desto unwahrscheinlicher ist die Wahl der AfD.
+
+- Die AfD hat in den kosmopolitisch geprägten Städten weniger Chancen: Je größer die Stadt, desto weniger wahrscheinlich ist die Wahl der AfD.
+
+Wir berechnen hierzu zwei Modelle. Die Notation verläuft parallel zur linearen Regression ...
+
+
+```r
+m1 &lt;- glm(AfD ~ income, data = bt_min, family = binomial())
+m2 &lt;- glm(AfD ~ income + dissatisfaction + citysize, data = bt_min, family = binomial())
+```
+
+---
+
 # Literatur
+
+Field, A, J. Miles, and Z. Field (2012). _Discovering Statistics Using
+R_. Los Angeles et al.: SAGE.
 
 Sauer, S. (2019). _Moderne Datenanalyse mit R: Daten einlesen,
 aufbereiten, visualisieren, modellieren und kommunizieren_. Wiesbaden:
