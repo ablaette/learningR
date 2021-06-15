@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Wissenschaftliches Programmieren mit R</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Andreas Blaette" />
+    <script src="g_graphics_files/header-attrs-2.8/header-attrs.js"></script>
+    <link rel="stylesheet" href="css/default.css" type="text/css" />
+    <link rel="stylesheet" href="css/metropolis.css" type="text/css" />
+    <link rel="stylesheet" href="css/robot-fonts.css" type="text/css" />
+    <link rel="stylesheet" href="css/polminify.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Wissenschaftliches Programmieren mit R
+## Visualisierung
+### Andreas Blaette
+### 15. Juni 2021
+
+---
+
+
+# Daten
+
+
+```r
+install.packages("learningR", repos = "https://polmine.github.io/drat")
+```
+
+
+```r
+library(learningR)
+colnames(btw2017)[1:10]
+```
+
+```
+##  [1] "Nr"                                     
+##  [2] "Gebiet"                                 
+##  [3] "gehört.zu"                              
+##  [4] "Wahlberechtigte/Erststimmen/Endgültig"  
+##  [5] "Wahlberechtigte/Erststimmen/Vorperiode" 
+##  [6] "Wahlberechtigte/Zweitstimmen/Endgültig" 
+##  [7] "Wahlberechtigte/Zweitstimmen/Vorperiode"
+##  [8] "Wähler/Erststimmen/Endgültig"           
+##  [9] "Wähler/Erststimmen/Vorperiode"          
+## [10] "Wähler/Zweitstimmen/Endgültig"
+```
+
+
+---
+
+# Vokabelheft Visualisierung
+
+- Klassiker: 
+  - `barplot()` (Balkendiagramme)
+  - `pie()` (Kuchendiagramme)
+- universelle Werkzeuge:
+  - `plot()`
+  - `text()`
+  - `points()`
+  - `lines()`
+- Verteilungen: `hist()` (Histogramme), `boxplot()`(Boxplots)
+
+Hinweis: Die "base R"-Funktionen sind generische Methoden, die ihr Verhalten abhängig vom Objekt ändern.
+
+---
+
+# Ausgabeoptionen
+
+- Zuweilen ist es am einfachsten, eine Graphik in RStudio zu generieren und von dort zu speichern oder in die Zwischenablage zu kopieren
+- Graphiken können auf verschiedene "graphical devices" umgelenkt werden (mit `dev.off()` abschließen!):
+  - `pdf()`
+  - `bmp()`, `png()`, `tiff()`
+
+
+```r
+pdf_doc &lt;- tempfile(fileext = ".pdf")
+pdf(file = pdf_doc)
+hist(btw2017[["Wähler/Zweitstimmen/Endgültig"]] / btw2017[["Wahlberechtigte/Zweitstimmen/Endgültig"]])
+dev.off()
+```
+
+```
+## quartz_off_screen 
+##                 2
+```
+
+---
+
+#  Graphikparameter
+
+- Das Verhalten der Graphik-Ausgabe wird über Graphik-Parameter gesteuert
+- Weitere Informationen: `?par`
+
+
+```r
+par()
+```
+
+```
+## $xlog
+## [1] FALSE
+## 
+## $ylog
+## [1] FALSE
+## 
+## $adj
+## [1] 0.5
+## 
+## $ann
+## [1] TRUE
+## 
+## $ask
+## [1] FALSE
+## 
+## $bg
+## [1] "white"
+## 
+## $bty
+## [1] "o"
+## 
+## $cex
+## [1] 1
+## 
+## $cex.axis
+## [1] 1
+## 
+## $cex.lab
+## [1] 1
+## 
+## $cex.main
+## [1] 1.2
+## 
+## $cex.sub
+## [1] 1
+## 
+## $cin
+## [1] 0.15 0.20
+## 
+## $col
+## [1] "black"
+## 
+## $col.axis
+## [1] "black"
+## 
+## $col.lab
+## [1] "black"
+## 
+## $col.main
+## [1] "black"
+## 
+## $col.sub
+## [1] "black"
+## 
+## $cra
+## [1] 10.8 14.4
+## 
+## $crt
+## [1] 0
+## 
+## $csi
+## [1] 0.2
+## 
+## $cxy
+## [1] 0.02604167 0.03875969
+## 
+## $din
+## [1] 7 7
+## 
+## $err
+## [1] 0
+## 
+## $family
+## [1] ""
+## 
+## $fg
+## [1] "black"
+## 
+## $fig
+## [1] 0 1 0 1
+## 
+## $fin
+## [1] 7 7
+## 
+## $font
+## [1] 1
+## 
+## $font.axis
+## [1] 1
+## 
+## $font.lab
+## [1] 1
+## 
+## $font.main
+## [1] 2
+## 
+## $font.sub
+## [1] 1
+## 
+## $lab
+## [1] 5 5 7
+## 
+## $las
+## [1] 0
+## 
+## $lend
+## [1] "round"
+## 
+## $lheight
+## [1] 1
+## 
+## $ljoin
+## [1] "round"
+## 
+## $lmitre
+## [1] 10
+## 
+## $lty
+## [1] "solid"
+## 
+## $lwd
+## [1] 1
+## 
+## $mai
+## [1] 1.02 0.82 0.82 0.42
+## 
+## $mar
+## [1] 5.1 4.1 4.1 2.1
+## 
+## $mex
+## [1] 1
+## 
+## $mfcol
+## [1] 1 1
+## 
+## $mfg
+## [1] 1 1 1 1
+## 
+## $mfrow
+## [1] 1 1
+## 
+## $mgp
+## [1] 3 1 0
+## 
+## $mkh
+## [1] 0.001
+## 
+## $new
+## [1] FALSE
+## 
+## $oma
+## [1] 0 0 0 0
+## 
+## $omd
+## [1] 0 1 0 1
+## 
+## $omi
+## [1] 0 0 0 0
+## 
+## $page
+## [1] TRUE
+## 
+## $pch
+## [1] 1
+## 
+## $pin
+## [1] 5.76 5.16
+## 
+## $plt
+## [1] 0.1171429 0.9400000 0.1457143 0.8828571
+## 
+## $ps
+## [1] 12
+## 
+## $pty
+## [1] "m"
+## 
+## $smo
+## [1] 1
+## 
+## $srt
+## [1] 0
+## 
+## $tck
+## [1] NA
+## 
+## $tcl
+## [1] -0.5
+## 
+## $usr
+## [1] 0 1 0 1
+## 
+## $xaxp
+## [1] 0 1 5
+## 
+## $xaxs
+## [1] "r"
+## 
+## $xaxt
+## [1] "s"
+## 
+## $xpd
+## [1] FALSE
+## 
+## $yaxp
+## [1] 0 1 5
+## 
+## $yaxs
+## [1] "r"
+## 
+## $yaxt
+## [1] "s"
+## 
+## $ylbias
+## [1] 0.2
+```
+
+---
+
+# Szenario Kuchendiagramm
+
+
+```r
+duis_districts &lt;- grep("Duisburg", btw2017[["Gebiet"]])
+
+parties &lt;- c(black = "CDU", red = "SPD", yellow = "FDP", pink = "LINKE", green = "GRUENE", blue = "AfD")
+columns &lt;- paste(parties, "Zweitstimmen", "Endgültig", sep = "/")
+votes &lt;- unlist(btw2017[duis_districts[1], columns])
+names(votes) &lt;- sapply(strsplit(names(votes), "/"), `[`, 1L)
+
+pie(votes, labels = names(votes), col = names(parties), main = "Duisburg I", cex = 0.6)
+```
+
+![](g_graphics_files/figure-html/unnamed-chunk-5-1.png)&lt;!-- --&gt;
+
+---
+
+# Szenario: Vergleich Wahlkreisergebnisse
+
+
+```r
+par(mfrow = c(1, 2))
+par(mar = c(1, 1, 1, 1))
+
+get_votes &lt;- function(i){
+  votes &lt;- unlist(btw2017[i, columns])
+  names(votes) &lt;- sapply(strsplit(names(votes), "/"), `[`, 1L)
+  votes
+}
+
+for (i in 1L:length(duis_districts)){
+  v &lt;- get_votes(duis_districts[i])
+  pie(v, labels = names(v), col = names(parties), cex = 0.6, main = btw2017[duis_districts[i], "Gebiet"])
+}
+```
+
+![](g_graphics_files/figure-html/unnamed-chunk-6-1.png)&lt;!-- --&gt;
+
+---
+
+# Balkendiagramm
+
+
+```r
+gruene_share &lt;- btw2017[["GRUENE/Zweitstimmen/Endgültig"]] / btw2017[["Wähler/Zweitstimmen/Endgültig"]]
+btw2017[["GRÜNE/Prozent"]] &lt;- round(gruene_share * 100, 1)
+btw2017_gr &lt;- btw2017[order(btw2017[["GRÜNE/Prozent"]], decreasing = TRUE),]
+btw2017_min &lt;- subset(btw2017_gr, gehört.zu != 99)[1:10,]
+
+barplot(btw2017_min[["GRÜNE/Prozent"]], names.arg = btw2017_min[["Gebiet"]], las = 2)
+```
+
+![](g_graphics_files/figure-html/unnamed-chunk-7-1.png)&lt;!-- --&gt;
+
+---
+
+# Aufgaben 
+
+1. Wie hoch ist der Anteil der Nichtwähler*innen im Bundesländervergleich
+2. Wo hatte die AfD bei der Bundestagswahl 2017 ihre Hochburgen?
+3. Wo ist die Abweichung zwischen Erst- und Zweitstimmenergebnis der Grünen besonders hoch?
+4. OFFEN
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

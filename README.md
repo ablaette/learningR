@@ -40,6 +40,13 @@ important:
 
 This installation mechanism works on macOS, Linux and Windows.
 
+Experimentally, the package is also available via a “drat” (CRAN-style)
+repository. Install the package as follows:
+
+``` r
+install.packages(pkg = "learningR", repos = "https://polmine.github.io/drat/")
+```
+
 ## Using the package
 
 ### Viewing the slides

@@ -2,559 +2,128 @@
 title: "Wissenschaftliches Programmieren mit R"
 subtitle: "Visualisierung"
 author: "Andreas Blaette"
-date: "07. Mai 2015"
-output: html_document
+date: "15. Juni 2021"
+output: 
+  xaringan::moon_reader:
+    css: ["./css/default.css", "./css/metropolis.css", "./css/robot-fonts.css", './css/polminify.css']
+    nature:
+      countIncrementalSlides: false
+editor_options:
+  chunk_output_type: console
 vignette: >
-  %\VignetteIndexEntry{07 - Visualisierung}
+  %\VignetteIndexEntry{06 - Elementare Statistik}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}  
 ---
 
+# Daten
 
-Daten: Die Wahlkreisergebnisse
-==============================
+```{r, eval = FALSE}
+install.packages("learningR", repos = "https://polmine.github.io/drat")
+```
 
-Speicher putzen!
-----------------
 ```{r}
-ls()
-rm(list=ls(all=TRUE))
+library(learningR)
+colnames(btw2017)[1:10]
 ```
 
-Wir rekonstruieren die Tabelle mit den Wahlkreisergebnissen der Parteien
-------------------------------------------------------------------------
 
-```{r eval = FALSE}
-# NEU: https://www.bundeswahlleiter.de/dam/jcr/ce2d2b6a-f211-4355-8eea-355c98cd4e47/btw_kerg.zip
-bt13raw <- read.table(
-  "http://www.bundeswahlleiter.de/de/bundestagswahlen/BTW_BUND_13/veroeffentlichungen/ergebnisse/kerg.csv",
-  header=T, skip=2, fileEncoding="ISO-8859-1", sep=";"
-)
-# Für die weitere Analyse müssen wir die Zeilen 1 und 2 loswerden - dies sind nur Spalenbeschriftungen.
-wantedRows <- c(3:318)
-bt13 <- bt13raw[wantedRows,]
-partyResults <- bt13[, c("X.10", "X.13", "X.28", "X.16", "X.19", "X.22", "X.25")] 
-colnames(partyResults) <- c("abgZweitstimmen", "cdu", "csu", "spd", "fdp", "linke", "gruene")
-anteilZweitstimmen <- list()
-rawVotesTotal <- partyResults[,"abgZweitstimmen"]
-votesTotal <- as.numeric(as.character(rawVotesTotal))
-for (party in c("cdu", "csu", "spd", "fdp", "linke", "gruene")){
-  raw <- partyResults[, party]
-  # wieder das: Aus dem Faktor muss ein numerischer Vektor werden
-  votes <- as.numeric(as.character(raw))
-  shareParty <- votes / votesTotal
-  anteilZweitstimmen[[party]] <- round(shareParty * 100, 2)
-}
-partyShare <- data.frame(anteilZweitstimmen)
-rownames(partyShare) <- bt13[,"Gebiet"]
+---
+
+# Vokabelheft Visualisierung
+
+- Klassiker: 
+  - `barplot()` (Balkendiagramme)
+  - `pie()` (Kuchendiagramme)
+- universelle Werkzeuge:
+  - `plot()`
+  - `text()`
+  - `points()`
+  - `lines()`
+- Verteilungen: `hist()` (Histogramme), `boxplot()`(Boxplots)
+
+Hinweis: Die "base R"-Funktionen sind generische Methoden, die ihr Verhalten abhängig vom Objekt ändern.
+
+---
+
+# Ausgabeoptionen
+
+- Zuweilen ist es am einfachsten, eine Graphik in RStudio zu generieren und von dort zu speichern oder in die Zwischenablage zu kopieren
+- Graphiken können auf verschiedene "graphical devices" umgelenkt werden (mit `dev.off()` abschließen!):
+  - `pdf()`
+  - `bmp()`, `png()`, `tiff()`
+
+```{r}
+pdf_doc <- tempfile(fileext = ".pdf")
+pdf(file = pdf_doc)
+hist(btw2017[["Wähler/Zweitstimmen/Endgültig"]] / btw2017[["Wahlberechtigte/Zweitstimmen/Endgültig"]])
+dev.off()
 ```
 
-Das Vokabular der Visualisierung
-================================
+---
 
-Grundlegende Visualisierungen
------------------------------
+#  Graphikparameter
 
-```{r, eval = FALSE}
-barplot() # Balkendiagramme
-pie() # Kuchendiagramme
-hist() # Histogramme 
-boxplot() # Boxplots
-```
+- Das Verhalten der Graphik-Ausgabe wird über Graphik-Parameter gesteuert
+- Weitere Informationen: `?par`
 
-Ausgaben auf 'graphical devices'
---------------------------------
-
-```{r, eval = FALSE}
-pdf()
-bmp()
-png()
-tiff()
-```
-
-Veränderung von Graphikparametern
----------------------------------
-
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 par()
 ```
 
+---
 
-Erstes Szenario: Ich will ein Kuchendiagramm!
-=============================================
+# Szenario Kuchendiagramm
 
-mit den Ergebnissen in einem Wahlkreis
---------------------------------------
+```{r, eval = TRUE, fig.height = 4}
+duis_districts <- grep("Duisburg", btw2017[["Gebiet"]])
 
-```{r, eval = FALSE}
-duPos <- grep("Duisburg", rownames(partyShare), value=T)
-duI <- partyShare[duPos[1],]
-duIvector <- as.numeric(duI)
-duIvector <- duIvector[-2]
+parties <- c(black = "CDU", red = "SPD", yellow = "FDP", pink = "LINKE", green = "GRUENE", blue = "AfD")
+columns <- paste(parties, "Zweitstimmen", "Endgültig", sep = "/")
+votes <- unlist(btw2017[duis_districts[1], columns])
+names(votes) <- sapply(strsplit(names(votes), "/"), `[`, 1L)
 
-
-partyNames <- c("CDU", "SPD", "FDP", "LINKE", "Grüne")
-duIvector 
-newLabel <- c()
-for (i in c(1:5)){
-  newLabel[i] <- paste(partyNames[i], " (", duIvector[i], "%)", sep="")
-}
-par(mar=c(3,3,3,3))
-pie(
-  duIvector,
-  labels=newLabel,
-  col=c("black", "red", "yellow", "pink", "green"),
-  main=c("Duisburg I"),
-  cex=0.6
-  )
+pie(votes, labels = names(votes), col = names(parties), main = "Duisburg I", cex = 0.6)
 ```
 
+---
 
-mehrere Wahlkreise in einem Diagramm
--------------------------------------
+# Szenario: Vergleich Wahlkreisergebnisse
 
-Hier fehlt noch ein Titel!
+```{r, eval = TRUE, fig.height = 2}
+par(mfrow = c(1, 2))
+par(mar = c(1, 1, 1, 1))
 
-```{r, eval = FALSE}
-posAll <- c()
-constOfInterest <- c(
-  "Duisburg", "Hochsauerland", "Olpe", "Münster", "Euskirchen"
-  )
-for (const in constOfInterest ){
-  rowNumbers <- grep(const, rownames(partyShare))
-  posAll <- c(posAll, rowNumbers)
+get_votes <- function(i){
+  votes <- unlist(btw2017[i, columns])
+  names(votes) <- sapply(strsplit(names(votes), "/"), `[`, 1L)
+  votes
 }
 
-par(mfrow=c(2,3))
-par(mar=c(1,1,1,1))
-for (pos in posAll){
-  oneDistrict <- partyShare[pos,]
-  oneDistrict <- as.numeric(oneDistrict)
-  oneDistrict <- oneDistrict[-2]
-  partyNames <- c("CDU", "SPD", "FDP", "LINKE", "Grüne")
-  newLabel <- c()
-  for (i in c(1:5)){
-    newLabel[i] <- paste(partyNames[i], " (", oneDistrict[i], "%)", sep="")
-  }
-  pie(
-    oneDistrict,
-    labels=newLabel,
-    col=c("black", "red", "yellow", "pink", "green"),
-    cex=0.6,
-    main=rownames(partyShare)[pos]
-  )
-  
+for (i in 1L:length(duis_districts)){
+  v <- get_votes(duis_districts[i])
+  pie(v, labels = names(v), col = names(parties), cex = 0.6, main = btw2017[duis_districts[i], "Gebiet"])
 }
 ```
 
+---
 
-```{r, eval = FALSE}
-toKeep <- which(is.na(partyShare$cdu) == FALSE)
-partyShare2 <- partyShare[toKeep,]
+# Balkendiagramm
 
-par(mfrow=c(1,1))
-par(mar=c(1,1,1,1))
-setwd("/Users/blaette/Lab/tmp/wahlkreise")
-pdf(file="Wahlkreisergebnisse.pdf", onefile=TRUE)
-for (pos in c(1:nrow(partyShare2))){
-    oneDistrict <- partyShare2[pos,]
-    oneDistrict <- as.numeric(oneDistrict)
-    oneDistrict <- oneDistrict[-2]
-    partyNames <- c("CDU", "SPD", "FDP", "LINKE", "Grüne")
-    newLabel <- c()
-    for (i in c(1:5)){
-      newLabel[i] <- paste(partyNames[i], " (", oneDistrict[i], "%)", sep="")
-    }
-    pie(
-      oneDistrict,
-      labels=newLabel,
-      col=c("black", "red", "yellow", "pink", "green"),
-      cex=1,
-      main=rownames(partyShare2)[pos]
-    ) 
-}
-dev.off()
+```{r, fig.height = 4}
+gruene_share <- btw2017[["GRUENE/Zweitstimmen/Endgültig"]] / btw2017[["Wähler/Zweitstimmen/Endgültig"]]
+btw2017[["GRÜNE/Prozent"]] <- round(gruene_share * 100, 1)
+btw2017_gr <- btw2017[order(btw2017[["GRÜNE/Prozent"]], decreasing = TRUE),]
+btw2017_min <- subset(btw2017_gr, gehört.zu != 99)[1:10,]
 
+barplot(btw2017_min[["GRÜNE/Prozent"]], names.arg = btw2017_min[["Gebiet"]], las = 2)
 ```
 
+---
 
-Zweites Szenario: Ich will ein Balkendiagramm!
-==============================================
+# Aufgaben 
 
-... zunächts wiederum mit den Ergebnissen in einem Wahlkreis
-
-```{r}
-```
-
-
-Drittes Szenario: Ich will ein gruppiertes Balkendiagramm!
-==========================================================
-
-... mit den Ergebnissen der Parteien in den Duisburger Wahlkreisen
-
-```{r}
-
-```
-
-
-
-Viertes Szenario: Ich will ein pdf!
-===================================
-```{r}
-```
-
-
-Daten: Die Wahlkreisergebnisse
-==============================
-
-Hygiene muss sein - Speicher putzen!
-------------------------------------
-
-```{r, eval = FALSE}
-ls()
-rm(list=ls(all=TRUE))
-```
-
-
-Rekonstruktion der Tabelle mit den Wahlkreisergebnissen der Parteien 'from scratch'
------------------------------------------------------------------------------------
-
-```{r eval=FALSE}
-bt13raw <- read.table(
-  "http://www.bundeswahlleiter.de/de/bundestagswahlen/BTW_BUND_13/veroeffentlichungen/ergebnisse/kerg.csv",
-  header=T, skip=2, fileEncoding="ISO-8859-1", sep=";"
-)
-# Für die weitere Analyse müssen wir die Zeilen 1 und 2 loswerden - dies sind nur Spalenbeschriftungen.
-wantedRows <- c(3:318)
-bt13 <- bt13raw[wantedRows,]
-partyResults <- bt13[, c("X.10", "X.13", "X.28", "X.16", "X.19", "X.22", "X.25")] 
-colnames(partyResults) <- c("abgZweitstimmen", "cdu", "csu", "spd", "fdp", "linke", "gruene")
-anteilZweitstimmen <- list()
-rawVotesTotal <- partyResults[,"abgZweitstimmen"]
-votesTotal <- as.numeric(as.character(rawVotesTotal))
-for (party in c("cdu", "csu", "spd", "fdp", "linke", "gruene")){
-  raw <- partyResults[, party]
-  # wieder das: Aus dem Faktor muss ein numerischer Vektor werden
-  votes <- as.numeric(as.character(raw))
-  shareParty <- votes / votesTotal
-  anteilZweitstimmen[[party]] <- round(shareParty * 100, 2)
-}
-partyShare <- data.frame(anteilZweitstimmen)
-rownames(partyShare) <- bt13[,"Gebiet"]
-```
-
-Ein pdf, in dem alles drin ist
-==============================
-
-Zugegeben: Wir haben es uns etwas einfach gemacht und zunächst nur die Wahlkreise analysiert,
-in denen die CDU angetreten ist...
-
-
-```{r, eval = FALSE}
-# in welchen Wahlkreisen ist die CDU nicht angetreten? Die wollen wir ausschließen
-toKeep <- which(is.na(partyShare$cdu) == FALSE)
-partyShare2 <- partyShare[toKeep,]
-
-par(mfrow=c(1,1)) # das bedeutet: nur ein Diagramm, keine Anordnung nach Zahlen/Reihen
-
-par(mar=c(1,1,1,1)) # kleine Ränder, damit kein Platz verschwendet wird!
-
-# so setzt man das Arbeitsverzeichnis, in dem das Ergebnisdokument gespeichert werden soll
-
-setwd("/Users/blaette/Lab/tmp/wahlkreise") 
-# jetzt wird eine Verbindung zu einem Dokument geöffnet, in das dan sukzessive neue
-# Seiten mit neuen Törtchengrafiken geschrieben werden
-pdf(file="Wahlkreisergebnisse.pdf", onefile=TRUE)
-
-for (pos in c(1:nrow(partyShare2))){
-    oneDistrict <- partyShare2[pos,]
-    oneDistrict <- as.numeric(oneDistrict)
-    # raus mit der CDU!
-    oneDistrict <- oneDistrict[-2]
-    partyNames <- c("CDU", "SPD", "FDP", "LINKE", "Grüne")
-    newLabel <- c()
-    for (i in c(1:5)){
-      newLabel[i] <- paste(partyNames[i], " (", oneDistrict[i], "%)", sep="")
-    }
-    pie(
-      oneDistrict,
-      labels=newLabel,
-      col=c("black", "red", "yellow", "pink", "green"),
-      cex=1,
-      main=rownames(partyShare2)[pos]
-    ) 
-}
-dev.off()
-
-```
-
-
-Was noch zu tun ist
-===================
-
-- Wäre es nicht angemessen, die CSU in der Analyse zu behalten?
-- Erst während der Arbeit mit den Daten ist uns aufgefallen, dass die Bundesländer und das Bundesgebiet in der Tabelle enthalten sind. Solle man das nicht gesondert ausgeben bzw. aus dem Dossier entfernen?
-
-
-Initialisierung
-===============
-
-
-```{r}
-rm(list=ls(all=TRUE))
-library(gles)
-library(ggplot2)
-library(reshape2)
-```
-
-```{r}
-data(bt2009) # Datensatz für 2009
-data(bt2013)
-```
-
-
-
-Aufrufen der Dokumentation der Fragebögen
-=========================================
-
-```{r, eval = FALSE}
-questionnaire("bt2009")
-questionnaire("bt2013")
-questionnaire("nrw2010")
-questionnaire("nrw2012")
-```
-
-Vorbereiten der Daten 
-=====================
-
-```{r, eval = FALSE}
-glesSubsets <- list(
-  "2009"=data.frame(
-    gewicht=bt2009[,"wei_trow"],
-    geschlecht=bt2009[,"vn1"],
-    wahlabsicht=bt2009[,"v254_1a"]
-  ),
-  "2013"=data.frame(
-    gewicht=bt2013[,"w_trow"],
-    geschlecht=bt2013[,"vn1"],
-    wahlabsicht=bt2013[,"v11aa"]
-  )
-)
-
-
-wahlabsGeschlechtList <- lapply(
-  names(glesSubsets),
-  function(year){
-    glesSubset <- glesSubsets[[year]]
-    wahlabsGeschlecht <- xtabs(gewicht~wahlabsicht+geschlecht, data=glesSubset)
-    wahlabsGewichtet <- apply(wahlabsGeschlecht, 2, function(x) x / sum(x))
-    rowsToDrop <- c(which(rownames(wahlabsGewichtet) %in% c("CDU", "CSU")))
-    if (length(rowsToDrop > 0)){
-      wahlabsGewichtet <- wahlabsGewichtet[-rowsToDrop,]
-    }
-    wahlabsichtProzent <- round(wahlabsGewichtet * 100, 2)
-    wahlabsicht <- data.frame(
-      partei=rownames(wahlabsichtProzent),
-      jahr=rep(year, times=nrow(wahlabsichtProzent)),
-      wahlabsichtProzent
-    )
-    wahlabsicht
-  }
-)
-
-wahlabsGeschlecht <- do.call(rbind, wahlabsGeschlechtList)
-```
-
-Let's go with ggplot
-====================
-
-Die Wahlabsicht eines Geschlechts
----------------------------------
-
-```{r, eval = FALSE}
-d <- ggplot(data=wahlabsGeschlecht, aes(x=jahr, y=weiblich))
-d <- d + geom_bar(aes(fill=partei), stat="identity", position="dodge")
-d <- d + xlab("Jahr") + ylab("Wahlwahrscheinlichkeit in Prozent")
-d
-```
-
-Stimmgewinne und -verluste
--------------------------
-
-```{r, eval = FALSE}
-wahlabs2 <- melt(wahlabsGeschlecht) # Umwandlung in extensive Form
-colnames(wahlabs2)[3] <- "geschlecht"
-d <- ggplot(data=wahlabs2, aes(x=partei, y=value, fill=jahr))
-d <- d + geom_bar(stat="identity", position="dodge")
-d <- d + xlab("Partei") + ylab("Wahlwahrscheinlichkeit in Prozent")
-d
-```
-
-Analyse für einzelne Parteien
------------------------------
-
-```{r, eval = FALSE}
-partyToSelect <- "CDU/CSU"
-partySubset <- subset(wahlabs2, partei==partyToSelect)
-d <- ggplot(data=partySubset, aes(x=jahr, y=value, fill=geschlecht))
-d <- d + geom_bar(stat="identity", position="dodge")
-d <- d + xlab("Jahr")
-d <- d + ylab("Wahlwahrscheinlichkeit in Prozent")
-d
-```
-
-Liniendiagramm
---------------
-
-```{r, eval = FALSE}
-d <- ggplot(data=wahlabsGeschlecht, aes(x=jahr, y=weiblich, group=partei))
-d <- d + geom_line(aes(colour=partei), stat="identity")
-d <- d + xlab("Jahr") + ylab("Wahlwahrscheinlichkeit in Prozent")
-d
-```
-
-
-Initialisierung
-===============
-
-```{r, eval = FALSE}
-rm(list=ls(all=TRUE))
-library(ess)
-data(ess6)
-```
-
-
-Szenario 1: Vergleich der durchschnittlichen politischen Zufriedenheit (Balkendiagramm)
-=======================================================================================
-
-Schritt 1: Subset bilden!
--------------------------
-
-```{r, eval = FALSE}
-essToExplore <- ess6
-x.axis <- "stfgov"
-y.axis <- "stfdem"
-
-tab <- data.frame(
-  cntry=essToExplore[, "cntry"],
-  x=essToExplore[, x.axis],
-  y=essToExplore[, y.axis]
-  )
-```
-
-Lösung 1: Befüllen eines leeren data.frames
--------------------------------------------
-
-```{r, eval = FALSE}
-countries <- levels(tab$cntry)
-noCountries <- length(levels(tab$cntry))
-meanTab <- data.frame(
-  xMean=rep(0, times=noCountries),
-  yMean=rep(0, times=noCountries),
-  row.names=levels(tab$cntry)
-  )
-
-for (country in countries){
-  subTab <- subset(tab, cntry==country)
-  meanTab[country, "xMean"] <- mean(as.numeric(subTab$x), na.rm=TRUE) - 1
-  meanTab[country, "yMean"] <- mean(as.numeric(subTab$y), na.rm=TRUE) - 1
-}
-```
-
-Lösung 2: data.frame auf Basis einer Liste
-------------------------------------------
-
-```{r, eval = FALSE}
-countries <- levels(essToExplore$cntry)
-
-meanList <- list()
-for (country in countries){
-  subTab <- subset(tab, cntry==country)
-  meanList[[country]] <- c(
-    xMean=mean(as.numeric(subTab$x), na.rm=TRUE) - 1,
-    yMean=mean(as.numeric(subTab$y), na.rm=TRUE) -1 
-    )
-}
-plotTab1 <- do.call(rbind, meanList)
-```
-
-
-Lösung 3: by
-------------
-
-```{r, eval = FALSE}
-meanList <- by(tab, tab$cntry, FUN=function(subTab){
-  c(
-    xMean=mean(as.numeric(subTab$x), na.rm=TRUE) - 1,
-    yMean=mean(as.numeric(subTab$y), na.rm=TRUE) -1 
-    )
-})
-plotTab2 <- do.call(rbind, foo)
-```
-
-
-Lösung 3: ddply
----------------
-
-```{r, eval = FALSE}
-library(plyr)
-plotTab3 <- ddply(.data=tab, .variables=.(cntry), .fun=function(subTab){
-    c(xMean=mean(as.numeric(subTab$x), na.rm=TRUE) - 1,
-    yMean=mean(as.numeric(subTab$y), na.rm=TRUE) -1)
-})
-```
-
-
-Und jetzt wird geplottet!
-=========================
-
-```{r, eval = FALSE}
-par(mar=c(4,4,2,2))
-plot(
-  x=plotTab1[,"xMean"], y=plotTab1[,"yMean"], type="n",
-  xlab="mean satisfaction with government",
-  ylab="mean satisfation with democracy",
-  main="Analyse! This!",
-  xlim=c(0,10), ylim=c(0,10)
-  )
-points(x=plotTab1[,"xMean"], y=plotTab1[,"yMean"], type="p", col="blue", pch=16, cex=1)
-text(x=plotTab1[,"xMean"], y=plotTab1[,"yMean"], labels=rownames(plotTab1), cex=0.5, pos=2)
-
-regression <- lm(yMean~xMean, data=as.data.frame(plotTab1))
-abline(regression)
-```
-
-
-par(mar=c(9,2,1,1))
-barplot(plotTab1[,"xMean"], las=2,
-cex.lab=0.4
-)
-
-Ausblick
-========
-
-```{r, eval = FALSE}
-library(lattice)
-histogram(~polintr|cntry, data=ess6)
-xyplot(stfgov~stfdem|cntry, data=ess6)
-stfdem <- as.numeric(tab$x) - 1
-tab2 <- tab
-tab2$x <- as.numeric(tab2$x) - 1
-par(mar=c(8,2,1,1))
-boxplot(x~cntry, data=tab2, las=2, cex=0.8, col="blue")
-```
-
-
-Noch ein Szenario
-=================
-
-Wie verteilt sich Ausländerablehnung, politisches Interesse über die Bundesländer?
-
-```{r, eval = FALSE}
-library(allbus)
-data(allbus2010)
-grep("BUNDESLAND", variables("allbus2010"), value=T) # hier: V975 -> Bundesland
-grep("AUSLAENDER", variables("allbus2010"), value=T) # hier: V320, V318, V321
-grep("INTERESSE", variables("allbus2010"), value=T)
-```
-
+1. Wie hoch ist der Anteil der Nichtwähler*innen im Bundesländervergleich
+2. Wo hatte die AfD bei der Bundestagswahl 2017 ihre Hochburgen?
+3. Wo ist die Abweichung zwischen Erst- und Zweitstimmenergebnis der Grünen besonders hoch?
+4. OFFEN

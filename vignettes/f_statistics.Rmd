@@ -267,7 +267,9 @@ abline(r)
 Vor der Berechnung einer Regression sollten die Variablen normalisiert werden.
 
 ```{r}
-normalize <- function(x) (max(x, na.rm = TRUE) - x) / (max(x, na.rm = TRUE) - min(x, na.rm = TRUE))
+normalize <- function(x){
+  ((x - max(x, na.rm = TRUE)) / (max(x, na.rm = TRUE) - min(x, na.rm = TRUE))) + 1
+}
 by_county_data_norm <- mutate(
   .data = by_county_data,
   cases7_per_100k = normalize(cases7_per_100k),

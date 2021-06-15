@@ -16,6 +16,13 @@ NULL
 #' @keywords datasets
 "coronastats"
 
+#' Wahlkreisergebnisse 2017.
+#'
+#' @docType data
+#' @keywords datasets
+"btw2017"
+
+
 #' Corona auf Ebene der Landkreise.
 #'
 #'
