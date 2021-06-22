@@ -83,8 +83,8 @@ dev.off()
 ```
 
 ```
-## quartz_off_screen 
-##                 2
+## RStudioGD 
+##         2
 ```
 
 ---
@@ -329,8 +329,19 @@ parties &lt;- c(black = "CDU", red = "SPD", yellow = "FDP", pink = "LINKE", gree
 columns &lt;- paste(parties, "Zweitstimmen", "Endgültig", sep = "/")
 votes &lt;- unlist(btw2017[duis_districts[1], columns])
 names(votes) &lt;- sapply(strsplit(names(votes), "/"), `[`, 1L)
+votes_total &lt;- as.integer(btw2017[duis_districts[1],"Wähler/Zweitstimmen/Endgültig"])
+votes &lt;- c(votes, Sonstige = votes_total - sum(votes))
+percent &lt;- round(votes /  votes_total * 100, 1)
 
-pie(votes, labels = names(votes), col = names(parties), main = "Duisburg I", cex = 0.6)
+names(percent) &lt;- paste(names(percent), " (", unname(percent), "%)", sep = "")
+
+pie(
+  percent,
+  labels = names(percent),
+  col = c(names(parties), "darkgrey"),
+  main = "Duisburg I",
+  cex = 1
+)
 ```
 
 ![](g_graphics_files/figure-html/unnamed-chunk-5-1.png)&lt;!-- --&gt;

@@ -31,10 +31,10 @@ remotes::install_github("ablaette/learningR", build_vignettes = TRUE, dependenci
 Setting arguments `build_vignettes` and `dependencies` as `TRUE` is
 important:
 
-  - The slides included in the package are technically realized as
-    vignettes. We need to ensure that they are built (`build_vignettes =
-    TRUE`).
-  - R packages used by the vignettes are suggested packages,
+-   The slides included in the package are technically realized as
+    vignettes. We need to ensure that they are built
+    (`build_vignettes = TRUE`).
+-   R packages used by the vignettes are suggested packages,
     `dependencies = TRUE` will ensure that these dependencies are
     installed if not yet present.
 
@@ -99,25 +99,25 @@ xaringan::inf_mr()
 The package is work in progress, only a part of the slides is ready for
 use. The following slides are available online:
 
-  - [Erste
+-   [Erste
     Schritte](https://ablaette.github.io/learningR/a_getting-started.html#1)
-  - [Installation von
+-   [Installation von
     Paketen](https://ablaette.github.io/learningR/b_installation.html#1)
-  - [Datenstrukturen:
+-   [Datenstrukturen:
     Vektoren](https://ablaette.github.io/learningR/c_vektoren.html#1)
-  - [Matrizen - Listen -
+-   [Matrizen - Listen -
     Tabellen](https://ablaette.github.io/learningR/d_data.frames.html#1)
-  - [Funktionen und
+-   [Funktionen und
     Kontrollstrukturen](https://ablaette.github.io/learningR/e_kontrollstrukturen.html#1)
 
 ## License
 
 The package is an [Open Educational
 Resource](https://de.wikipedia.org/wiki/Open_Educational_Resources)
-licensed under a Creative Commons License ([CC
-BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.de)). Tha
-package may be used, shared and modified, but it is expected that
-authorship is attributed.
+licensed under a Creative Commons License ([CC BY
+4.0](https://creativecommons.org/licenses/by/4.0/deed.de)). Tha package
+may be used, shared and modified, but it is expected that authorship is
+attributed.
 
 ## Quoting the slides (the package)
 
@@ -133,7 +133,7 @@ citation(package = "learningR")
     ## 
     ##   Blaette, Andreas (2020). learningR. R package version v0.0.2.
     ## 
-    ## A BibTeX entry for LaTeX users is
+    ## Ein BibTeX-Eintrag für LaTeX-Benutzer ist
     ## 
     ##   @Manual{,
     ##     title = {learningR},

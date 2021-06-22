@@ -82,8 +82,19 @@ parties <- c(black = "CDU", red = "SPD", yellow = "FDP", pink = "LINKE", green =
 columns <- paste(parties, "Zweitstimmen", "Endgültig", sep = "/")
 votes <- unlist(btw2017[duis_districts[1], columns])
 names(votes) <- sapply(strsplit(names(votes), "/"), `[`, 1L)
+votes_total <- as.integer(btw2017[duis_districts[1],"Wähler/Zweitstimmen/Endgültig"])
+votes <- c(votes, Sonstige = votes_total - sum(votes))
+percent <- round(votes /  votes_total * 100, 1)
 
-pie(votes, labels = names(votes), col = names(parties), main = "Duisburg I", cex = 0.6)
+names(percent) <- paste(names(percent), " (", unname(percent), "%)", sep = "")
+
+pie(
+  percent,
+  labels = names(percent),
+  col = c(names(parties), "darkgrey"),
+  main = "Duisburg I",
+  cex = 1
+)
 ```
 
 ---

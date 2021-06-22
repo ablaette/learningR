@@ -2,7 +2,7 @@
 title: "Wissenschaftliches Programmieren mit R"
 subtitle: "Text Mining Basics"
 author: "Andreas Blaette"
-date: "4. Juni 2020"
+date: "22. Juni 2021"
 output: 
   xaringan::moon_reader:
     css: ["./css/default.css", "./css/metropolis.css", "./css/robot-fonts.css", './css/polminify.css']
@@ -15,145 +15,153 @@ vignette: >
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 ---
+
+```{r, eval = FALSE, include = FALSE}
+servr::daemon_stop(1)
+xaringan::inf_mr()
+```
   
-# Webscraping-Szenarien
-
-Dieser Foliensatz vermittelt elementare Grundlagen zu folgenden Szenarien:
-
-- direktes Laden von Daten von Online-Speicherorten
-- Extraktion von Daten (Tabellen, Text) aus html-Dokumenten
-- Download und Verarbeitung von pdf-Dokumenten
-
-Schwieriger wird es, wenn Web-Seiten dynamisch aus Datenbanken generiert werden. Dann ist meist eine Fernsteuerung eines Browsers erforderlich, z.B. mit dem [Selenium WebDriver](https://www.selenium.dev/documentation/en/webdriver/) (vgl. R-Paket [RSelenium](https://cran.r-project.org/package=RSelenium)). Diese fortgeschrittene Technik wird in diesem Foliensatz nicht behandelt.
-
----
-
-# Datenimport von Online-Speicherorten I
-
-- Durch die Entwicklung hin zu Open Governmemt bzw. Open Data werden immer mehr Datensätze online zur Verfügung gestellt. Zum Teil sind dies Datenformate, die an eine bestimmte Software gebunden sind (z.B. Excel). Die Regel sind jedoch Datenaustauschformate wie [csv](https://de.wikipedia.org/wiki/CSV_%28Dateiformat%29) und [json](https://de.wikipedia.org/wiki/JavaScript_Object_Notation).
-
-- *Beispiel 1*: Die Stadt Duisburg stellt über ein **Open Data**-Portal etliche interessante Datensätze zur Verfügung. Wir interessieren uns für eine Tabelle zu "Menschen mit Migrationshintergrund", welche die entsprechende Anteile nach Ortsteilen aufschlüsselt.
-
-- Etliche R-Funktionen erkennen, wenn bei einem Dateinamen eine URL angegeben wird und laden die Datei direkt "aus dem Netz". Mit `read.csv()` kann man die Datei direkt laden. 
-
-```{r, eval = TRUE}
-df <- read.csv(
-  file = "https://opendata-duisburg.de/sites/default/files/MHGo2018_2.csv",
-  sep = ";"
-)
-```
-
-- 
----
-
---- 
-
-# Datenimport von Online-Speicherorten II
-
-- Beispiel 2: Bundestagswahlergebnisse 2017
-
-```{r, eval = FALSE}
-btw17_url <- "https://www.bundeswahlleiter.de/dam/jcr/72f186bb-aa56-47d3-b24c-6a46f5de22d0/btw17_kerg.csv"
-btw17_local <- tempfile()
-download.file(url = btw17_url, destfile = btw17_local)
-btw17_aux <- scan(file = btw17_local, what = character(), sep = "\n")
-df <- read.csv(file = btw17_local, sep = ";", skip = 5)
-```
-
-
----
-
-# Verarbeitung von html-Dokumenten
-
-- Grundsätzlich werden html-Dokumente wie xml-Dokumente verarbeitet. State-of-the-Art ist
-  - die Repräsentation dre Datenstrukturen eines html-Dokuments mit dem xml2-Pakt; 
-  - für die html-spezifische Datenextraktion wird das rvest-Paket verwendet.
-
-- direktes Einlesen von Tabellen
-
-- Beispiel: Extraktion einer Tabelle zu MdBs aus Wikipedia-Seite
-
-```{r, eval = TRUE}
-library(rvest)
-library(xml2)
-
-wikipedia_url <- "https://de.wikipedia.org/wiki/Liste_der_Mitglieder_des_Deutschen_Bundestages_%2816._Wahlperiode%29"
-page <- xml2::read_html(wikipedia_url)
-tables <- rvest::html_nodes(page, "table")
-tab <- rvest::html_table(tables[[2]])
-```
-
----
-
-# Ergebnis der Daten-Extraktion
+# Arbeit mit character-Vektoren: paste()
 
 ```{r}
-head(tab[,1:3])
+given_name <- c("Angela", "Olaf", "Annalena")
+name <- c("Merkel", "Scholz", "Baerbock")
+paste(given_name[1], name[1])
+paste(given_name, name) # Vektorisierung - der effiziente Weg!
+paste(name, given_name, sep = ", ")
+paste(name, collapse = " - ")
 ```
 
-Wir können beispielsweise das Durchschnittsalter beim Zusammentritt des Bundestags berechnen ...
-
-```{r, eval = FALSE}
-mean(2005 - as.integer(tab[,2])) # NOT WORKING
-```
+- Siehe auch `paste0()` (effizienter, eingeschränkter)!
 
 ---
 
-# Navigation im XML
+# Formattierung von Strings 
 
-- Um Text aus html-Dokumenten zu extrahieren, wird die hierarchische Baumstruktur des html-Dokuments mit Xpath-Ausdrücken abgefragt. 
-
-- Ein typisches Szenario ist die Extraktion von Text aus einem Archiv von Pressemitteilungen (z.B. des [Bundespresse- und Informationsamts](https://de.wikipedia.org/wiki/Liste_der_Mitglieder_des_Deutschen_Bundestages_%2816._Wahlperiode%29))
+- Aus der C-Welt kommt die String-Formattierung mit `sprintf()`. Mächtig und flexibel - auch in R!
 
 ```{r}
-pm <- "http://www.bundesregierung.de/Content/DE/Pressemitteilungen/BPA/2015/07/2015-07-09-bkm-kulturelle-bildung.html"
-page <- xml2::read_html(pm)
+# Wert von character-Vektoren wird bei %s eingefügt
+sprintf("%s, %s", name, given_name) 
+sprintf("%d-%02d-%02d", 2021, 5,4) # Einfügen von numerischen Werten
+```
+
+- Performanz durch Vektorisierung: Nutze dies, woimmer möglich!
+
+- Beispiel: `ifelse()` (vektorisiert im Unterschied zu `if`/`else`)
+
+```{r}
+is_woman <- c(TRUE, FALSE, TRUE)
+sprintf("Kandidat%s %s", ifelse(is_woman, "in", ""), name)
+```
+
+---
+
+# Splitten von Strings
+
+```{r}
+dates_din <- c("2020-06-02", "2020-05-13", "2021-09-27")
+s <- strsplit(dates_din, split = "-") # Liste als Rückgabewert!
+s
+```
+
+__Szenario:__ Umwandlung eines DIN -Datums in deutsche Datumsangabe
+
+```{r}
+sprintf("%s.%s.%s", sapply(s, `[`, 3), sapply(s, `[`, 2), sapply(s, `[`, 1))
+```
+
+
+---
+
+
+# False friends I: Datumsangaben
+
+Die Versuchung ist oft groß, Datumsangaben als `character`-Vektoren zu verarbeiten. Das kann aber umständlich und ineffizient sein: Die Nutzung der Klasse `Date` ist oft besser! 
+
+```{r}
+d <- as.Date(dates_din)
+is(d)
+d
+format(d, "%d.%m.%Y") # Effizient und 
+```
+
+`r fontawesome::fa("far fa-lightbulb")` Insbesondere bei der Arbeit mit Zeitreihen-Daten spielen Datumsobjekte ihre Stärken aus (vgl. Pakete zoo und xts)
+
+---
+
+# False friends II: Pfadangaben
+
+Die Versuchung liegt oft nahe, Pfadangaben als String-Maninpulation zu bearbeiten. Es gibt jedoch eine gesonderte Funktionalität. Hinweis: Die Konsistenz des [fs](https://CRAN.R-project.org/package=fs)-package hat große Vorteile ...
+
+```{r}
+tp <- tempdir()
+tp
+f <- file.path(tp, "newfile.txt")
+basename(f)
+dirname(f)
+tools::file_ext(f)
+```
+
+---
+
+# base R-Vokabelheft
+
+Weitere nützliche Basis-Operationen mit Strings:
+
+```{r}
+tolower("BTW2021")
+toupper("btw2021")
+substr("btw2021", 4, 7)
+nchar("btw2021")
+```
+
+---
+
+# Das tückische Thema der Encodings
+
+```{r}
+localeToCharset() # meist bei Windows: "ISO-8859-1", bei macOS: "UTF-8"
 ```
 
 ```{r}
-paragraph_nodes <- rvest::html_nodes(page, xpath = "//p") # Identifikation aller Absätze
-paragraphs <- sapply(paragraph_nodes, html_text) # Extraktion des Texts aus den Absätzeen
-paragaphs <- paragraphs[nchar(paragraphs) > 0L] # Absätze ohne Text fallen lassen
-paragaphs[1]
+verbs <- c("müssen", "dürfen", "wollen")
+Encoding(verbs)
 ```
 
-- XPath
+```{r}
+iconv(verbs, from = "UTF-8", to = "ISO-8859-1")
+```
+
+Schwierigkeiten mit Encodings erkennen Sie oft daran, dass Zeichen "zerschossen" angezeigt werden. Oft gibt es aber auch unsichtbare Probleme, die nur durch merkwürdiges Verhalten des Codes auffallen (Bsp. ein regulärer Ausdrück trifft nicht das, was er treffen sollte). Es hilft nur regelmäßiges Prüfen, ob das Encoding von `character`-Vektoren Ihren Annahmen entspricht ...
 
 ---
 
-# pdf-Dokumente: Tabellen extrahieren
+# Suche nach Muster: grep()
 
-```{r, eval = FALSE}
-url_ltw <- "https://www.bundeswahlleiter.de/dam/jcr/a333e523-0717-42ad-a772-d5ad7e7e97cc/ltw_erg_gesamt.pdf"
-ltw_local <- tempfile()
-pdf_local <- download.file(url = url_ltw, destfile = ltw_local)
+Oft will man in `character`-Vektoren identifizieren, welche Elemente einem Muster entsprechen ...
+
+```{r}
+candidates_names <- paste(name, given_name, sep = ", ")
+grep("Scholz", candidates_names) # default behavior: Rückgabe Position
+grep("Scholz", candidates_names, value = TRUE)
 ```
 
+Szenario: Auffinden von Variablen zur Stimmabgabe im GLES-Datensatz
 
-```{r, eval = FALSE}
-library(tabulizer)
-tabulizer::extract_tables(file = ltw_local, pages = 74)
-```  
+```{r}
+library(gles)
+pos <- grep("Stimmabgabe", sapply(bt2017vw, attr, "label"))
+colnames(bt2017vw)[pos]
+```
+
+Das wahre Potential von `grep()` liegt jedoch in der Möglichkeit der Nutzung regulärer Ausdrücke!
 
 ---
 
-# pdf-Dokumente: Text extrahieren
+# Reguläre Ausdrücke: Zeichenklassen
 
-```{r, eval = FALSE}
-cdu_btw2017 <- "https://www.cdu.de/system/tdf/media/dokumente/170703regierungsprogramm2017.pdf?file=1"
-cdu_btw2017_local <- tempfile()
-download.file(url = cdu_btw2017, destfile = cdu_btw2017_local)
-```
-
-```{r, eval = FALSE}
-library(pdftools)
-pdftools::pdf_info(cdu_btw2017_local)
-txt <- pdftools::pdf_text(cdu_btw2017_local)
-```
-
----
-
-# Reguläre Ausdrücke
+- Einführungen in reguläre Ausdrücke gibt es reichtlich (z.B. [Wikipedia](https://de.wikipedia.org/wiki/Regul%C3%A4rer_Ausdruck)). Hier nur das Allerwichtigste:
 
 | Ausdruck | Beschreibung |
 |:-------:| --------------|
@@ -161,6 +169,13 @@ txt <- pdftools::pdf_text(cdu_btw2017_local)
 | \\d | "digit" (Ziffer), d.h. 0 bis 9 |
 | \\s | "whitespace" - Leerzeichen | 
 | \\w | Buchstaben (keine Ziffern oder Leerzeichen) | 
+|   $ | Ende eines Strings |
+| ^ | Anfang eines Strings | 
+
+- Vgl. auch control characters: \n (Zeilenumbruch/newline) und \t (Tabulator)
+- Merke: Sine echte Punkte gemeint, muss diesen in regulären Ausdrücken ein doppeltes "escape"-Zeichen (\\\\) vorangestellt werden!
+- Das doppelte Escape-Zeichen ist eine Besonderheit von R - in anderen Implementierungen regulärer Ausdrücke ist das überwiegend nicht erforderlich.
+
 ---
 
 # Quantoren
@@ -177,96 +192,138 @@ txt <- pdftools::pdf_text(cdu_btw2017_local)
 
 ---
 
-#  Rückwärts-Referenzen
+# Ersetzungen mit gsub()
+
+```{r}
+gsub(",\\s+.*$", "", candidates_names)
+gsub("-\\d{2}-\\d{2}$", "", "2021-09-27")
+```
+
+Mit Klammern (capturing parentheses) gruppieren und ordnen ...
+
+```{r}
+gsub("^(\\d{4})-(\\d{2})-(\\d{2})$", "\\3.\\2.\\1", "2021-09-27")
+```
 
 
 ---
 
-# gsub
+# pdf-Dokumente: Text extrahieren
 
-```{r, eval = FALSE}
-txt2 <- gsub("\\s{6,}\\d+", "", txt)
-txt3 <- gsub("\\n", " ", txt2)
-txt4 <- gsub("\\s+", " ", txt3)# große Lücken weg
-txt5 <- gsub("", " ", txt4) # Kästchen weg
-txt6 <- gsub("-\\s+(?!und)", "", txt5, perl = TRUE) # Bundestriche weg
+- Download das Wahlprogramms von Bündnis 90/Die Grünen zur Bundestagswahl 2021
+
+```{r, eval = TRUE}
+gruene_btw2021 <- "https://cms.gruene.de/uploads/documents/2021_Wahlprogrammentwurf.pdf"
+gruene_btw2021_local <- tempfile()
+download.file(url = gruene_btw2021, destfile = gruene_btw2021_local)
+```
+
+- Extraktion des Textes
+
+```{r, eval = TRUE}
+library(pdftools)
+info <- pdftools::pdf_info(gruene_btw2021_local)
+txt <- pdftools::pdf_text(gruene_btw2021_local)
 ```
 
 ---
 
-# strsplit
+# Säuberung des Textes
 
-```{r, eval = FALSE}
-word_list <- strsplit(x = txt6, split = "\\s")
+```{r, eval = TRUE}
+txt <- gsub("-\\n", "", txt) # Silbentrennungen entfernen
+txt <- gsub("\\n", " ", txt) # Zeilenumbrüche entfernen
+txt <- gsub("\\s+", " ", txt) # große Lücken entfernen
+```
+
+---
+
+# Tokenisierung des Textes
+
+```{r, eval = TRUE}
+word_list <- strsplit(x = txt, split = "\\s") # Einfachste "whitespace"-Tokenisierung
 words <- unlist(word_list)
+length(words)
 ```
 
-```{r, eval = FALSE}
-words_cleaned <- gsub("[,:\\.!?]", "", words)
-words_cleaned <- tolower(words_cleaned)
-words_cleaned <- words_cleaned[!words_cleaned %in% tm::stopwords("de")]
+
+```{r, eval = TRUE}
+words_cleaned <- gsub("[,:\\.!?]", "", words) # Interpunktion entfernen
+words_cleaned <- tolower(words_cleaned) # Kleinschreibung 
+words_cleaned <- words_cleaned[!words_cleaned %in% tm::stopwords("de")] # Stopworte
+length(words_cleaned)
+```
+
+---
+
+# Zählen
+
+```{r}
 words_count <- table(words_cleaned)
 words_count_sorted <- words_count[order(words_count, decreasing = TRUE)]
+head(words_count_sorted, 25)
 ```
 
 ---
-  
-# Wortwolke
 
-```{r, eval = FALSE}
+# Eine erste Wortwolke: Code
+
+```{r, eval = FALSE, message = FALSE}
 library(wordcloud)
 
-wordcloud(
+wc <- wordcloud(
   words = names(words_count_sorted)[1:50],
-  freq = unname(words_count_sorted)[1:50]
+  freq = unname(words_count_sorted)[1:50],
+  random.color = TRUE,
+  colors = RColorBrewer::brewer.pal(9, "Set1")
+)
+```
+
+`r fontawesome::fa("far fa-lightbulb")` Wortwolken mögen nett anzusehen sein, sind aber im wissenschaftlichen Kontext bestenfalls gut, um Semantik impressionistisch zu vermitteln
+
+
+---
+
+# Eine erste Wortwolke: 
+
+```{r, eval = TRUE, echo = FALSE}
+library(wordcloud)
+
+wc <- wordcloud(
+  words = names(words_count_sorted)[1:50],
+  freq = unname(words_count_sorted)[1:50],
+  random.color = TRUE,
+  colors = RColorBrewer::brewer.pal(9, "Set1")
 )
 ```
 
 
 ---
 
-# Übungsaufgaben 
+# Natural Language Processing (NLP)
 
-Säubern Sie das Wahlprogramm von 
-- SPD
-- Bündnis 90/Die Grünen 
-- FDP 
-- Die LINKE
-- AfD
-
-... und erstellen Sie eine Wortwolke mit den häufigsten Worten.
-
+- Beyond Base R: Pakete [stringi](https://CRAN.R-project.org/package=stringi) und [stringr](https://CRAN.R-project.org/package=stringr)
+- Tokenisierung ist nicht ganz trivial: Paket [tokenizers](https://CRAN.R-project.org/package=tokenizers)
+- Stemming (Reduktion auf Wortstämme) - [SnowballC](https://CRAN.R-project.org/package=SnowballC)-Paket
+- NLP im eigentlichen Sinne: coreNLP, spacyR, bignlp ...
+- [CRAN Task View Natural Language Processing](https://cran.r-project.org/web/views/NaturalLanguageProcessing.html)
 
 ---
 
-```{r, eval = FALSE}
-install.packages("tm")
-```
+# Übungsaufgaben 
 
-```{r}
-library(tm)
-stopwords("german")
-```
+Laden Sie und säubern Sie das Wahlprogramm ...
 
-```{r}
-sentence <- c("Das", "ist", "ein", "Satz", "mit", "vielen", "Füllwörtern", ".")
-interpunctation <- c(".", ",", "?", "!", ":", ";")
-to_remove <- c(interpunctation, stopwords("german"))
+... der SPD (https://www.spd.de/zukunftsprogramm/)
 
-sentence_lowered <- tolower(sentence)
-sentence_filtered <- sentence[!sentence_lowered %in% to_remove]
-```
+... der Union / CDU/CSU
+
+... der FDP
+
+... der Partei Die LINKE
+
+... der AfD
+
+Und erstellen Sie eine Wortwolke mit den häufigsten Worten.
 
 
-```{r}
-sentence_filtered <- character()
-for (word in sentence_lowered){
-  if (word %in% to_remove){
-    print("word")
-    print("Das ist ein Stopword! Weg damit!")
-  } else {
-    print("Das behalte ich!")
-    sentence_filtered <- c(sentence_filtered, word)
-  }
-}
-```

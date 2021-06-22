@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Wissenschaftliches Programmieren mit R</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Andreas Blaette" />
+    <script src="h_text-mining_files/header-attrs-2.8/header-attrs.js"></script>
+    <link rel="stylesheet" href="css/default.css" type="text/css" />
+    <link rel="stylesheet" href="css/metropolis.css" type="text/css" />
+    <link rel="stylesheet" href="css/robot-fonts.css" type="text/css" />
+    <link rel="stylesheet" href="css/polminify.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Wissenschaftliches Programmieren mit R
+## Text Mining Basics
+### Andreas Blaette
+### 22. Juni 2021
+
+---
+
+
+
+  
+# Arbeit mit character-Vektoren: paste()
+
+
+```r
+given_name &lt;- c("Angela", "Olaf", "Annalena")
+name &lt;- c("Merkel", "Scholz", "Baerbock")
+paste(given_name[1], name[1])
+```
+
+```
+## [1] "Angela Merkel"
+```
+
+```r
+paste(given_name, name) # Vektorisierung - der effiziente Weg!
+```
+
+```
+## [1] "Angela Merkel"     "Olaf Scholz"       "Annalena Baerbock"
+```
+
+```r
+paste(name, given_name, sep = ", ")
+```
+
+```
+## [1] "Merkel, Angela"     "Scholz, Olaf"       "Baerbock, Annalena"
+```
+
+```r
+paste(name, collapse = " - ")
+```
+
+```
+## [1] "Merkel - Scholz - Baerbock"
+```
+
+- Siehe auch `paste0()` (effizienter, eingeschränkter)!
+
+---
+
+# Formattierung von Strings 
+
+- Aus der C-Welt kommt die String-Formattierung mit `sprintf()`. Mächtig und flexibel - auch in R!
+
+
+```r
+# Wert von character-Vektoren wird bei %s eingefügt
+sprintf("%s, %s", name, given_name) 
+```
+
+```
+## [1] "Merkel, Angela"     "Scholz, Olaf"       "Baerbock, Annalena"
+```
+
+```r
+sprintf("%d-%02d-%02d", 2021, 5,4) # Einfügen von numerischen Werten
+```
+
+```
+## [1] "2021-05-04"
+```
+
+- Performanz durch Vektorisierung: Nutze dies, woimmer möglich!
+
+- Beispiel: `ifelse()` (vektorisiert im Unterschied zu `if`/`else`)
+
+
+```r
+is_woman &lt;- c(TRUE, FALSE, TRUE)
+sprintf("Kandidat%s %s", ifelse(is_woman, "in", ""), name)
+```
+
+```
+## [1] "Kandidatin Merkel"   "Kandidat Scholz"     "Kandidatin Baerbock"
+```
+
+---
+
+# Splitten von Strings
+
+
+```r
+dates_din &lt;- c("2020-06-02", "2020-05-13", "2021-09-27")
+s &lt;- strsplit(dates_din, split = "-") # Liste als Rückgabewert!
+s
+```
+
+```
+## [[1]]
+## [1] "2020" "06"   "02"  
+## 
+## [[2]]
+## [1] "2020" "05"   "13"  
+## 
+## [[3]]
+## [1] "2021" "09"   "27"
+```
+
+__Szenario:__ Umwandlung eines DIN -Datums in deutsche Datumsangabe
+
+
+```r
+sprintf("%s.%s.%s", sapply(s, `[`, 3), sapply(s, `[`, 2), sapply(s, `[`, 1))
+```
+
+```
+## [1] "02.06.2020" "13.05.2020" "27.09.2021"
+```
+
+
+---
+
+
+# False friends I: Datumsangaben
+
+Die Versuchung ist oft groß, Datumsangaben als `character`-Vektoren zu verarbeiten. Das kann aber umständlich und ineffizient sein: Die Nutzung der Klasse `Date` ist oft besser! 
+
+
+```r
+d &lt;- as.Date(dates_din)
+is(d)
+```
+
+```
+## [1] "Date"     "oldClass"
+```
+
+```r
+d
+```
+
+```
+## [1] "2020-06-02" "2020-05-13" "2021-09-27"
+```
+
+```r
+format(d, "%d.%m.%Y") # Effizient und 
+```
+
+```
+## [1] "02.06.2020" "13.05.2020" "27.09.2021"
+```
+
+<svg aria-hidden="true" role="img" viewBox="0 0 352 512" style="height:1em;width:0.69em;vertical-align:-0.125em;margin-left:auto;margin-right:auto;font-size:inherit;fill:currentColor;overflow:visible;position:relative;"><path d="M176 80c-52.94 0-96 43.06-96 96 0 8.84 7.16 16 16 16s16-7.16 16-16c0-35.3 28.72-64 64-64 8.84 0 16-7.16 16-16s-7.16-16-16-16zM96.06 459.17c0 3.15.93 6.22 2.68 8.84l24.51 36.84c2.97 4.46 7.97 7.14 13.32 7.14h78.85c5.36 0 10.36-2.68 13.32-7.14l24.51-36.84c1.74-2.62 2.67-5.7 2.68-8.84l.05-43.18H96.02l.04 43.18zM176 0C73.72 0 0 82.97 0 176c0 44.37 16.45 84.85 43.56 115.78 16.64 18.99 42.74 58.8 52.42 92.16v.06h48v-.12c-.01-4.77-.72-9.51-2.15-14.07-5.59-17.81-22.82-64.77-62.17-109.67-20.54-23.43-31.52-53.15-31.61-84.14-.2-73.64 59.67-128 127.95-128 70.58 0 128 57.42 128 128 0 30.97-11.24 60.85-31.65 84.14-39.11 44.61-56.42 91.47-62.1 109.46a47.507 47.507 0 0 0-2.22 14.3v.1h48v-.05c9.68-33.37 35.78-73.18 52.42-92.16C335.55 260.85 352 220.37 352 176 352 78.8 273.2 0 176 0z"/></svg> Insbesondere bei der Arbeit mit Zeitreihen-Daten spielen Datumsobjekte ihre Stärken aus (vgl. Pakete zoo und xts)
+
+---
+
+# False friends II: Pfadangaben
+
+Die Versuchung liegt oft nahe, Pfadangaben als String-Maninpulation zu bearbeiten. Es gibt jedoch eine gesonderte Funktionalität. Hinweis: Die Konsistenz des [fs](https://CRAN.R-project.org/package=fs)-package hat große Vorteile ...
+
+
+```r
+tp &lt;- tempdir()
+tp
+```
+
+```
+## [1] "/var/folders/m_/431fjnbs1t32_62d35wvs7pr0000gp/T//RtmpfW9C4B"
+```
+
+```r
+f &lt;- file.path(tp, "newfile.txt")
+basename(f)
+```
+
+```
+## [1] "newfile.txt"
+```
+
+```r
+dirname(f)
+```
+
+```
+## [1] "/var/folders/m_/431fjnbs1t32_62d35wvs7pr0000gp/T//RtmpfW9C4B"
+```
+
+```r
+tools::file_ext(f)
+```
+
+```
+## [1] "txt"
+```
+
+---
+
+# base R-Vokabelheft
+
+Weitere nützliche Basis-Operationen mit Strings:
+
+
+```r
+tolower("BTW2021")
+```
+
+```
+## [1] "btw2021"
+```
+
+```r
+toupper("btw2021")
+```
+
+```
+## [1] "BTW2021"
+```
+
+```r
+substr("btw2021", 4, 7)
+```
+
+```
+## [1] "2021"
+```
+
+```r
+nchar("btw2021")
+```
+
+```
+## [1] 7
+```
+
+---
+
+# Das tückische Thema der Encodings
+
+
+```r
+localeToCharset() # meist bei Windows: "ISO-8859-1", bei macOS: "UTF-8"
+```
+
+```
+## [1] "UTF-8"
+```
+
+
+```r
+verbs &lt;- c("müssen", "dürfen", "wollen")
+Encoding(verbs)
+```
+
+```
+## [1] "UTF-8"   "UTF-8"   "unknown"
+```
+
+
+```r
+iconv(verbs, from = "UTF-8", to = "ISO-8859-1")
+```
+
+```
+## [1] "m\xfcssen" "d\xfcrfen" "wollen"
+```
+
+Schwierigkeiten mit Encodings erkennen Sie oft daran, dass Zeichen "zerschossen" angezeigt werden. Oft gibt es aber auch unsichtbare Probleme, die nur durch merkwürdiges Verhalten des Codes auffallen (Bsp. ein regulärer Ausdrück trifft nicht das, was er treffen sollte). Es hilft nur regelmäßiges Prüfen, ob das Encoding von `character`-Vektoren Ihren Annahmen entspricht ...
+
+---
+
+# Suche nach Muster: grep()
+
+Oft will man in `character`-Vektoren identifizieren, welche Elemente einem Muster entsprechen ...
+
+
+```r
+candidates_names &lt;- paste(name, given_name, sep = ", ")
+grep("Scholz", candidates_names) # default behavior: Rückgabe Position
+```
+
+```
+## [1] 2
+```
+
+```r
+grep("Scholz", candidates_names, value = TRUE)
+```
+
+```
+## [1] "Scholz, Olaf"
+```
+
+Szenario: Auffinden von Variablen zur Stimmabgabe im GLES-Datensatz
+
+
+```r
+library(gles)
+pos &lt;- grep("Stimmabgabe", sapply(bt2017vw, attr, "label"))
+colnames(bt2017vw)[pos]
+```
+
+```
+## [1] "q11aa" "q11ab" "q11ba" "q11bb" "q106a" "q106b"
+```
+
+Das wahre Potential von `grep()` liegt jedoch in der Möglichkeit der Nutzung regulärer Ausdrücke!
+
+---
+
+# Reguläre Ausdrücke: Zeichenklassen
+
+- Einführungen in reguläre Ausdrücke gibt es reichtlich (z.B. [Wikipedia](https://de.wikipedia.org/wiki/Regul%C3%A4rer_Ausdruck)). Hier nur das Allerwichtigste:
+
+| Ausdruck | Beschreibung |
+|:-------:| --------------|
+| .       |Ein Punkt (".") steht für ein beliebiges Zeichen |
+| \\d | "digit" (Ziffer), d.h. 0 bis 9 |
+| \\s | "whitespace" - Leerzeichen | 
+| \\w | Buchstaben (keine Ziffern oder Leerzeichen) | 
+|   $ | Ende eines Strings |
+| ^ | Anfang eines Strings | 
+
+- Vgl. auch control characters: \n (Zeilenumbruch/newline) und \t (Tabulator)
+- Merke: Sine echte Punkte gemeint, muss diesen in regulären Ausdrücken ein doppeltes "escape"-Zeichen (\\\\) vorangestellt werden!
+- Das doppelte Escape-Zeichen ist eine Besonderheit von R - in anderen Implementierungen regulärer Ausdrücke ist das überwiegend nicht erforderlich.
+
+---
+
+# Quantoren
+
+| Ausdruck | Beschreibung |
+|:-------:| --------------|
+|?|Der voranstehende Ausdruck kommt kein- oder einmal vor.|
+|+|Der voranstehende Ausdruck tritt einmal oder mehrfach auf. |
+|*|Der voranstehende Ausdruck tritt keinmal oder beliebig oft auf.|
+|{n}|Der voranstehende Ausdruck tritt exakt n-fach auf.|
+|{min,}| Der voranstehende Ausdruck tritt mindestens min-fach auf.|
+|{min,max}|Der voranstehende Ausdruck tritt mindestens min-fach und maximal max-fach auf.|
+|{0,max}| Der voranstehende Ausdruck darf maximal max-fach vorkommen.|
+
+---
+
+# Ersetzungen mit gsub()
+
+
+```r
+gsub(",\\s+.*$", "", candidates_names)
+```
+
+```
+## [1] "Merkel"   "Scholz"   "Baerbock"
+```
+
+```r
+gsub("-\\d{2}-\\d{2}$", "", "2021-09-27")
+```
+
+```
+## [1] "2021"
+```
+
+Mit Klammern (capturing parentheses) gruppieren und ordnen ...
+
+
+```r
+gsub("^(\\d{4})-(\\d{2})-(\\d{2})$", "\\3.\\2.\\1", "2021-09-27")
+```
+
+```
+## [1] "27.09.2021"
+```
+
+
+---
+
+# pdf-Dokumente: Text extrahieren
+
+- Download das Wahlprogramms von Bündnis 90/Die Grünen zur Bundestagswahl 2021
+
+
+```r
+gruene_btw2021 &lt;- "https://cms.gruene.de/uploads/documents/2021_Wahlprogrammentwurf.pdf"
+gruene_btw2021_local &lt;- tempfile()
+download.file(url = gruene_btw2021, destfile = gruene_btw2021_local)
+```
+
+- Extraktion des Textes
+
+
+```r
+library(pdftools)
+info &lt;- pdftools::pdf_info(gruene_btw2021_local)
+txt &lt;- pdftools::pdf_text(gruene_btw2021_local)
+```
+
+---
+
+# Säuberung des Textes
+
+
+```r
+txt &lt;- gsub("-\\n", "", txt) # Silbentrennungen entfernen
+txt &lt;- gsub("\\n", " ", txt) # Zeilenumbrüche entfernen
+txt &lt;- gsub("\\s+", " ", txt) # große Lücken entfernen
+```
+
+---
+
+# Tokenisierung des Textes
+
+
+```r
+word_list &lt;- strsplit(x = txt, split = "\\s") # Einfachste "whitespace"-Tokenisierung
+words &lt;- unlist(word_list)
+length(words)
+```
+
+```
+## [1] 48371
+```
+
+
+
+```r
+words_cleaned &lt;- gsub("[,:\\.!?]", "", words) # Interpunktion entfernen
+words_cleaned &lt;- tolower(words_cleaned) # Kleinschreibung 
+words_cleaned &lt;- words_cleaned[!words_cleaned %in% tm::stopwords("de")] # Stopworte
+length(words_cleaned)
+```
+
+```
+## [1] 27295
+```
+
+---
+
+# Zählen
+
+
+```r
+words_count &lt;- table(words_cleaned)
+words_count_sorted &lt;- words_count[order(words_count, decreasing = TRUE)]
+head(words_count_sorted, 25)
+```
+
+```
+## words_cleaned
+##            dass               –            mehr        menschen           dafür 
+##             198             184             175             163             161 
+##          grünen         bündnis             90/                          müssen 
+##             139             137             133             129             128 
+##          sollen            2021  bundestagswahl programmentwurf         stärken 
+##             126             124             124             123             117 
+##           sowie     deutschland        schaffen         braucht          setzen 
+##             105             102             100              85              83 
+##          unsere            neue         deshalb           leben    unterstützen 
+##              73              72              69              68              68
+```
+
+---
+
+# Eine erste Wortwolke: Code
+
+
+```r
+library(wordcloud)
+
+wc &lt;- wordcloud(
+  words = names(words_count_sorted)[1:50],
+  freq = unname(words_count_sorted)[1:50],
+  random.color = TRUE,
+  colors = RColorBrewer::brewer.pal(9, "Set1")
+)
+```
+
+<svg aria-hidden="true" role="img" viewBox="0 0 352 512" style="height:1em;width:0.69em;vertical-align:-0.125em;margin-left:auto;margin-right:auto;font-size:inherit;fill:currentColor;overflow:visible;position:relative;"><path d="M176 80c-52.94 0-96 43.06-96 96 0 8.84 7.16 16 16 16s16-7.16 16-16c0-35.3 28.72-64 64-64 8.84 0 16-7.16 16-16s-7.16-16-16-16zM96.06 459.17c0 3.15.93 6.22 2.68 8.84l24.51 36.84c2.97 4.46 7.97 7.14 13.32 7.14h78.85c5.36 0 10.36-2.68 13.32-7.14l24.51-36.84c1.74-2.62 2.67-5.7 2.68-8.84l.05-43.18H96.02l.04 43.18zM176 0C73.72 0 0 82.97 0 176c0 44.37 16.45 84.85 43.56 115.78 16.64 18.99 42.74 58.8 52.42 92.16v.06h48v-.12c-.01-4.77-.72-9.51-2.15-14.07-5.59-17.81-22.82-64.77-62.17-109.67-20.54-23.43-31.52-53.15-31.61-84.14-.2-73.64 59.67-128 127.95-128 70.58 0 128 57.42 128 128 0 30.97-11.24 60.85-31.65 84.14-39.11 44.61-56.42 91.47-62.1 109.46a47.507 47.507 0 0 0-2.22 14.3v.1h48v-.05c9.68-33.37 35.78-73.18 52.42-92.16C335.55 260.85 352 220.37 352 176 352 78.8 273.2 0 176 0z"/></svg> Wortwolken mögen nett anzusehen sein, sind aber im wissenschaftlichen Kontext bestenfalls gut, um Semantik impressionistisch zu vermitteln
+
+
+---
+
+# Eine erste Wortwolke: 
+
+![](h_text-mining_files/figure-html/unnamed-chunk-24-1.png)&lt;!-- --&gt;
+
+
+---
+
+# Natural Language Processing (NLP)
+
+- Beyond Base R: Pakete [stringi](https://CRAN.R-project.org/package=stringi) und [stringr](https://CRAN.R-project.org/package=stringr)
+- Tokenisierung ist nicht ganz trivial: Paket [tokenizers](https://CRAN.R-project.org/package=tokenizers)
+- Stemming (Reduktion auf Wortstämme) - [SnowballC](https://CRAN.R-project.org/package=SnowballC)-Paket
+- NLP im eigentlichen Sinne: coreNLP, spacyR, bignlp ...
+- [CRAN Task View Natural Language Processing](https://cran.r-project.org/web/views/NaturalLanguageProcessing.html)
+
+---
+
+# Übungsaufgaben 
+
+Laden Sie und säubern Sie das Wahlprogramm ...
+
+... der SPD (https://www.spd.de/zukunftsprogramm/)
+
+... der Union / CDU/CSU
+
+... der FDP
+
+... der Partei Die LINKE
+
+... der AfD
+
+Und erstellen Sie eine Wortwolke mit den häufigsten Worten.
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
