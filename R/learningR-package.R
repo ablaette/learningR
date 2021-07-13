@@ -22,6 +22,13 @@ NULL
 #' @keywords datasets
 "btw2017"
 
+#' SentiWS.
+#'
+#' @docType data
+#' @keywords datasets
+"senti_ws"
+
+
 
 #' Corona auf Ebene der Landkreise.
 #'

@@ -5,7 +5,7 @@
 \alias{btw2017}
 \title{Wahlkreisergebnisse 2017.}
 \format{
-An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 316 rows and 191 columns.
+An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 316 rows and 47 columns.
 }
 \usage{
 btw2017
