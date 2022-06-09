@@ -1,3 +1,7 @@
+# learningR v0.0.7
+
+- updated `coronastats` dataset included in the package.
+
 # learningR v0.0.4
 
 - Packages xaringan and rstudioapi habe been moved from 'Depends:' to 'Imports:'
