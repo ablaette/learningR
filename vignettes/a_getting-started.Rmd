@@ -2,7 +2,7 @@
 title: "Wissenschaftliches Programmieren mit R"
 subtitle: "Der Anfang ist noch nicht so schwer"
 author: "Andreas Blaette"
-date: "13. April 2021"
+date: "06. April 2023"
 output: 
   xaringan::moon_reader:
     css: ["./css/default.css", "./css/metropolis.css", "./css/robot-fonts.css", './css/polminify.css']
@@ -64,7 +64,7 @@ Als Voraussetzung müssen Sie keinerlei Programmierkenntnisse mitbringen - nur O
 
 - Gerade bei Analyse großer Textdaten: Code schreiben unumgänglich
 
-- Coden als Befreiungserlebnis
+- Code schreiben emanzipiert
 
 --
 
