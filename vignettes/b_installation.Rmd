@@ -2,7 +2,7 @@
 title: "Erste Schritte"
 subtitle: "Installation von Paketen"
 author: "Andreas Blaette"
-date: "20. April 2023"
+date: "13. April 2023"
 output: 
   xaringan::moon_reader:
     css: ["./css/default.css", "./css/metropolis.css", "./css/robot-fonts.css", './css/polminify.css']
