@@ -4,6 +4,7 @@
     <title>Erste Schritte</title>
     <meta charset="utf-8" />
     <meta name="author" content="Andreas Blaette" />
+    <script src="b_installation_files/header-attrs-2.18/header-attrs.js"></script>
     <link rel="stylesheet" href="css/default.css" type="text/css" />
     <link rel="stylesheet" href="css/metropolis.css" type="text/css" />
     <link rel="stylesheet" href="css/robot-fonts.css" type="text/css" />
@@ -13,10 +14,18 @@
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
+.title[
 # Erste Schritte
+]
+.subtitle[
 ## Installation von Paketen
+]
+.author[
 ### Andreas Blaette
-### 20. April 2021
+]
+.date[
+### 13. April 2023
+]
 
 ---
 
@@ -69,7 +78,7 @@ install.packages("beepr")
 
 - Was sind eigentlich "dependencies"?
 
-- Unterschied von "source packages" und "binary packages"
+- Unterschied von "source packages" und "binary packages" (vgl. [Wickham's Erklärung](https://r-pkgs.org/package-structure-state.html))
 
 - Installation von Paketen von CRAN-artigen Repositorien
 
@@ -86,6 +95,16 @@ install.packages("gles")
 ```r
 devtools::install_github("PolMine/polmineR")
 ```
+
+---
+
+# Quell- und Binärpakete
+
+- Der Quellcode von R-Paketen ist grundsätzlich offen, in vielen Fällen findet sich dieser in GitHub-Repositorien
+
+- R-Pakete können Quellcode enthalten, der erst durch Kompilierung in maschinenlesbaren Code überführt werden muss (insbesondere C, C++, FORTRAN). Weil auf macOS und Windows-Rechnern die dafür erforderlichen Kompiler nicht unbedingt verfügbar sind, werden für diese System von CRAN sogenannte "Binärpakete" zur Verfügung gestellt. Diese enden auf ".tgz" (macOS) bzw. ".zip" (Windows)
+
+- Die Erstellung von Binärpaketen nimmt nach der Veröffentlichung eines Pakets oft einige Tage in Anspruch. Dadurch können die Quellpakete zuweilen aktueller seien als Binärpakete. R/RStudio fragen dann nach, ob man die neuere Version eines Pakets nutzen möchte. Dann wird lokal kompiliert - insofern das möglich ist. Oder man installiert das ältere Binärpaket. Oft ist letzteres eine gute Entscheidung.
 
 ---
 
@@ -134,20 +153,16 @@ citation(package = "polmineR")
 
 ```
 ## 
-## To cite package 'polmineR' in publications use:
-## 
-##   Blaette, Andreas (2020). polmineR: Verbs and Nouns for Corpus
-##   Analysis. R package version v0.8.2.
-##   http://doi.org/10.5281/zenodo.4042093
+##   Blaette, Andreas (2023). polmineR: Verbs and Nouns for Corpus
+##   Analysis. R package version v0.8.8.
 ## 
 ## A BibTeX entry for LaTeX users is
 ## 
 ##   @Manual{,
 ##     title = {polmineR: Verbs and Nouns for Corpus Analysis},
 ##     author = {Andreas Blaette},
-##     year = {2020},
-##     note = {R package version 0.8.2},
-##     doi = {10.5281/zenodo.4042093},
+##     year = {2023},
+##     note = {R package version 0.8.8},
 ##   }
 ```
 
@@ -194,6 +209,7 @@ print("Hallo Welt!")
 ```r
 Rscript foo.R
 ```
+
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
@@ -239,6 +255,19 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
     deleted = true;
   });
 })();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
 (function() {
   "use strict"
   // Replace <script> tags in slides area to make them executable
