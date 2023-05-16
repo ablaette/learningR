@@ -2,7 +2,7 @@
 title: "Wissenschaftliches Programmieren mit R"
 subtitle: "Elementare Statistik"
 author: "Andreas Blaette"
-date: "1. Juni 2021"
+date: "1. Juni 2023"
 output: 
   xaringan::moon_reader:
     css: ["./css/default.css", "./css/metropolis.css", "./css/robot-fonts.css", './css/polminify.css']
