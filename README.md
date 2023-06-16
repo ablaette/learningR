@@ -31,12 +31,12 @@ remotes::install_github("ablaette/learningR", build_vignettes = TRUE, dependenci
 Setting arguments `build_vignettes` and `dependencies` as `TRUE` is
 important:
 
--   The slides included in the package are technically realized as
-    vignettes. We need to ensure that they are built
-    (`build_vignettes = TRUE`).
--   R packages used by the vignettes are suggested packages,
-    `dependencies = TRUE` will ensure that these dependencies are
-    installed if not yet present.
+- The slides included in the package are technically realized as
+  vignettes. We need to ensure that they are built
+  (`build_vignettes = TRUE`).
+- R packages used by the vignettes are suggested packages,
+  `dependencies = TRUE` will ensure that these dependencies are
+  installed if not yet present.
 
 This installation mechanism works on macOS, Linux and Windows.
 
@@ -99,16 +99,16 @@ xaringan::inf_mr()
 The package is work in progress, only a part of the slides is ready for
 use. The following slides are available online:
 
--   [Erste
-    Schritte](https://ablaette.github.io/learningR/a_getting-started.html#1)
--   [Installation von
-    Paketen](https://ablaette.github.io/learningR/b_installation.html#1)
--   [Datenstrukturen:
-    Vektoren](https://ablaette.github.io/learningR/c_vektoren.html#1)
--   [Matrizen - Listen -
-    Tabellen](https://ablaette.github.io/learningR/d_data.frames.html#1)
--   [Funktionen und
-    Kontrollstrukturen](https://ablaette.github.io/learningR/e_kontrollstrukturen.html#1)
+- [Erste
+  Schritte](https://ablaette.github.io/learningR/a_getting-started.html#1)
+- [Installation von
+  Paketen](https://ablaette.github.io/learningR/b_installation.html#1)
+- [Datenstrukturen:
+  Vektoren](https://ablaette.github.io/learningR/c_vektoren.html#1)
+- [Matrizen - Listen -
+  Tabellen](https://ablaette.github.io/learningR/d_data.frames.html#1)
+- [Funktionen und
+  Kontrollstrukturen](https://ablaette.github.io/learningR/e_kontrollstrukturen.html#1)
 
 ## License
 
@@ -133,7 +133,7 @@ citation(package = "learningR")
     ## 
     ##   Blaette, Andreas (2020). learningR. R package version v0.0.2.
     ## 
-    ## Ein BibTeX-Eintrag für LaTeX-Benutzer ist
+    ## A BibTeX entry for LaTeX users is
     ## 
     ##   @Manual{,
     ##     title = {learningR},
