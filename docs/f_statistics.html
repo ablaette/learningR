@@ -4,6 +4,7 @@
     <title>Wissenschaftliches Programmieren mit R</title>
     <meta charset="utf-8" />
     <meta name="author" content="Andreas Blaette" />
+    <script src="f_statistics_files/header-attrs-2.18/header-attrs.js"></script>
     <link rel="stylesheet" href="css/default.css" type="text/css" />
     <link rel="stylesheet" href="css/metropolis.css" type="text/css" />
     <link rel="stylesheet" href="css/robot-fonts.css" type="text/css" />
@@ -13,10 +14,18 @@
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
+.title[
 # Wissenschaftliches Programmieren mit R
+]
+.subtitle[
 ## Elementare Statistik
+]
+.author[
 ### Andreas Blaette
-### 1. Juni 2021
+]
+.date[
+### 1. Juni 2023
+]
 
 ---
 
@@ -228,7 +237,7 @@ corona_by_county %&gt;%
 ```
 
 ```
-## # A tibble: 6 x 3
+## # A tibble: 6 × 3
 ##   region  mean     sd
 ##   &lt;chr&gt;  &lt;dbl&gt;  &lt;dbl&gt;
 ## 1 BB      25.6  2.71 
@@ -422,7 +431,9 @@ Vor der Berechnung einer Regression sollten die Variablen normalisiert werden.
 
 
 ```r
-normalize &lt;- function(x) (max(x, na.rm = TRUE) - x) / (max(x, na.rm = TRUE) - min(x, na.rm = TRUE))
+normalize &lt;- function(x){
+  ((x - max(x, na.rm = TRUE)) / (max(x, na.rm = TRUE) - min(x, na.rm = TRUE))) + 1
+}
 by_county_data_norm &lt;- mutate(
   .data = by_county_data,
   cases7_per_100k = normalize(cases7_per_100k),
@@ -487,7 +498,7 @@ stargazer::stargazer(
 &lt;tr&gt;&lt;td style="text-align:left"&gt;afd&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;0.377&lt;sup&gt;***&lt;/sup&gt; (0.039)&lt;/td&gt;&lt;td&gt;0.374&lt;sup&gt;***&lt;/sup&gt; (0.043)&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td style="text-align:left"&gt;agequot&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;0.007 (0.052)&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td style="text-align:left"&gt;per_km2&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;-0.123&lt;sup&gt;*&lt;/sup&gt; (0.063)&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td style="text-align:left"&gt;Constant&lt;/td&gt;&lt;td&gt;0.617&lt;sup&gt;***&lt;/sup&gt; (0.033)&lt;/td&gt;&lt;td&gt;0.650&lt;sup&gt;***&lt;/sup&gt; (0.043)&lt;/td&gt;&lt;td&gt;0.186&lt;sup&gt;***&lt;/sup&gt; (0.061)&lt;/td&gt;&lt;td&gt;0.253&lt;sup&gt;***&lt;/sup&gt; (0.083)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;Constant&lt;/td&gt;&lt;td&gt;0.204&lt;sup&gt;***&lt;/sup&gt; (0.013)&lt;/td&gt;&lt;td&gt;0.221&lt;sup&gt;***&lt;/sup&gt; (0.018)&lt;/td&gt;&lt;td&gt;0.042&lt;sup&gt;*&lt;/sup&gt; (0.025)&lt;/td&gt;&lt;td&gt;0.042 (0.035)&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td colspan="5" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style="text-align:left"&gt;Adjusted R&lt;sup&gt;2&lt;/sup&gt;&lt;/td&gt;&lt;td&gt;0.040&lt;/td&gt;&lt;td&gt;0.043&lt;/td&gt;&lt;td&gt;0.224&lt;/td&gt;&lt;td&gt;0.227&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td colspan="5" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;em&gt;Note:&lt;/em&gt;&lt;/td&gt;&lt;td colspan="4" style="text-align:right"&gt;&lt;sup&gt;*&lt;/sup&gt;p&lt;0.1; &lt;sup&gt;**&lt;/sup&gt;p&lt;0.05; &lt;sup&gt;***&lt;/sup&gt;p&lt;0.01&lt;/td&gt;&lt;/tr&gt;
 &lt;/table&gt;
@@ -521,7 +532,20 @@ Für die Vorbereitung des Datensatzes nutzen wir Funktionen des dplyr-Pakets.
 ```r
 library(dplyr)
 library(gles)
+```
 
+```
+## 
+## Attaching package: 'gles'
+```
+
+```
+## The following object is masked from 'package:learningR':
+## 
+##     btw2017
+```
+
+```r
 bt_min &lt;- filter(bt2017nw, !is.na(q19ba)) %&gt;% 
   mutate(AfD = as.character(haven::as_factor(q19ba)) == "AfD") %&gt;%
   mutate(income = as.integer(haven::as_factor(q192))) %&gt;%
@@ -557,12 +581,14 @@ m2 &lt;- glm(AfD ~ income + dissatisfaction + citysize, data = bt_min, family = 
 
 # Literatur
 
-Field, A, J. Miles, and Z. Field (2012). _Discovering Statistics Using
+Field, A., J. Miles, and Z. Field (2012). _Discovering Statistics Using
 R_. Los Angeles et al.: SAGE.
 
 Sauer, S. (2019). _Moderne Datenanalyse mit R: Daten einlesen,
 aufbereiten, visualisieren, modellieren und kommunizieren_. Wiesbaden:
 Springer.
+
+
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
@@ -608,6 +634,19 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
     deleted = true;
   });
 })();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
 (function() {
   "use strict"
   // Replace <script> tags in slides area to make them executable

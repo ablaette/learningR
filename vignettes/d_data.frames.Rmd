@@ -2,7 +2,7 @@
 title: "Wissenschaftliches Programmieren mit R"
 subtitle: "Matrizen - Listen - Tabellen"
 author: "Andreas Blaette"
-date: "4. Mai 2023"
+date: "11. Mai 2023"
 output: 
   xaringan::moon_reader:
     css: ["./css/default.css", "./css/metropolis.css", "./css/robot-fonts.css", './css/polminify.css']

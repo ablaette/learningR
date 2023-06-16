@@ -158,7 +158,7 @@ sapply(
 
 # JSON
 
-```{r}
+```{r, eval = FALSE}
 json_url <- "https://opendata-duisburg.de/api/action/datastore/search.json?resource_id=00766064-4cab-4f40-8f67-82ec6b14d6ca"
 json_data <- jsonlite::fromJSON(json_url)
 tab <- json_data$result$records
@@ -166,6 +166,6 @@ for (i in 2:ncol(tab)) tab[[i]] <- as.integer(tab[[i]])
 head(tab, n = 3)
 ```
 
-```{r}
+```{r, eval=FALSE}
 tail(tab, n  = 3)
 ```
